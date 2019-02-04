@@ -4,6 +4,9 @@ cmake_minimum_required(VERSION 3.8)
 project(demu CXX)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+# Enable testing
+enable_testing()
+
 # Set install prefix
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 	set(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}/install" CACHE TYPE PATH FORCE)

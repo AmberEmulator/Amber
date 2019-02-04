@@ -11,5 +11,8 @@ target_include_directories(common PUBLIC
 
 # Add sources
 # Memory
-demu_add_sources(common "memory.h" "memory.cpp" FILTER "Memory/Memory")
-demu_add_sources(common "mmu.h" "mmu.cpp" FILTER "Memory/MMU")
+demu_add_sources(common "addressmask.h" FILTER "Memory/Address Mask")
+demu_add_sources(common "memory.h" FILTER "Memory/Memory")
+demu_add_sources(common "mmu.h" FILTER "Memory/MMU")
+demu_add_sources(common "ram.h" FILTER "Memory/RAM")
+demu_add_sources(common "rom.h" FILTER "Memory/ROM")
