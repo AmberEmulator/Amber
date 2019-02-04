@@ -1,0 +1,20 @@
+# Add library
+demu_add_library(client)
+demu_target_filter(client Client)
+
+# Add dependencies
+find_package(OpenGL)
+
+target_link_libraries(client PUBLIC common OpenGL::GL CONAN_PKG::sdl2 CONAN_PKG::imgui)
+target_include_directories(client PUBLIC
+	"$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/..>"
+	"$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/..>"
+	"$<INSTALL_INTERFACE:include>"
+)
+
+# Add sources
+# API
+demu_add_sources(client "api.h" FILTER "API")
+
+# Client
+demu_add_sources(client "client.h" "client.cpp" FILTER "Client")
