@@ -11,6 +11,7 @@ namespace Demu::Common
 	template <typename T>
 	class Memory
 	{
+		public:
 		using Address = T;
 		static_assert(std::is_unsigned_v<Address> && !std::is_same_v<Address, bool>, "Address must be an unsigned integer");
 
@@ -33,19 +34,20 @@ namespace Demu::Common
 	Memory<T>::~Memory() noexcept = default;
 
 	template <typename T, bool BE>
-	class MemoryHelper : public Memory
+	class MemoryHelper : public Memory<T>
 	{
-		constexpr bool IsBigEndian = BE;
+		public:
+		constexpr static bool IsBigEndian = BE;
 
 		virtual uint16_t Load16(Address a_Address) const override
 		{
 			if constexpr (IsBigEndian)
 			{
-				return (Load8(a_Address) << 8) | Load8(a_Address + 1);
+				return (static_cast<uint16_t>(Load8(a_Address)) << 8) | Load8(a_Address + 1);
 			}
 			else
 			{
-				return (Load8(a_Address + 1) << 8) | Load8(a_Address);
+				return (static_cast<uint16_t>(Load8(a_Address + 1)) << 8) | Load8(a_Address);
 			}
 		}
 
@@ -53,11 +55,11 @@ namespace Demu::Common
 		{
 			if constexpr (IsBigEndian)
 			{
-				return (Load16(a_Address) << 16) | Load16(a_Address + 2);
+				return (static_cast<uint32_t>(Load16(a_Address)) << 16) | Load16(a_Address + 2);
 			}
 			else
 			{
-				return (Load16(a_Address + 2) << 16) | Load16(a_Address);
+				return (static_cast<uint32_t>(Load16(a_Address + 2)) << 16) | Load16(a_Address);
 			}
 		}
 
@@ -65,11 +67,11 @@ namespace Demu::Common
 		{
 			if constexpr (IsBigEndian)
 			{
-				return (Load32(a_Address) << 32) | Load32(a_Address + 4);
+				return (static_cast<uint64_t>(Load32(a_Address)) << 32) | Load32(a_Address + 4);
 			}
 			else
 			{
-				return (Load32(a_Address + 4) << 32) | Load32(a_Address);
+				return (static_cast<uint64_t>(Load32(a_Address + 4)) << 32) | Load32(a_Address);
 			}
 		}
 
