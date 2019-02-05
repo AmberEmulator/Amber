@@ -15,7 +15,7 @@ namespace Demu::Common
 		using Address = T;
 		static_assert(std::is_unsigned_v<Address> && !std::is_same_v<Address, bool>, "Address must be an unsigned integer");
 
-		AddressMask(size_t a_BitCount):
+		explicit AddressMask(size_t a_BitCount):
 			m_BitCount(a_BitCount),
 			m_ByteCount((m_BitCount / 8) + (m_BitCount % 8 > 0 ? 1 : 0)),
 			m_MaskBuffer(std::make_unique<uint8_t[]>(m_ByteCount * 2))

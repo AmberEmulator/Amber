@@ -9,7 +9,7 @@ namespace Demu::Common
 	class RAM : public ROM<T, BE>
 	{
 		public:
-		RAM(size_t a_Size):
+		explicit RAM(size_t a_Size):
 			ROM(a_Size)
 		{
 		}

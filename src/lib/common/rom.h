@@ -11,7 +11,7 @@ namespace Demu::Common
 	class ROM : public MemoryHelper<T, BE>
 	{
 		public:
-		ROM(size_t a_Size):
+		explicit ROM(size_t a_Size):
 			m_Size(a_Size),
 			m_Data(std::make_unique<uint8_t[]>(m_Size))
 		{
