@@ -3,7 +3,7 @@ demu_add_library(client)
 demu_target_filter(client Client)
 
 # Add dependencies
-target_link_libraries(client PUBLIC common CONAN_PKG::imgui)
+target_link_libraries(client PUBLIC common imgui)
 target_include_directories(client PUBLIC
 	"$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/..>"
 	"$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/..>"
