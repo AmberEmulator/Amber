@@ -1,6 +1,7 @@
 #include <client/application.hpp>
 
 #include <imgui/imgui.h>
+#include <imgui/imgui_memory_editor.h>
 
 using namespace Demu;
 using namespace Client;
@@ -69,6 +70,11 @@ void Application::Tick()
 			show_another_window = false;
 		ImGui::End();
 	}*/
+
+	uint8_t data[256];
+
+	static MemoryEditor mem_edit;
+	mem_edit.DrawWindow("Memory Editor", data, sizeof(data));
 
 	ImGui::End();
 	ImGui::PopStyleVar();

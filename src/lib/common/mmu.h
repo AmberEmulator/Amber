@@ -9,7 +9,7 @@
 namespace Demu::Common
 {
 	template <typename T>
-	class MMU : public MemoryHelper
+	class MMU : public MemoryHelper<T>
 	{
 		using Address = T;
 		static_assert(std::is_unsigned_v<Address> && !std::is_same_v<Address, bool>, "Address must be an unsigned integer");
