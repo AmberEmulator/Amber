@@ -12,7 +12,7 @@ target_include_directories(client PUBLIC
 
 # Add sources
 # API
-demu_add_sources(client "api.h" FILTER "API")
+demu_add_sources(client "api.hpp" FILTER "API")
 
-# Client
-demu_add_sources(client "client.h" "client.cpp" FILTER "Client")
+# Application
+demu_add_sources(client "application.hpp" "application.cpp" FILTER "Client")

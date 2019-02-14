@@ -16,3 +16,7 @@ demu_add_sources(common "memory.h" FILTER "Memory/Memory")
 demu_add_sources(common "mmu.h" FILTER "Memory/MMU")
 demu_add_sources(common "ram.h" FILTER "Memory/RAM")
 demu_add_sources(common "rom.h" FILTER "Memory/ROM")
+
+
+
+demu_add_sources(common "foo.cpp")
