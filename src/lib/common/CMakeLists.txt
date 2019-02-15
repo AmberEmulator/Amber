@@ -10,6 +10,9 @@ target_include_directories(common PUBLIC
 )
 
 # Add sources
+# API
+demu_add_sources(common "api.hpp" FILTER "API")
+
 # Memory
 demu_add_sources(common "addressmask.h" FILTER "Memory/Address Mask")
 demu_add_sources(common "memory.h" FILTER "Memory/Memory")

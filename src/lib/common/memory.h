@@ -3,9 +3,6 @@
 
 #include <common/addressmask.h>
 
-#include <cstdint>
-#include <type_traits>
-
 namespace Demu::Common
 {
 	template <typename T>
@@ -32,6 +29,11 @@ namespace Demu::Common
 
 	template <typename T>
 	Memory<T>::~Memory() noexcept = default;
+
+	using Memory8 = Memory<uint8_t>;
+	using Memory16 = Memory<uint16_t>;
+	using Memory32 = Memory<uint32_t>;
+	using Memory64 = Memory<uint64_t>;
 
 	template <typename T, bool BE>
 	class MemoryHelper : public Memory<T>

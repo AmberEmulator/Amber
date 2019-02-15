@@ -13,3 +13,7 @@ target_include_directories(gameboy PUBLIC
 # Add sources
 # API
 demu_add_sources(gameboy "api.hpp" FILTER "API")
+
+# Instuctions
+demu_add_sources(gameboy "instruction.hpp" FILTER "Instructions")
+demu_add_sources(gameboy "extendedinstruction.hpp" FILTER "Instructions")
