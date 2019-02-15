@@ -14,6 +14,10 @@ target_include_directories(gameboy PUBLIC
 # API
 demu_add_sources(gameboy "api.hpp" FILTER "API")
 
-# Instuctions
-demu_add_sources(gameboy "instruction.hpp" FILTER "Instructions")
-demu_add_sources(gameboy "extendedinstruction.hpp" FILTER "Instructions")
+# Gameboy
+demu_add_sources(gameboy "gameboytype.hpp" FILTER "Gameboy")
+
+# CPU
+demu_add_sources(gameboy "cpu.hpp" "cpu.cpp" FILTER "CPU/CPU")
+demu_add_sources(gameboy "registers.hpp" FILTER "CPU/Registers")
+demu_add_sources(gameboy "instruction.hpp" "extendedinstruction.hpp" FILTER "CPU/Instructions")
