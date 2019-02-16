@@ -16,3 +16,6 @@ demu_add_sources(client "api.hpp" FILTER "API")
 
 # Application
 demu_add_sources(client "application.hpp" "application.cpp" FILTER "Client")
+
+# Gameboy
+demu_add_sources(client "gameboywidgets.hpp" "gameboywidgets.cpp" FILTER "Gameboy/Widgets")
