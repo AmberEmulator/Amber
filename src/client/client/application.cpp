@@ -47,7 +47,7 @@ void Application::Tick()
 		static int counter = 0;
 
 		ImGui::SetNextWindowDockID(dock_id, ImGuiSetCond_FirstUseEver);
-		ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+		//ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
 
 		//ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
 		//ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
@@ -62,7 +62,7 @@ void Application::Tick()
 		//ImGui::Text("counter = %d", counter);
 		//
 		//ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-		ImGui::End();
+		//ImGui::End();
 	}
 
 	// 3. Show another simple window.
@@ -81,8 +81,8 @@ void Application::Tick()
 
 	uint8_t data[256];
 
-	static MemoryEditor mem_edit;
-	mem_edit.DrawWindow("Memory Editor", data, sizeof(data));
+	//static MemoryEditor mem_edit;
+	//mem_edit.DrawWindow("Memory Editor", data, sizeof(data));
 
 	ImGui::End();
 	ImGui::PopStyleVar();

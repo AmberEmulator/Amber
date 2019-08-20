@@ -329,7 +329,7 @@ namespace Demu::Gameboy
 		};
 
 		// TODO: optional
-		constexpr uint16_t GetCycleCount(Instruction::Enum a_Instruction)
+		constexpr std::optional<uint16_t> GetCycleCount(Instruction::Enum a_Instruction)
 		{
 			switch (a_Instruction)
 			{
@@ -590,7 +590,7 @@ namespace Demu::Gameboy
 				return 32;
 
 				default:
-				return 0;
+				return {};
 			}
 		}
 

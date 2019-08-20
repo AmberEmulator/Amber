@@ -20,83 +20,46 @@ void Demu::Client::DrawRegisterWindow(const char* a_Name, Registers& a_Registers
 
 void Demu::Client::DrawRegisterWindowContent(Gameboy::Registers& a_Registers)
 {
-	const ImGuiInputTextFlags flags = ImGuiInputTextFlags_NoHorizontalScroll | ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CharsHexadecimal;
-
 	ImGui::BeginGroup();
 
 	const ImGuiStyle& style = ImGui::GetStyle();
-	const float w_full = ImGui::GetContentRegionAvailWidth();
-	const float w_spacing = style.ItemInnerSpacing.x;
-	const float w_item_one = std::max(1.0f, std::floor((w_full - w_spacing * 7) / 8.0f));
-	const float w_item_last = std::max(1.0f, std::floor(w_full - (w_item_one + w_spacing) * 7.0f));
-	float offset;
 
-	// Labels
-	offset = 0.0f;
-	for (uint8_t register8_index = 0; register8_index < 8; ++register8_index)
-	{
-		if (register8_index > 0)
-		{
-			offset += w_item_one + w_spacing;
-			ImGui::SameLine(offset);
-		}
-
-		const float width = register8_index == 7 ? w_item_last : w_item_one;
-
-		ImGui::PushID(register8_index);
-		ImGui::PushItemWidth(width);
-
-		const char* names[] = { "A", "F", "B", "C", "D", "E", "H", "L" };
-
-		uint32_t value = 0;
-		ImGui::LabelText("##RegisterLabel", names[register8_index]);
-
-		ImGui::PopItemWidth();
-		ImGui::PopID();
-	}
-
-	// 8 bit registers
-	offset = 0.0f;
-	for (uint8_t register8_index = 0; register8_index < 8; ++register8_index)
-	{
-		if (register8_index > 0)
-		{
-			offset += w_item_one + w_spacing;
-			ImGui::SameLine(offset);
-		}
-
-		const float width = register8_index == 7 ? w_item_last : w_item_one;
-
-		ImGui::PushID(register8_index);
-		ImGui::PushItemWidth(width);
-
-		uint32_t value = 0;
-		ImGui::InputScalar("##Register8", ImGuiDataType_U32, &value, nullptr, nullptr, "%02X", flags);
-
-		ImGui::PopItemWidth();
-		ImGui::PopID();
-	}
-
-	// 16 bit registers
-	offset = 0.0f;
+	const char* names[] = { "AF", "BC", "DE", "HL" };
 	for (uint8_t register16_index = 0; register16_index < 4; ++register16_index)
 	{
-		if (register16_index > 0)
+		ImGui::PushID(register16_index);
+
+		const float input_width = ImGui::CalcTextSize("0000").x + style.FramePadding.x * 2.0f;
+		const ImGuiInputTextFlags flags = ImGuiInputTextFlags_NoHorizontalScroll | ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CharsHexadecimal;
+
+		ImGui::PushItemWidth(input_width);
+
+		uint32_t value = a_Registers.GetRegister16(register16_index);
+		if (ImGui::InputScalar(names[register16_index], ImGuiDataType_U32, &value, nullptr, nullptr, "%04X", flags))
 		{
-			offset += (w_item_one + w_spacing) * 2.0f;
-			ImGui::SameLine(offset);
+			a_Registers.SetRegister16(static_cast<uint16_t>(register16_index), value);
 		}
 
-		const float width = (w_item_one + w_spacing) + (register16_index == 3 ?  w_item_last : w_item_one);
-
-		ImGui::PushID(register16_index);
-		ImGui::PushItemWidth(width);
-
-		uint32_t value = 0;
-		ImGui::InputScalar("##Register16", ImGuiDataType_U32, &value, nullptr, nullptr, "%04X", flags);
-
 		ImGui::PopItemWidth();
+
 		ImGui::PopID();
+	}
+
+	if (bool value = a_Registers.GetZero(); ImGui::Checkbox("Zero", &value))
+	{
+		a_Registers.SetZero(value);
+	}
+	if (bool value = a_Registers.GetSubtract(); ImGui::Checkbox("Subtract", &value))
+	{
+		a_Registers.SetSubtract(value);
+	}
+	if (bool value = a_Registers.GetHalfCarry(); ImGui::Checkbox("Half Carry", &value))
+	{
+		a_Registers.SetHalfCarry(value);
+	}
+	if (bool value = a_Registers.GetCarry(); ImGui::Checkbox("Carry", &value))
+	{
+		a_Registers.SetCarry(value);
 	}
 
 	ImGui::EndGroup();

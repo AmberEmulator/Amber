@@ -283,7 +283,7 @@ namespace Demu::Gameboy
 			SET_aHL_7 = 0xFE,
 		};
 
-		constexpr uint16_t GetCycleCount(ExtendedInstruction::Enum a_Instruction)
+		constexpr std::optional<uint16_t> GetCycleCount(ExtendedInstruction::Enum a_Instruction)
 		{
 			switch (a_Instruction)
 			{
