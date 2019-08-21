@@ -3,6 +3,7 @@
 
 #include <gameboy/api.hpp>
 
+#include <array>
 #include <optional>
 
 // Instruction naming convention:
@@ -328,270 +329,307 @@ namespace Demu::Gameboy
 			RST_38 = 0xFF,
 		};
 
-		// TODO: optional
-		constexpr std::optional<uint16_t> GetCycleCount(Instruction::Enum a_Instruction)
+		namespace Internal
 		{
-			switch (a_Instruction)
+			struct InstructionInfo
 			{
-				case Instruction::NOP:
-				case Instruction::DI:
-				case Instruction::EI:
-				case Instruction::HALT:
-				case Instruction::STOP:
-				case Instruction::LD_A_A:
-				case Instruction::LD_A_B:
-				case Instruction::LD_A_C:
-				case Instruction::LD_A_D:
-				case Instruction::LD_A_E:
-				case Instruction::LD_A_H:
-				case Instruction::LD_A_L:
-				case Instruction::LD_B_A:
-				case Instruction::LD_B_B:
-				case Instruction::LD_B_C:
-				case Instruction::LD_B_D:
-				case Instruction::LD_B_E:
-				case Instruction::LD_B_H:
-				case Instruction::LD_B_L:
-				case Instruction::LD_C_A:
-				case Instruction::LD_C_B:
-				case Instruction::LD_C_C:
-				case Instruction::LD_C_D:
-				case Instruction::LD_C_E:
-				case Instruction::LD_C_H:
-				case Instruction::LD_C_L:
-				case Instruction::LD_D_A:
-				case Instruction::LD_D_B:
-				case Instruction::LD_D_C:
-				case Instruction::LD_D_D:
-				case Instruction::LD_D_E:
-				case Instruction::LD_D_H:
-				case Instruction::LD_D_L:
-				case Instruction::LD_E_A:
-				case Instruction::LD_E_B:
-				case Instruction::LD_E_C:
-				case Instruction::LD_E_D:
-				case Instruction::LD_E_E:
-				case Instruction::LD_E_H:
-				case Instruction::LD_E_L:
-				case Instruction::LD_H_A:
-				case Instruction::LD_H_B:
-				case Instruction::LD_H_C:
-				case Instruction::LD_H_D:
-				case Instruction::LD_H_E:
-				case Instruction::LD_H_H:
-				case Instruction::LD_H_L:
-				case Instruction::LD_L_A:
-				case Instruction::LD_L_B:
-				case Instruction::LD_L_C:
-				case Instruction::LD_L_D:
-				case Instruction::LD_L_E:
-				case Instruction::LD_L_H:
-				case Instruction::LD_L_L:
-				case Instruction::ADD_A_A:
-				case Instruction::ADD_A_B:
-				case Instruction::ADD_A_C:
-				case Instruction::ADD_A_D:
-				case Instruction::ADD_A_E:
-				case Instruction::ADD_A_H:
-				case Instruction::ADD_A_L:
-				case Instruction::ADC_A_A:
-				case Instruction::ADC_A_B:
-				case Instruction::ADC_A_C:
-				case Instruction::ADC_A_D:
-				case Instruction::ADC_A_E:
-				case Instruction::ADC_A_H:
-				case Instruction::ADC_A_L:
-				case Instruction::SUB_A_A:
-				case Instruction::SUB_A_B:
-				case Instruction::SUB_A_C:
-				case Instruction::SUB_A_D:
-				case Instruction::SUB_A_E:
-				case Instruction::SUB_A_H:
-				case Instruction::SUB_A_L:
-				case Instruction::SBC_A_A:
-				case Instruction::SBC_A_B:
-				case Instruction::SBC_A_C:
-				case Instruction::SBC_A_D:
-				case Instruction::SBC_A_E:
-				case Instruction::SBC_A_H:
-				case Instruction::SBC_A_L:
-				case Instruction::AND_A_A:
-				case Instruction::AND_A_B:
-				case Instruction::AND_A_C:
-				case Instruction::AND_A_D:
-				case Instruction::AND_A_E:
-				case Instruction::AND_A_H:
-				case Instruction::AND_A_L:
-				case Instruction::OR_A_A:
-				case Instruction::OR_A_B:
-				case Instruction::OR_A_C:
-				case Instruction::OR_A_D:
-				case Instruction::OR_A_E:
-				case Instruction::OR_A_H:
-				case Instruction::OR_A_L:
-				case Instruction::XOR_A_A:
-				case Instruction::XOR_A_B:
-				case Instruction::XOR_A_C:
-				case Instruction::XOR_A_D:
-				case Instruction::XOR_A_E:
-				case Instruction::XOR_A_H:
-				case Instruction::XOR_A_L:
-				case Instruction::CP_A_A:
-				case Instruction::CP_A_B:
-				case Instruction::CP_A_C:
-				case Instruction::CP_A_D:
-				case Instruction::CP_A_E:
-				case Instruction::CP_A_H:
-				case Instruction::CP_A_L:
-				case Instruction::INC_A:
-				case Instruction::INC_B:
-				case Instruction::INC_C:
-				case Instruction::INC_D:
-				case Instruction::INC_E:
-				case Instruction::INC_H:
-				case Instruction::INC_L:
-				case Instruction::DEC_A:
-				case Instruction::DEC_B:
-				case Instruction::DEC_C:
-				case Instruction::DEC_D:
-				case Instruction::DEC_E:
-				case Instruction::DEC_H:
-				case Instruction::DEC_L:
-				case Instruction::DA_A:
-				case Instruction::CPL_A:
-				case Instruction::CCF:
-				case Instruction::SCF:
-				case Instruction::JP_HL:
-				case Instruction::RLC_A:
-				case Instruction::RL_A:
-				case Instruction::RRC_A:
-				case Instruction::RR_A:
-				return 4;
+				std::optional<uint16_t> m_Cycles;
+				std::optional<uint16_t> m_Size;
+			};
 
-				case Instruction::LD_A_n:
-				case Instruction::LD_A_aBC:
-				case Instruction::LD_A_aDE:
-				case Instruction::LD_A_aHL:
-				case Instruction::LD_A_aFFC:
-				case Instruction::LD_B_n:
-				case Instruction::LD_B_aHL:
-				case Instruction::LD_C_n:
-				case Instruction::LD_C_aHL:
-				case Instruction::LD_D_n:
-				case Instruction::LD_D_aHL:
-				case Instruction::LD_E_n:
-				case Instruction::LD_E_aHL:
-				case Instruction::LD_H_n:
-				case Instruction::LD_H_aHL:
-				case Instruction::LD_L_n:
-				case Instruction::LD_L_aHL:
-				case Instruction::LD_aHL_A:
-				case Instruction::LD_aHL_B:
-				case Instruction::LD_aHL_C:
-				case Instruction::LD_aHL_D:
-				case Instruction::LD_aHL_E:
-				case Instruction::LD_aHL_H:
-				case Instruction::LD_aHL_L:
-				case Instruction::LD_aBC_A:
-				case Instruction::LD_aDE_A:
-				case Instruction::LD_aFFC_A:
-				case Instruction::LD_SP_HL:
-				case Instruction::LDI_A_aHL:
-				case Instruction::LDD_A_aHL:
-				case Instruction::LDI_aHL_A:
-				case Instruction::LDD_aHL_A:
-				case Instruction::ADD_A_n:
-				case Instruction::ADD_A_aHL:
-				case Instruction::ADD_HL_BC:
-				case Instruction::ADD_HL_DE:
-				case Instruction::ADD_HL_HL:
-				case Instruction::ADD_HL_SP:
-				case Instruction::ADC_A_n:
-				case Instruction::ADC_A_aHL:
-				case Instruction::SUB_A_n:
-				case Instruction::SUB_A_aHL:
-				case Instruction::SBC_A_n:
-				case Instruction::SBC_A_aHL:
-				case Instruction::AND_A_n:
-				case Instruction::AND_A_aHL:
-				case Instruction::OR_A_n:
-				case Instruction::OR_A_aHL:
-				case Instruction::XOR_A_n:
-				case Instruction::XOR_A_aHL:
-				case Instruction::CP_A_n:
-				case Instruction::CP_A_aHL:
-				case Instruction::INC_BC:
-				case Instruction::INC_DE:
-				case Instruction::INC_HL:
-				case Instruction::INC_SP:
-				case Instruction::DEC_BC:
-				case Instruction::DEC_DE:
-				case Instruction::DEC_HL:
-				case Instruction::DEC_SP:
-				case Instruction::JR_n:
-				case Instruction::JR_NZ_n:
-				case Instruction::JR_Z_n:
-				case Instruction::JR_NC_n:
-				case Instruction::JR_C_n:
-				case Instruction::RET:
-				case Instruction::RET_NZ:
-				case Instruction::RET_Z:
-				case Instruction::RET_NC:
-				case Instruction::RET_C:
-				case Instruction::RETI:
-				return 8;
+			constexpr std::array<InstructionInfo, 256> g_InstructionInfo = []() constexpr
+			{
+				std::array<InstructionInfo, 256> info;
 
-				case Instruction::LD_A_aFFn:
-				case Instruction::LD_aHL_n:
-				case Instruction::LD_aFFn_A:
-				case Instruction::LD_BC_nn:
-				case Instruction::LD_DE_nn:
-				case Instruction::LD_HL_nn:
-				case Instruction::LD_HL_SPn:
-				case Instruction::LD_SP_nn:
-				case Instruction::POP_AF:
-				case Instruction::POP_BC:
-				case Instruction::POP_DE:
-				case Instruction::POP_HL:
-				case Instruction::INC_aHL:
-				case Instruction::DEC_aHL:
-				case Instruction::JP_nn:
-				case Instruction::JP_NZ_nn:
-				case Instruction::JP_Z_nn:
-				case Instruction::JP_NC_nn:
-				case Instruction::JP_C_nn:
-				case Instruction::CALL_nn:
-				case Instruction::CALL_NZ_nn:
-				case Instruction::CALL_Z_nn:
-				case Instruction::CALL_NC_nn:
-				case Instruction::CALL_C_nn:
-				return 12;
+				constexpr InstructionInfo i4_1 = { 4_u16, 1_u16 };
+				constexpr InstructionInfo i8_1 = { 8_u16, 1_u16 };
+				constexpr InstructionInfo i8_2 = { 8_u16, 2_u16 };
+				constexpr InstructionInfo i12_1 = { 12_u16, 1_u16 };
+				constexpr InstructionInfo i12_2 = { 12_u16, 2_u16 };
+				constexpr InstructionInfo i12_3 = { 12_u16, 3_u16 };
+				constexpr InstructionInfo i16_1 = { 16_u16, 1_u16 };
+				constexpr InstructionInfo i16_2 = { 16_u16, 2_u16 };
+				constexpr InstructionInfo i16_3 = { 16_u16, 3_u16 };
+				constexpr InstructionInfo i20_3 = { 20_u16, 3_u16 };
+				constexpr InstructionInfo i32_1 = { 32_u16, 1_u16 };
 
-				case Instruction::LD_A_ann:
-				case Instruction::LD_ann_A:
-				case Instruction::PUSH_AF:
-				case Instruction::PUSH_BC:
-				case Instruction::PUSH_DE:
-				case Instruction::PUSH_HL:
-				case Instruction::ADD_SP_n:
-				return 16;
+				// 4 cycles, 1 byte
+				info[Instruction::NOP]     = i4_1;
+				info[Instruction::DI]      = i4_1;
+				info[Instruction::HALT]    = i4_1;
+				info[Instruction::STOP]    = i4_1;
+				info[Instruction::NOP]     = i4_1;
+				info[Instruction::LD_A_A]  = i4_1;
+				info[Instruction::LD_A_B]  = i4_1;
+				info[Instruction::LD_A_C]  = i4_1;
+				info[Instruction::LD_A_D]  = i4_1;
+				info[Instruction::LD_A_E]  = i4_1;
+				info[Instruction::LD_A_H]  = i4_1;
+				info[Instruction::LD_A_L]  = i4_1;
+				info[Instruction::LD_B_A]  = i4_1;
+				info[Instruction::LD_B_B]  = i4_1;
+				info[Instruction::LD_B_C]  = i4_1;
+				info[Instruction::LD_B_D]  = i4_1;
+				info[Instruction::LD_B_E]  = i4_1;
+				info[Instruction::LD_B_H]  = i4_1;
+				info[Instruction::LD_B_L]  = i4_1;
+				info[Instruction::LD_C_A]  = i4_1;
+				info[Instruction::LD_C_B]  = i4_1;
+				info[Instruction::LD_C_C]  = i4_1;
+				info[Instruction::LD_C_D]  = i4_1;
+				info[Instruction::LD_C_E]  = i4_1;
+				info[Instruction::LD_C_H]  = i4_1;
+				info[Instruction::LD_C_L]  = i4_1;
+				info[Instruction::LD_D_A]  = i4_1;
+				info[Instruction::LD_D_B]  = i4_1;
+				info[Instruction::LD_D_C]  = i4_1;
+				info[Instruction::LD_D_D]  = i4_1;
+				info[Instruction::LD_D_E]  = i4_1;
+				info[Instruction::LD_D_H]  = i4_1;
+				info[Instruction::LD_D_L]  = i4_1;
+				info[Instruction::LD_E_A]  = i4_1;
+				info[Instruction::LD_E_B]  = i4_1;
+				info[Instruction::LD_E_C]  = i4_1;
+				info[Instruction::LD_E_D]  = i4_1;
+				info[Instruction::LD_E_E]  = i4_1;
+				info[Instruction::LD_E_H]  = i4_1;
+				info[Instruction::LD_E_L]  = i4_1;
+				info[Instruction::LD_H_A]  = i4_1;
+				info[Instruction::LD_H_B]  = i4_1;
+				info[Instruction::LD_H_C]  = i4_1;
+				info[Instruction::LD_H_D]  = i4_1;
+				info[Instruction::LD_H_E]  = i4_1;
+				info[Instruction::LD_H_H]  = i4_1;
+				info[Instruction::LD_H_L]  = i4_1;
+				info[Instruction::LD_L_A]  = i4_1;
+				info[Instruction::LD_L_B]  = i4_1;
+				info[Instruction::LD_L_C]  = i4_1;
+				info[Instruction::LD_L_D]  = i4_1;
+				info[Instruction::LD_L_E]  = i4_1;
+				info[Instruction::LD_L_H]  = i4_1;
+				info[Instruction::LD_L_L]  = i4_1;
+				info[Instruction::ADD_A_A] = i4_1;
+				info[Instruction::ADD_A_B] = i4_1;
+				info[Instruction::ADD_A_C] = i4_1;
+				info[Instruction::ADD_A_D] = i4_1;
+				info[Instruction::ADD_A_E] = i4_1;
+				info[Instruction::ADD_A_H] = i4_1;
+				info[Instruction::ADD_A_L] = i4_1;
+				info[Instruction::ADC_A_A] = i4_1;
+				info[Instruction::ADC_A_B] = i4_1;
+				info[Instruction::ADC_A_C] = i4_1;
+				info[Instruction::ADC_A_D] = i4_1;
+				info[Instruction::ADC_A_E] = i4_1;
+				info[Instruction::ADC_A_H] = i4_1;
+				info[Instruction::ADC_A_L] = i4_1;
+				info[Instruction::SUB_A_A] = i4_1;
+				info[Instruction::SUB_A_B] = i4_1;
+				info[Instruction::SUB_A_C] = i4_1;
+				info[Instruction::SUB_A_D] = i4_1;
+				info[Instruction::SUB_A_E] = i4_1;
+				info[Instruction::SUB_A_H] = i4_1;
+				info[Instruction::SUB_A_L] = i4_1;
+				info[Instruction::SBC_A_A] = i4_1;
+				info[Instruction::SBC_A_B] = i4_1;
+				info[Instruction::SBC_A_C] = i4_1;
+				info[Instruction::SBC_A_D] = i4_1;
+				info[Instruction::SBC_A_E] = i4_1;
+				info[Instruction::SBC_A_H] = i4_1;
+				info[Instruction::SBC_A_L] = i4_1;
+				info[Instruction::AND_A_A] = i4_1;
+				info[Instruction::AND_A_B] = i4_1;
+				info[Instruction::AND_A_C] = i4_1;
+				info[Instruction::AND_A_D] = i4_1;
+				info[Instruction::AND_A_E] = i4_1;
+				info[Instruction::AND_A_H] = i4_1;
+				info[Instruction::AND_A_L] = i4_1;
+				info[Instruction::OR_A_A]  = i4_1;
+				info[Instruction::OR_A_B]  = i4_1;
+				info[Instruction::OR_A_C]  = i4_1;
+				info[Instruction::OR_A_D]  = i4_1;
+				info[Instruction::OR_A_E]  = i4_1;
+				info[Instruction::OR_A_H]  = i4_1;
+				info[Instruction::OR_A_L]  = i4_1;
+				info[Instruction::XOR_A_A] = i4_1;
+				info[Instruction::XOR_A_B] = i4_1;
+				info[Instruction::XOR_A_C] = i4_1;
+				info[Instruction::XOR_A_D] = i4_1;
+				info[Instruction::XOR_A_E] = i4_1;
+				info[Instruction::XOR_A_H] = i4_1;
+				info[Instruction::XOR_A_L] = i4_1;
+				info[Instruction::CP_A_A]  = i4_1;
+				info[Instruction::CP_A_B]  = i4_1;
+				info[Instruction::CP_A_C]  = i4_1;
+				info[Instruction::CP_A_D]  = i4_1;
+				info[Instruction::CP_A_E]  = i4_1;
+				info[Instruction::CP_A_H]  = i4_1;
+				info[Instruction::CP_A_L]  = i4_1;
+				info[Instruction::INC_A]   = i4_1;
+				info[Instruction::INC_B]   = i4_1;
+				info[Instruction::INC_C]   = i4_1;
+				info[Instruction::INC_D]   = i4_1;
+				info[Instruction::INC_E]   = i4_1;
+				info[Instruction::INC_H]   = i4_1;
+				info[Instruction::INC_L]   = i4_1;
+				info[Instruction::DEC_A]   = i4_1;
+				info[Instruction::DEC_B]   = i4_1;
+				info[Instruction::DEC_C]   = i4_1;
+				info[Instruction::DEC_D]   = i4_1;
+				info[Instruction::DEC_E]   = i4_1;
+				info[Instruction::DEC_H]   = i4_1;
+				info[Instruction::DEC_L]   = i4_1;
+				info[Instruction::DA_A]    = i4_1;
+				info[Instruction::CPL_A]   = i4_1;
+				info[Instruction::CCF]     = i4_1;
+				info[Instruction::SCF]     = i4_1;
+				info[Instruction::JP_HL]   = i4_1;
+				info[Instruction::RLC_A]   = i4_1;
+				info[Instruction::RL_A]    = i4_1;
+				info[Instruction::RRC_A]   = i4_1;
+				info[Instruction::RR_A]    = i4_1;
 
-				case Instruction::LD_ann_SP:
-				return 20;
+				// 8 cycles, 1 byte
+				info[Instruction::LD_A_aBC]  = i8_1;
+				info[Instruction::LD_A_aDE]  = i8_1;
+				info[Instruction::LD_A_aHL]  = i8_1;
+				info[Instruction::LD_A_aFFC] = i8_1;
+				info[Instruction::LD_B_aHL]  = i8_1;
+				info[Instruction::LD_C_aHL]  = i8_1;
+				info[Instruction::LD_D_aHL]  = i8_1;
+				info[Instruction::LD_E_aHL]  = i8_1;
+				info[Instruction::LD_H_aHL]  = i8_1;
+				info[Instruction::LD_L_aHL]  = i8_1;
+				info[Instruction::LD_aHL_A]  = i8_1;
+				info[Instruction::LD_aHL_B]  = i8_1;
+				info[Instruction::LD_aHL_C]  = i8_1;
+				info[Instruction::LD_aHL_D]  = i8_1;
+				info[Instruction::LD_aHL_E]  = i8_1;
+				info[Instruction::LD_aHL_H]  = i8_1;
+				info[Instruction::LD_aHL_L]  = i8_1;
+				info[Instruction::LD_aBC_A]  = i8_1;
+				info[Instruction::LD_aDE_A]  = i8_1;
+				info[Instruction::LD_aFFC_A] = i8_1;
+				info[Instruction::LD_SP_HL]  = i8_1;
+				info[Instruction::LDI_A_aHL] = i8_1;
+				info[Instruction::LDD_A_aHL] = i8_1;
+				info[Instruction::LDI_aHL_A] = i8_1;
+				info[Instruction::LDD_aHL_A] = i8_1;
+				info[Instruction::ADD_A_aHL] = i8_1;
+				info[Instruction::ADD_HL_BC] = i8_1;
+				info[Instruction::ADD_HL_DE] = i8_1;
+				info[Instruction::ADD_HL_HL] = i8_1;
+				info[Instruction::ADD_HL_SP] = i8_1;
+				info[Instruction::ADC_A_aHL] = i8_1;
+				info[Instruction::SUB_A_n]   = i8_1;
+				info[Instruction::SUB_A_aHL] = i8_1;
+				info[Instruction::SBC_A_aHL] = i8_1;
+				info[Instruction::AND_A_aHL] = i8_1;
+				info[Instruction::OR_A_aHL]  = i8_1;
+				info[Instruction::XOR_A_aHL] = i8_1;
+				info[Instruction::CP_A_aHL]  = i8_1;
+				info[Instruction::INC_BC]    = i8_1;
+				info[Instruction::INC_DE]    = i8_1;
+				info[Instruction::INC_HL]    = i8_1;
+				info[Instruction::INC_SP]    = i8_1;
+				info[Instruction::DEC_BC]    = i8_1;
+				info[Instruction::DEC_DE]    = i8_1;
+				info[Instruction::DEC_HL]    = i8_1;
+				info[Instruction::DEC_SP]    = i8_1;
+				info[Instruction::RET]       = i8_1;
+				info[Instruction::RET_NZ]    = i8_1;
+				info[Instruction::RET_Z]     = i8_1;
+				info[Instruction::RET_NC]    = i8_1;
+				info[Instruction::RET_C]     = i8_1;
+				info[Instruction::RETI]      = i8_1;
 
-				case Instruction::RST_00:
-				case Instruction::RST_08:
-				case Instruction::RST_10:
-				case Instruction::RST_18:
-				case Instruction::RST_20:
-				case Instruction::RST_28:
-				case Instruction::RST_30:
-				case Instruction::RST_38:
-				return 32;
+				// 8 cycles, 2 bytes
+				info[Instruction::LD_A_n]  = i8_2;
+				info[Instruction::LD_C_n]  = i8_2;
+				info[Instruction::LD_D_n]  = i8_2;
+				info[Instruction::LD_E_n]  = i8_2;
+				info[Instruction::LD_H_n]  = i8_2;
+				info[Instruction::LD_L_n]  = i8_2;
+				info[Instruction::ADD_A_n] = i8_2;
+				info[Instruction::ADC_A_n] = i8_2;
+				info[Instruction::SBC_A_n] = i8_2;
+				info[Instruction::AND_A_n] = i8_2;
+				info[Instruction::OR_A_n]  = i8_2;
+				info[Instruction::XOR_A_n] = i8_2;
+				info[Instruction::CP_A_n]  = i8_2;
+				info[Instruction::JR_n]    = i8_2;
+				info[Instruction::JR_NZ_n] = i8_2;
+				info[Instruction::JR_Z_n]  = i8_2;
+				info[Instruction::JR_NC_n] = i8_2;
+				info[Instruction::JR_C_n]  = i8_1;
 
-				default:
-				return {};
-			}
+				// 12 cycles, 1 byte
+				info[Instruction::POP_AF] = i12_1;
+				info[Instruction::POP_BC] = i12_1;
+				info[Instruction::POP_DE] = i12_1;
+				info[Instruction::POP_HL] = i12_1;
+
+				// 12 cycles, 2 bytes
+				info[Instruction::LD_A_aFFn] = i12_2;
+				info[Instruction::LD_aHL_n]  = i12_2;
+				info[Instruction::LD_aFFn_A] = i12_2;
+				info[Instruction::LD_HL_SPn] = i12_2;
+				info[Instruction::INC_aHL]   = i12_2;
+				info[Instruction::DEC_aHL]   = i12_2;
+
+				// 12 cycles, 3 bytes
+				info[Instruction::LD_BC_nn]   = i12_3;
+				info[Instruction::LD_DE_nn]   = i12_3;
+				info[Instruction::LD_HL_nn]   = i12_3;
+				info[Instruction::LD_SP_nn]   = i12_3;
+				info[Instruction::JP_nn]      = i12_3;
+				info[Instruction::JP_NZ_nn]   = i12_3;
+				info[Instruction::JP_Z_nn]    = i12_3;
+				info[Instruction::JP_NC_nn]   = i12_3;
+				info[Instruction::JP_C_nn]    = i12_3;
+				info[Instruction::CALL_nn]    = i12_3;
+				info[Instruction::CALL_NZ_nn] = i12_3;
+				info[Instruction::CALL_Z_nn]  = i12_3;
+				info[Instruction::CALL_NC_nn] = i12_3;
+				info[Instruction::CALL_C_nn]  = i12_3;
+
+				// 16 cycles, 1 byte
+				info[Instruction::PUSH_AF] = i16_1;
+				info[Instruction::PUSH_BC] = i16_1;
+				info[Instruction::PUSH_DE] = i16_1;
+				info[Instruction::PUSH_HL] = i16_1;
+
+				// 16 cycles, 2 bytes
+				info[Instruction::ADD_SP_n] = i16_2;
+
+				// 16 cycles, 3 bytes
+				info[Instruction::LD_A_ann] = i16_3;
+				info[Instruction::LD_ann_A] = i16_3;
+
+				// 20 cycles, 3 bytes
+				info[Instruction::LD_ann_SP] = i20_3;
+
+				// 32 cycles, 1 byte
+				info[Instruction::RST_00] = i32_1;
+				info[Instruction::RST_08] = i32_1;
+				info[Instruction::RST_10] = i32_1;
+				info[Instruction::RST_18] = i32_1;
+				info[Instruction::RST_20] = i32_1;
+				info[Instruction::RST_28] = i32_1;
+				info[Instruction::RST_30] = i32_1;
+				info[Instruction::RST_38] = i32_1;
+
+				return info;
+			}();
+		}
+
+		constexpr std::optional<uint16_t> GetCycles(Instruction::Enum a_Instruction)
+		{
+			return Internal::g_InstructionInfo[a_Instruction].m_Cycles;
+		}
+
+		constexpr std::optional<uint16_t> GetSize(Instruction::Enum a_Instruction)
+		{
+			return Internal::g_InstructionInfo[a_Instruction].m_Size;
 		}
 
 		constexpr std::optional<std::string_view> ToString(Instruction::Enum a_Instruction)

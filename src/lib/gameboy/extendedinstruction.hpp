@@ -490,7 +490,7 @@ namespace Demu::Gameboy
 				case ExtendedInstruction::SET_L_5:
 				case ExtendedInstruction::SET_L_6:
 				case ExtendedInstruction::SET_L_7:
-				return 8;
+				return static_cast<uint16_t>(8);
 
 				case ExtendedInstruction::RLC_aHL:
 				case ExtendedInstruction::RRC_aHL:
@@ -521,11 +521,16 @@ namespace Demu::Gameboy
 				case ExtendedInstruction::SET_aHL_5:
 				case ExtendedInstruction::SET_aHL_6:
 				case ExtendedInstruction::SET_aHL_7:
-				return 16;
+				return static_cast<uint16_t>(16);
 
 				default:
-				return 0;
+				return  {};
 			}
+		}
+
+		constexpr std::optional<uint16_t> GetSize(ExtendedInstruction::Enum a_Instruction)
+		{
+			return static_cast<uint16_t>(1);
 		}
 
 		constexpr std::optional<std::string_view> ToString(ExtendedInstruction::Enum a_Instruction)

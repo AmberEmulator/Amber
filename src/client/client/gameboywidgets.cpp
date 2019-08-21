@@ -37,7 +37,7 @@ void Demu::Client::DrawRegisterWindowContent(Gameboy::Registers& a_Registers)
 		uint32_t value = a_Registers.GetRegister16(register16_index);
 		if (ImGui::InputScalar(names[register16_index], ImGuiDataType_U32, &value, nullptr, nullptr, "%04X", flags))
 		{
-			a_Registers.SetRegister16(static_cast<uint16_t>(register16_index), value);
+			a_Registers.SetRegister16(static_cast<uint16_t>(register16_index), static_cast<uint16_t>(value));
 		}
 
 		ImGui::PopItemWidth();

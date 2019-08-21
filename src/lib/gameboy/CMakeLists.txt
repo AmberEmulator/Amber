@@ -21,3 +21,6 @@ demu_add_sources(gameboy "gameboytype.hpp" FILTER "Gameboy")
 demu_add_sources(gameboy "cpu.hpp" "cpu.cpp" FILTER "CPU/CPU")
 demu_add_sources(gameboy "registers.hpp" FILTER "CPU/Registers")
 demu_add_sources(gameboy "instruction.hpp" "extendedinstruction.hpp" FILTER "CPU/Instructions")
+
+# Debugging
+demu_add_sources(gameboy "disassembly.hpp" "disassembly.cpp" FILTER "Debugging/Disassembly")

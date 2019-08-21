@@ -110,7 +110,7 @@ CPU::ExecutedInstruction CPU::ExecuteNextInstruction()
 void CPU::ExecuteInstruction(Instruction::Enum a_Instruction)
 {
 	(this->*(m_Instructions[a_Instruction]))();
-	m_CycleCount += Instruction::GetCycleCount(a_Instruction);
+	m_CycleCount += Instruction::GetCycles(a_Instruction).value();
 }
 
 void CPU::ExecuteNextExtendedInstruction()
@@ -121,7 +121,7 @@ void CPU::ExecuteNextExtendedInstruction()
 void CPU::ExecuteExtendedInstruction(ExtendedInstruction::Enum a_Instruction)
 {
 	(this->*(m_ExtendedInstructions[a_Instruction]))();
-	m_CycleCount += ExtendedInstruction::GetCycleCount(a_Instruction);
+	m_CycleCount += ExtendedInstruction::GetCycleCount(a_Instruction).value();
 }
 
 uint8_t CPU::PeekNextByte() const noexcept

@@ -1,11 +1,17 @@
 #include <client/application.hpp>
 
+#include <client/disassembly.hpp>
 #include <client/gameboywidgets.hpp>
 
+#include <gameboy/disassembly.hpp>
 #include <gameboy/registers.hpp>
+
+#include <common/rom.h>
 
 #include <imgui/imgui.h>
 #include <imgui/imgui_memory_editor.h>
+
+#include <fstream>
 
 using namespace Demu;
 using namespace Client;
@@ -78,11 +84,26 @@ void Application::Tick()
 	static Gameboy::Registers registers;
 	DrawRegisterWindow("Registers", registers);
 
+	static const auto cartridge = []
+	{
+		std::ifstream file("C:\\ROMs\\test.gb", std::ios::binary | std::ios::ate);
+		std::streamsize size = file.tellg();
+		file.seekg(0, std::ios::beg);
 
-	uint8_t data[256];
+		Common::ROM<uint16_t, false> rom(size);
+		file.read(reinterpret_cast<char*>(rom.GetData()), size);
 
-	//static MemoryEditor mem_edit;
-	//mem_edit.DrawWindow("Memory Editor", data, sizeof(data));
+		return rom;
+	}();
+	static Gameboy::Disassembly gameboy_disassembly(cartridge);
+
+	static DisassemblyState disassembly_state;
+	disassembly_state.m_Disassembly = &gameboy_disassembly;
+	disassembly_state.m_ViewAddress = 0x150;
+	
+	ImGui::Begin("Disassembly");
+	ShowDisassembly("disassembly", disassembly_state);
+	ImGui::End();
 
 	ImGui::End();
 	ImGui::PopStyleVar();

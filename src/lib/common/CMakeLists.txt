@@ -23,3 +23,7 @@ demu_add_sources(common "rom.h" FILTER "Memory/ROM")
 
 
 demu_add_sources(common "foo.cpp")
+
+
+# Debugging
+demu_add_sources(common "disassembly.hpp" "disassembly.cpp" FILTER "Debugging/Disassembly")
