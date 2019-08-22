@@ -135,16 +135,6 @@ namespace Demu::Gameboy
 			LD_SP_HL = 0xF9,
 			LD_ann_SP = 0x08,
 
-			PUSH_AF = 0xF5,
-			PUSH_BC = 0xC5,
-			PUSH_DE = 0xD5,
-			PUSH_HL = 0xE5,
-				
-			POP_AF = 0xF1,
-			POP_BC = 0xC1,
-			POP_DE = 0xD1,
-			POP_HL = 0xE1,
-
 			// 8-bit add
 			ADD_A_A  = 0x87,
 			ADD_A_B  = 0x80,
@@ -302,6 +292,18 @@ namespace Demu::Gameboy
 			JR_Z_n  = 0x28,
 			JR_NC_n = 0x30,
 			JR_C_n  = 0x38,
+
+			// Push
+			PUSH_AF = 0xF5,
+			PUSH_BC = 0xC5,
+			PUSH_DE = 0xD5,
+			PUSH_HL = 0xE5,
+
+			// Pop
+			POP_AF = 0xF1,
+			POP_BC = 0xC1,
+			POP_DE = 0xD1,
+			POP_HL = 0xE1,
 
 			// Call
 			CALL_nn    = 0xCD,
@@ -612,7 +614,6 @@ namespace Demu::Gameboy
 				return info;
 			}();
 		}
-
 
 		constexpr std::optional<uint16_t> GetCycles(Instruction::Enum a_Instruction)
 		{

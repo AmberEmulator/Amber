@@ -47,20 +47,97 @@ namespace Demu::Gameboy
 		ExecutedInstruction ExecuteNextInstruction();
 
 		private:
-		using InstructionCallback = void (CPU::*)();
+		using InstructionCallback = void (CPU::*)() noexcept;
 
+		// Instruction Exectution
 		void ExecuteInstruction(Instruction::Enum a_Instruction);
 		void ExecuteNextExtendedInstruction();
 		void ExecuteExtendedInstruction(ExtendedInstruction::Enum a_Instruction);
 
+		// Reading bytes
 		uint8_t PeekNextByte() const noexcept;
 		uint16_t PeekNextWord() const noexcept;
 		uint8_t ReadNextByte() noexcept;
 		uint16_t ReadNextWord() noexcept;
 
+		// Operator helpers
+		uint8_t AddByte(uint8_t a_Left, uint8_t a_Right) noexcept;
+		uint8_t SubtractByte(uint8_t a_Left, uint8_t a_Right) noexcept;
+		uint8_t IncrementByte(uint8_t a_Value) noexcept;
+		uint8_t DecrementByte(uint8_t a_Value) noexcept;
+		uint8_t ANDByte(uint8_t a_Left, uint8_t a_Right) noexcept;
+		uint8_t ORByte(uint8_t a_Left, uint8_t a_Right) noexcept;
+		uint8_t XORByte(uint8_t a_Left, uint8_t a_Right) noexcept;
+		
+		// Instruction helpers
+		template <uint8_t Flag, bool Set, InstructionCallback Callback> void Conditional() noexcept;
+		template <uint8_t Register, InstructionCallback Callback> void Increment16() noexcept;
+		template <uint8_t Register, InstructionCallback Callback> void Decrement16() noexcept;
+
 		// Misc instructions
-		void NotImplemented();
+		void NotImplemented() noexcept;
 		void NOP() noexcept;
+
+		// 8-bit load instructions
+		template <uint8_t Destination> void LD_r_x(uint8_t a_Value) noexcept;
+		template <uint8_t Destination> void LD_r_n() noexcept;
+		template <uint8_t Destination, uint8_t Source> void LD_r_r() noexcept;
+
+		template <uint8_t Destination> void LD_r_axx(uint16_t a_Address) noexcept;
+		template <uint8_t Destination> void LD_r_ann() noexcept;
+		template <uint8_t Destination, uint8_t Source> void LD_r_arr() noexcept;
+
+		template <uint8_t Destination> void LD_r_aFFx(uint8_t a_Offset) noexcept;
+		template <uint8_t Destination> void LD_r_aFFn() noexcept;
+		template <uint8_t Destination, uint8_t Source> void LD_r_aFFr() noexcept;
+
+		void LD_axx_x(uint16_t a_Address, uint8_t a_Value);
+		template <uint8_t Source> void LD_axx_r(uint16_t a_Address) noexcept;
+		template <uint8_t Destination> void LD_arr_x(uint8_t a_Value) noexcept;
+		template <uint8_t Destination> void LD_arr_n() noexcept;
+		template <uint8_t Destination, uint8_t Source> void LD_arr_r() noexcept;
+
+		template <uint8_t Source> void LD_ann_x(uint8_t a_Value) noexcept;
+		template <uint8_t Source> void LD_ann_r() noexcept;
+
+		template <uint8_t Source> void LD_aFFx_r(uint8_t a_Offset) noexcept;
+		template <uint8_t Source> void LD_aFFn_r() noexcept;
+		template <uint8_t Destination, uint8_t Source> void LD_aFFr_r() noexcept;
+
+		// 16-bit load instructions
+		template <uint8_t Destination> void LD_rr_xx(uint16_t a_Value) noexcept;
+		template <uint8_t Destination> void LD_rr_nn() noexcept;
+		template <uint8_t Destination, uint8_t Source> void LD_rr_rr() noexcept;
+		template <uint8_t Destination, uint8_t Source> void LD_rr_rrn() noexcept;
+
+		template <uint8_t Source> void LD_xx_rr(uint16_t a_Address) noexcept;
+		template <uint8_t Source> void LD_ann_rr() noexcept;
+
+		// 8-bit add instructions
+		template <uint8_t Destination, bool Carry> void ADD_r_x(uint8_t a_Value) noexcept;
+		template <uint8_t Destination, bool Carry> void ADD_r_n() noexcept;
+		template <uint8_t Destination, uint8_t Source, bool Carry> void ADD_r_r() noexcept;
+		template <uint8_t Destination, uint8_t Source, bool Carry> void ADD_r_arr() noexcept;
+
+		// 16-bit add instructions
+		template <uint8_t Destination> void ADD_rr_xx(uint16_t a_Value) noexcept;
+		template <uint8_t Destination> void ADD_rr_n() noexcept;
+		template <uint8_t Destination, uint8_t Source> void ADD_rr_rr() noexcept;
+
+		// 8-bit subtract instructions
+		template <uint8_t Destination, bool Carry> void SUB_r_x(uint8_t a_Value) noexcept;
+		template <uint8_t Destination, bool Carry> void SUB_r_n() noexcept;
+		template <uint8_t Destination, uint8_t Source, bool Carry> void SUB_r_r() noexcept;
+		template <uint8_t Destination, uint8_t Source, bool Carry> void SUB_r_arr() noexcept;
+
+		// Absolute jump instructions
+		void JP_xx(uint16_t a_Address) noexcept;
+		void JP_nn() noexcept;
+		template <uint8_t Register> void JP_rr() noexcept;
+
+		// Relative jump instructions
+		void JR_x(uint8_t a_Offset) noexcept;
+		void JR_n() noexcept;
 
 		// Members
 		const GameboyType::Enum m_GameboyType;

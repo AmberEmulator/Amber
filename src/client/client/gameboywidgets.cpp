@@ -24,8 +24,8 @@ void Demu::Client::DrawRegisterWindowContent(Gameboy::Registers& a_Registers)
 
 	const ImGuiStyle& style = ImGui::GetStyle();
 
-	const char* names[] = { "AF", "BC", "DE", "HL" };
-	for (uint8_t register16_index = 0; register16_index < 4; ++register16_index)
+	const char* names[] = { "AF", "BC", "DE", "HL", "SP", "PC" };
+	for (uint8_t register16_index = 0; register16_index < 6; ++register16_index)
 	{
 		ImGui::PushID(register16_index);
 

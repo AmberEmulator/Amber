@@ -3,10 +3,11 @@
 #include <client/disassembly.hpp>
 #include <client/gameboywidgets.hpp>
 
+#include <gameboy/cpu.hpp>
 #include <gameboy/disassembly.hpp>
 #include <gameboy/registers.hpp>
 
-#include <common/rom.h>
+#include <common/ram.h>
 
 #include <imgui/imgui.h>
 #include <imgui/imgui_memory_editor.h>
@@ -18,93 +19,54 @@ using namespace Client;
 
 void Application::Tick()
 {
-	ImGuiViewport* viewport = ImGui::GetMainViewport();
-	ImGui::SetNextWindowPos(viewport->Pos);
-	ImGui::SetNextWindowSize(viewport->Size);
-	ImGui::SetNextWindowViewport(viewport->ID);
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+	const auto dock_id = ImGui::DockSpaceOverViewport();
 
-	ImGuiWindowFlags flags = 0;
-	//flags |= ImGuiWindowFlags_MenuBar;
-	flags |= ImGuiWindowFlags_NoDocking;
-	flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
-	flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-	ImGui::Begin("DockSpace Demo", 0, flags);
-	ImGui::PopStyleVar();
-
-	static bool show_demo_window = true;
-	static bool show_another_window = false;
-
-	const auto dock_id = ImGui::GetID("MyDockspace");
-	ImGui::DockSpace(dock_id);
-	
-	//ImGui::BeginMenuBar()
-
-	// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
-	//if (show_demo_window)
-	//{
-		ImGui::ShowDemoWindow(&show_demo_window);
-	//}
-
-	// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
-	{
-		static float f = 0.0f;
-		static int counter = 0;
-
-		ImGui::SetNextWindowDockID(dock_id, ImGuiSetCond_FirstUseEver);
-		//ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-
-		//ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-		//ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-		//ImGui::Checkbox("Another Window", &show_another_window);
-		//
-		//ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-		////ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
-		//
-		//if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-		//	counter++;
-		//ImGui::SameLine();
-		//ImGui::Text("counter = %d", counter);
-		//
-		//ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-		//ImGui::End();
-	}
-
-	// 3. Show another simple window.
-	/*if (show_another_window)
-	{
-		ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-		ImGui::Text("Hello from another window!");
-		if (ImGui::Button("Close Me"))
-			show_another_window = false;
-		ImGui::End();
-	}*/
-
-	static Gameboy::Registers registers;
-	DrawRegisterWindow("Registers", registers);
-
-	static const auto cartridge = []
+	// Load cartridge
+	static auto memory = []
 	{
 		std::ifstream file("C:\\ROMs\\test.gb", std::ios::binary | std::ios::ate);
 		std::streamsize size = file.tellg();
 		file.seekg(0, std::ios::beg);
 
-		Common::ROM<uint16_t, false> rom(size);
-		file.read(reinterpret_cast<char*>(rom.GetData()), size);
+		Common::RAM<uint16_t, false> ram(size);
+		file.read(reinterpret_cast<char*>(ram.GetData()), size);
 
-		return rom;
+		return ram;
 	}();
-	static Gameboy::Disassembly gameboy_disassembly(cartridge);
+
+	// Initialize cpu
+	static auto cpu = []
+	{
+		Gameboy::CPU cpu(memory, Gameboy::GameboyType::Classic);
+		cpu.Reset();
+		return cpu;
+	}();
+
+	// Show debugger
+	if (ImGui::Begin("Debugger"))
+	{
+		if (ImGui::Button("Step forward"))
+		{
+			cpu.ExecuteNextInstruction();
+		}
+	}
+	ImGui::End();
+
+	// Show registers
+	ImGui::SetNextWindowDockID(dock_id, ImGuiSetCond_FirstUseEver);
+	DrawRegisterWindow("Registers", cpu.GetRegisters());
+
+	// Show disassembly
+	static Gameboy::Disassembly disassembly(memory);
 
 	static DisassemblyState disassembly_state;
-	disassembly_state.m_Disassembly = &gameboy_disassembly;
-	disassembly_state.m_ViewAddress = 0x150;
-	
-	ImGui::Begin("Disassembly");
-	ShowDisassembly("disassembly", disassembly_state);
-	ImGui::End();
+	disassembly_state.m_Disassembly = &disassembly;
+	disassembly_state.m_ViewAddress = cpu.GetRegisters().GetPC();
 
+	ImGui::SetNextWindowDockID(dock_id, ImGuiSetCond_FirstUseEver);
+	if (ImGui::Begin("Disassembly"))
+	{
+		ShowDisassembly("disassembly", disassembly_state);
+	}
 	ImGui::End();
-	ImGui::PopStyleVar();
 }

@@ -29,7 +29,7 @@ namespace Demu::Gameboy
 		static constexpr uint8_t FlagIndexHalfCarry = 5;
 		static constexpr uint8_t FlagIndexCarry = 4;
 
-		constexpr uint16_t GetRegister16(uint16_t a_Index) const noexcept
+		constexpr uint16_t GetRegister16(uint8_t a_Index) const noexcept
 		{
 			return m_Registers[a_Index];
 		}
