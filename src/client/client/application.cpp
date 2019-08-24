@@ -10,7 +10,6 @@
 #include <common/ram.h>
 
 #include <imgui/imgui.h>
-#include <imgui/imgui_memory_editor.h>
 
 #include <fstream>
 
@@ -42,6 +41,8 @@ void Application::Tick()
 		return cpu;
 	}();
 
+	ImGui::ShowDemoWindow();
+
 	// Show debugger
 	if (ImGui::Begin("Debugger"))
 	{
@@ -57,7 +58,7 @@ void Application::Tick()
 	DrawRegisterWindow("Registers", cpu.GetRegisters());
 
 	// Show disassembly
-	static Gameboy::Disassembly disassembly(memory);
+	static Gameboy::Disassembly disassembly(cpu);
 
 	static DisassemblyState disassembly_state;
 	disassembly_state.m_Disassembly = &disassembly;

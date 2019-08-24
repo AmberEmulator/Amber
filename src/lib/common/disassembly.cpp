@@ -41,3 +41,12 @@ std::string Disassembly::GetAddressName(uint64_t a_Address) const
 
 	return name;
 }
+
+bool Disassembly::HasBreakpoint(uint64_t a_Address) const noexcept
+{
+	return false;
+}
+
+void Disassembly::SetBreakpoint(uint64_t a_Address, bool a_Enabled)
+{
+}

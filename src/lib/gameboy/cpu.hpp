@@ -46,6 +46,10 @@ namespace Demu::Gameboy
 		void Reset();
 		ExecutedInstruction ExecuteNextInstruction();
 
+		// Breakpoints
+		bool HasBreakpoint(uint16_t a_Address) const;
+		void SetBreakpoint(uint16_t a_Address, bool a_Enabled);
+
 		private:
 		using InstructionCallback = void (CPU::*)() noexcept;
 
@@ -92,6 +96,7 @@ namespace Demu::Gameboy
 		// Misc instructions
 		void NotImplemented() noexcept;
 		void NOP() noexcept;
+		void BREAKPOINT() noexcept;
 
 		// 8-bit load instructions
 		template <uint8_t Destination> void LD_r_x(uint8_t a_Value) noexcept;
@@ -142,12 +147,13 @@ namespace Demu::Gameboy
 		void JR_x(uint8_t a_Offset) noexcept;
 		void JR_n() noexcept;
 
-		// Members
+		// Gameboy state
 		const GameboyType::Enum m_GameboyType;
 		Common::Memory16& m_Memory;
 		Registers m_Registers;
 		uint64_t m_CycleCount = 0;
 
+		// Instructions
 		InstructionCallback m_Instructions[256];
 		InstructionCallback m_ExtendedInstructions[256];
 	};

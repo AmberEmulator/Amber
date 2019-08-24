@@ -3,6 +3,9 @@
 
 #include <common/addressmask.h>
 
+#include <optional>
+#include <unordered_map>
+
 namespace Demu::Common
 {
 	template <typename T>
@@ -16,15 +19,59 @@ namespace Demu::Common
 
 		virtual AddressMask<Address> GetAddressMask() const = 0;
 
-		virtual uint8_t  Load8 (Address a_Address) const = 0;
+		virtual uint8_t  Load8(Address a_Address) const = 0;
 		virtual uint16_t Load16(Address a_Address) const = 0;
 		virtual uint32_t Load32(Address a_Address) const = 0;
 		virtual uint64_t Load64(Address a_Address) const = 0;
 
-		virtual void Store8 (Address a_Address, uint8_t  a_Value) = 0;
+		virtual void Store8(Address a_Address, uint8_t  a_Value) = 0;
 		virtual void Store16(Address a_Address, uint16_t a_Value) = 0;
 		virtual void Store32(Address a_Address, uint32_t a_Value) = 0;
 		virtual void Store64(Address a_Address, uint64_t a_Value) = 0;
+
+		virtual uint64_t GetPhysicalAddress(Address a_Address) const
+		{
+			return static_cast<uint64_t>(a_Address);
+		}
+
+		void Replace8(Address a_Address, uint8_t a_Value)
+		{
+			const uint8_t original_value = Load8(a_Address);
+			Store8(a_Address, a_Value);
+
+			const uint64_t physical_address = GetPhysicalAddress(a_Address);
+			m_ReplacedBytes.insert_or_assign(physical_address, original_value);
+		}
+
+		void Restore8(Address a_Address)
+		{
+			const uint64_t physical_address = GetPhysicalAddress(a_Address);
+			const auto it = m_ReplacedBytes.find(physical_address);
+			if (it == m_ReplacedBytes.end())
+			{
+				return;
+			}
+
+			const uint8_t original_value = it->second;
+			Store8(a_Address, original_value);
+			m_ReplacedBytes.erase(it);
+		}
+
+		std::optional<uint8_t> GetReplaced8(Address a_Address)
+		{
+			const uint64_t physical_address = GetPhysicalAddress(a_Address);
+			const auto it = m_ReplacedBytes.find(physical_address);
+			if (it == m_ReplacedBytes.end())
+			{
+				return {};
+			}
+
+			const uint8_t original_value = it->second;
+			return original_value;
+		}
+
+		private:
+		std::unordered_map<uint64_t, uint8_t> m_ReplacedBytes;
 	};
 
 	template <typename T>

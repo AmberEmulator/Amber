@@ -17,6 +17,7 @@ CPU::CPU(Memory16& a_Memory, GameboyType::Enum a_GameboyType):
 
 	// Misc instructions
 	m_Instructions[Instruction::NOP] = &CPU::NOP;
+	m_Instructions[Instruction::BREAKPOINT] = &CPU::BREAKPOINT;
 
 	// 8-bit load instructions
 	m_Instructions[Instruction::LD_A_A]    = &CPU::LD_r_r<Registers::RegisterIndexA, Registers::RegisterIndexA>;
@@ -357,10 +358,27 @@ CPU::ExecutedInstruction CPU::ExecuteNextInstruction()
 	return instruction;
 }
 
+bool CPU::HasBreakpoint(uint16_t a_Address) const
+{
+	return m_Memory.GetReplaced8(a_Address).has_value();
+}
+
+void CPU::SetBreakpoint(uint16_t a_Address, bool a_Enabled)
+{
+	if (a_Enabled)
+	{
+		m_Memory.Replace8(a_Address, Instruction::BREAKPOINT);
+	}
+	else
+	{
+		m_Memory.Restore8(a_Address);
+	}
+}
+
 void CPU::ExecuteInstruction(Instruction::Enum a_Instruction)
 {
 	(this->*(m_Instructions[a_Instruction]))();
-	m_CycleCount += Instruction::GetCycles(a_Instruction).value();
+	m_CycleCount += Instruction::GetCycles(a_Instruction).value_or(0);
 }
 
 void CPU::ExecuteNextExtendedInstruction()
@@ -371,7 +389,7 @@ void CPU::ExecuteNextExtendedInstruction()
 void CPU::ExecuteExtendedInstruction(ExtendedInstruction::Enum a_Instruction)
 {
 	(this->*(m_ExtendedInstructions[a_Instruction]))();
-	m_CycleCount += ExtendedInstruction::GetCycles(a_Instruction).value();
+	m_CycleCount += ExtendedInstruction::GetCycles(a_Instruction).value_or(0);
 }
 
 uint8_t CPU::PeekNextByte() const noexcept
@@ -599,6 +617,20 @@ void CPU::NotImplemented() noexcept
 
 void CPU::NOP() noexcept
 {
+}
+
+void CPU::BREAKPOINT() noexcept
+{
+	const uint16_t instruction_address = m_Registers.GetPC() - 1_u16;
+	const auto replaced_byte = m_Memory.GetReplaced8(instruction_address);
+	if (!replaced_byte)
+	{
+		NotImplemented();
+		return;
+	}
+
+	const auto instruction = static_cast<Instruction::Enum>(*replaced_byte);
+	ExecuteInstruction(instruction);
 }
 
 template <uint8_t Destination>

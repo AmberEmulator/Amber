@@ -1,15 +1,12 @@
 #include <gameboy/disassembly.hpp>
 
-#include <gameboy/instruction.hpp>
-#include <gameboy/extendedinstruction.hpp>
-
 #include <limits>
 
 using namespace Demu;
 using namespace Gameboy;
 
-Disassembly::Disassembly(const Common::Memory16& a_Memory):
-	m_Memory(a_Memory)
+Disassembly::Disassembly(CPU& a_CPU):
+	m_CPU(a_CPU)
 {
 }
 
@@ -31,8 +28,9 @@ bool Disassembly::IsValidAddress(uint64_t a_Address) const noexcept
 	}
 
 	const uint16_t address = static_cast<uint16_t>(a_Address);
+	auto& memory = m_CPU.GetMemory();
 
-	if (m_Memory.Load8(address - 1) == Instruction::EXT)
+	if (memory.Load8(address - 1) == Instruction::EXT)
 	{
 		return false;
 	}
@@ -68,21 +66,41 @@ std::string Disassembly::GetInstructionName(uint64_t a_Address) const
 	}
 }
 
+bool Disassembly::HasBreakpoint(uint64_t a_Address) const noexcept
+{
+	const uint16_t address = static_cast<uint16_t>(a_Address);
+	return m_CPU.HasBreakpoint(address);
+}
+
+void Disassembly::SetBreakpoint(uint64_t a_Address, bool a_Enabled)
+{
+	const uint16_t address = static_cast<uint16_t>(a_Address);
+	m_CPU.SetBreakpoint(address, a_Enabled);
+}
+
 Disassembly::InstructionInfo Disassembly::GetInstruction(uint64_t a_Address) const
 {
+	auto& memory = m_CPU.GetMemory();
+
 	InstructionInfo instruction;
 
 	// Cast address to correct size
 	const uint16_t address = static_cast<uint16_t>(a_Address);
 
 	// Read the instruction
-	instruction.m_Instruction = static_cast<Instruction::Enum>(m_Memory.Load8(address));
+	instruction.m_Instruction = static_cast<Instruction::Enum>(memory.Load8(address));
+
+	// Check if the instruction was replaced with an interrupt
+	if (instruction.m_Instruction == Instruction::BREAKPOINT)
+	{
+		instruction.m_Instruction = static_cast<Instruction::Enum>(memory.GetReplaced8(address).value_or(instruction.m_Instruction));
+	}
 
 	// Check if it is an extended instruction
 	if (instruction.m_Instruction == Instruction::EXT)
 	{
 		// Read the extended instruction
-		instruction.m_ExtendedInstruction = static_cast<ExtendedInstruction::Enum>(m_Memory.Load8(address + 1));
+		instruction.m_ExtendedInstruction = static_cast<ExtendedInstruction::Enum>(memory.Load8(address + 1));
 	}
 
 	return instruction;

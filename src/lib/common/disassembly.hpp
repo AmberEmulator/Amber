@@ -17,6 +17,9 @@ namespace Demu::Common
 		virtual uint64_t GetInstructionSize(uint64_t a_Address) const = 0;
 		virtual std::string GetAddressName(uint64_t a_Address) const;
 		virtual std::string GetInstructionName(uint64_t a_Address) const = 0;
+
+		virtual bool HasBreakpoint(uint64_t a_Address) const noexcept;
+		virtual void SetBreakpoint(uint64_t a_Address, bool a_Enabled);
 	};
 }
 
