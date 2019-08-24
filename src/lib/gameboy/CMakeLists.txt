@@ -11,6 +11,9 @@ target_include_directories(gameboy PUBLIC
 )
 
 # Add sources
+# Natvis
+demu_add_sources(gameboy "gameboy.natvis" FILTER "Natvis")
+
 # API
 demu_add_sources(gameboy "api.hpp" FILTER "API")
 
