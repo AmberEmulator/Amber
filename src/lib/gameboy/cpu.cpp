@@ -109,10 +109,10 @@ CPU::CPU(Memory16& a_Memory, GameboyType::Enum a_GameboyType):
 	m_Instructions[Instruction::LD_aFFC_A] = &CPU::LD_aFFr_r<Registers::RegisterIndexC, Registers::RegisterIndexA>;
 	m_Instructions[Instruction::LD_aFFn_A] = &CPU::LD_aFFn_r<Registers::RegisterIndexA>;
 
-	m_Instructions[Instruction::LDI_A_aHL] = &CPU::Increment16<Registers::RegisterIndexHL, &CPU::LD_r_arr<Registers::RegisterIndexA, Registers::RegisterIndexHL>>;
-	m_Instructions[Instruction::LDD_A_aHL] = &CPU::Decrement16<Registers::RegisterIndexHL, & CPU::LD_r_arr<Registers::RegisterIndexA, Registers::RegisterIndexHL>>;
-	m_Instructions[Instruction::LDI_aHL_A] = &CPU::Increment16<Registers::RegisterIndexHL, & CPU::LD_arr_r<Registers::RegisterIndexHL, Registers::RegisterIndexA>>;
-	m_Instructions[Instruction::LDD_aHL_A] = &CPU::Decrement16<Registers::RegisterIndexHL, & CPU::LD_arr_r<Registers::RegisterIndexHL, Registers::RegisterIndexA>>;
+	m_Instructions[Instruction::LDI_A_aHL] = &CPU::Join<&CPU::LD_r_arr<Registers::RegisterIndexA, Registers::RegisterIndexHL>, &CPU::UnaryInstruction_rr<Registers::RegisterIndexHL, &CPU::IncrementWord>>;
+	m_Instructions[Instruction::LDD_A_aHL] = &CPU::Join<&CPU::LD_r_arr<Registers::RegisterIndexA, Registers::RegisterIndexHL>, &CPU::UnaryInstruction_rr<Registers::RegisterIndexHL, &CPU::DecrementWord>>;
+	m_Instructions[Instruction::LDI_aHL_A] = &CPU::Join<&CPU::LD_arr_r<Registers::RegisterIndexHL, Registers::RegisterIndexA>, &CPU::UnaryInstruction_rr<Registers::RegisterIndexHL, &CPU::IncrementWord>>;
+	m_Instructions[Instruction::LDD_aHL_A] = &CPU::Join<&CPU::LD_arr_r<Registers::RegisterIndexHL, Registers::RegisterIndexA>, &CPU::UnaryInstruction_rr<Registers::RegisterIndexHL, &CPU::DecrementWord>>;
 
 	// 16-bit load instructions
 	m_Instructions[Instruction::LD_BC_nn]  = &CPU::LD_rr_nn<Registers::RegisterIndexBC>;
@@ -124,15 +124,15 @@ CPU::CPU(Memory16& a_Memory, GameboyType::Enum a_GameboyType):
 	m_Instructions[Instruction::LD_ann_SP] = &CPU::LD_ann_rr<Registers::RegisterIndexSP>;
 
 	// 8-bit add instructions
-	m_Instructions[Instruction::ADD_A_A]   = &CPU::ADD_r_r<Registers::RegisterIndexA, Registers::RegisterIndexA, false>;
-	m_Instructions[Instruction::ADD_A_B]   = &CPU::ADD_r_r<Registers::RegisterIndexA, Registers::RegisterIndexB, false>;
-	m_Instructions[Instruction::ADD_A_C]   = &CPU::ADD_r_r<Registers::RegisterIndexA, Registers::RegisterIndexC, false>;
-	m_Instructions[Instruction::ADD_A_D]   = &CPU::ADD_r_r<Registers::RegisterIndexA, Registers::RegisterIndexD, false>;
-	m_Instructions[Instruction::ADD_A_E]   = &CPU::ADD_r_r<Registers::RegisterIndexA, Registers::RegisterIndexE, false>;
-	m_Instructions[Instruction::ADD_A_H]   = &CPU::ADD_r_r<Registers::RegisterIndexA, Registers::RegisterIndexH, false>;
-	m_Instructions[Instruction::ADD_A_L]   = &CPU::ADD_r_r<Registers::RegisterIndexA, Registers::RegisterIndexL, false>;
-	m_Instructions[Instruction::ADD_A_n]   = &CPU::ADD_r_n<Registers::RegisterIndexA, false>;
-	m_Instructions[Instruction::ADD_A_aHL] = &CPU::ADD_r_arr<Registers::RegisterIndexA, Registers::RegisterIndexHL, false>;
+	m_Instructions[Instruction::ADD_A_A]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexA, &CPU::AddByte<false>>;
+	m_Instructions[Instruction::ADD_A_B]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexB, &CPU::AddByte<false>>;
+	m_Instructions[Instruction::ADD_A_C]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexC, &CPU::AddByte<false>>;
+	m_Instructions[Instruction::ADD_A_D]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexD, &CPU::AddByte<false>>;
+	m_Instructions[Instruction::ADD_A_E]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexE, &CPU::AddByte<false>>;
+	m_Instructions[Instruction::ADD_A_H]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexH, &CPU::AddByte<false>>;
+	m_Instructions[Instruction::ADD_A_L]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexL, &CPU::AddByte<false>>;
+	m_Instructions[Instruction::ADD_A_n]   = &CPU::BinaryInstruction_r_n<Registers::RegisterIndexA, &CPU::AddByte<false>>;
+	m_Instructions[Instruction::ADD_A_aHL] = &CPU::BinaryInstruction_r_arr<Registers::RegisterIndexA, Registers::RegisterIndexHL, &CPU::AddByte<false>>;
 
 	// 16-bit add instructions
 	m_Instructions[Instruction::ADD_HL_BC] = &CPU::ADD_rr_rr<Registers::RegisterIndexHL, Registers::RegisterIndexBC>;
@@ -142,15 +142,113 @@ CPU::CPU(Memory16& a_Memory, GameboyType::Enum a_GameboyType):
 	m_Instructions[Instruction::ADD_SP_n]  = &CPU::ADD_rr_n<Registers::RegisterIndexSP>;
 
 	// 8-bit add + carry instructions
-	m_Instructions[Instruction::ADC_A_A]   = &CPU::ADD_r_r<Registers::RegisterIndexA, Registers::RegisterIndexA, true>;
-	m_Instructions[Instruction::ADC_A_B]   = &CPU::ADD_r_r<Registers::RegisterIndexA, Registers::RegisterIndexB, true>;
-	m_Instructions[Instruction::ADC_A_C]   = &CPU::ADD_r_r<Registers::RegisterIndexA, Registers::RegisterIndexC, true>;
-	m_Instructions[Instruction::ADC_A_D]   = &CPU::ADD_r_r<Registers::RegisterIndexA, Registers::RegisterIndexD, true>;
-	m_Instructions[Instruction::ADC_A_E]   = &CPU::ADD_r_r<Registers::RegisterIndexA, Registers::RegisterIndexE, true>;
-	m_Instructions[Instruction::ADC_A_H]   = &CPU::ADD_r_r<Registers::RegisterIndexA, Registers::RegisterIndexH, true>;
-	m_Instructions[Instruction::ADC_A_L]   = &CPU::ADD_r_r<Registers::RegisterIndexA, Registers::RegisterIndexL, true>;
-	m_Instructions[Instruction::ADC_A_n]   = &CPU::ADD_r_n<Registers::RegisterIndexA, true>;
-	m_Instructions[Instruction::ADC_A_aHL] = &CPU::ADD_r_arr<Registers::RegisterIndexA, Registers::RegisterIndexHL, true>;
+	m_Instructions[Instruction::ADC_A_A]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexA, &CPU::AddByte<true>>;
+	m_Instructions[Instruction::ADC_A_B]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexB, &CPU::AddByte<true>>;
+	m_Instructions[Instruction::ADC_A_C]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexC, &CPU::AddByte<true>>;
+	m_Instructions[Instruction::ADC_A_D]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexD, &CPU::AddByte<true>>;
+	m_Instructions[Instruction::ADC_A_E]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexE, &CPU::AddByte<true>>;
+	m_Instructions[Instruction::ADC_A_H]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexH, &CPU::AddByte<true>>;
+	m_Instructions[Instruction::ADC_A_L]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexL, &CPU::AddByte<true>>;
+	m_Instructions[Instruction::ADC_A_n]   = &CPU::BinaryInstruction_r_n<Registers::RegisterIndexA, &CPU::AddByte<true>>;
+	m_Instructions[Instruction::ADC_A_aHL] = &CPU::BinaryInstruction_r_arr<Registers::RegisterIndexA, Registers::RegisterIndexHL, &CPU::AddByte<true>>;
+
+	// 8-bit subtract instructions
+	m_Instructions[Instruction::SUB_A_A]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexA, &CPU::SubtractByte<false>>;
+	m_Instructions[Instruction::SUB_A_B]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexB, &CPU::SubtractByte<false>>;
+	m_Instructions[Instruction::SUB_A_C]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexC, &CPU::SubtractByte<false>>;
+	m_Instructions[Instruction::SUB_A_D]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexD, &CPU::SubtractByte<false>>;
+	m_Instructions[Instruction::SUB_A_E]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexE, &CPU::SubtractByte<false>>;
+	m_Instructions[Instruction::SUB_A_H]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexH, &CPU::SubtractByte<false>>;
+	m_Instructions[Instruction::SUB_A_L]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexL, &CPU::SubtractByte<false>>;
+	m_Instructions[Instruction::SUB_A_n]   = &CPU::BinaryInstruction_r_n<Registers::RegisterIndexA, &CPU::SubtractByte<false>>;
+	m_Instructions[Instruction::SUB_A_aHL] = &CPU::BinaryInstruction_r_arr<Registers::RegisterIndexA, Registers::RegisterIndexHL, &CPU::SubtractByte<false>>;
+
+	// 8-bit subtract + carry instructions
+	m_Instructions[Instruction::SBC_A_A]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexA, &CPU::SubtractByte<true>>;
+	m_Instructions[Instruction::SBC_A_B]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexB, &CPU::SubtractByte<true>>;
+	m_Instructions[Instruction::SBC_A_C]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexC, &CPU::SubtractByte<true>>;
+	m_Instructions[Instruction::SBC_A_D]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexD, &CPU::SubtractByte<true>>;
+	m_Instructions[Instruction::SBC_A_E]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexE, &CPU::SubtractByte<true>>;
+	m_Instructions[Instruction::SBC_A_H]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexH, &CPU::SubtractByte<true>>;
+	m_Instructions[Instruction::SBC_A_L]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexL, &CPU::SubtractByte<true>>;
+	m_Instructions[Instruction::SBC_A_n]   = &CPU::BinaryInstruction_r_n<Registers::RegisterIndexA, &CPU::SubtractByte<true>>;
+	m_Instructions[Instruction::SBC_A_aHL] = &CPU::BinaryInstruction_r_arr<Registers::RegisterIndexA, Registers::RegisterIndexHL, &CPU::SubtractByte<true>>;
+
+	// 8-bit AND instructions
+	m_Instructions[Instruction::AND_A_A]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexA, &CPU::ANDByte>;
+	m_Instructions[Instruction::AND_A_B]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexB, &CPU::ANDByte>;
+	m_Instructions[Instruction::AND_A_C]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexC, &CPU::ANDByte>;
+	m_Instructions[Instruction::AND_A_D]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexD, &CPU::ANDByte>;
+	m_Instructions[Instruction::AND_A_E]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexE, &CPU::ANDByte>;
+	m_Instructions[Instruction::AND_A_H]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexH, &CPU::ANDByte>;
+	m_Instructions[Instruction::AND_A_L]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexL, &CPU::ANDByte>;
+	m_Instructions[Instruction::AND_A_n]   = &CPU::BinaryInstruction_r_n<Registers::RegisterIndexA, &CPU::ANDByte>;
+	m_Instructions[Instruction::AND_A_aHL] = &CPU::BinaryInstruction_r_arr<Registers::RegisterIndexA, Registers::RegisterIndexHL, &CPU::ANDByte>;
+
+	// 8-bit OR instructions
+	m_Instructions[Instruction::OR_A_A]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexA, &CPU::ORByte>;
+	m_Instructions[Instruction::OR_A_B]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexB, &CPU::ORByte>;
+	m_Instructions[Instruction::OR_A_C]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexC, &CPU::ORByte>;
+	m_Instructions[Instruction::OR_A_D]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexD, &CPU::ORByte>;
+	m_Instructions[Instruction::OR_A_E]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexE, &CPU::ORByte>;
+	m_Instructions[Instruction::OR_A_H]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexH, &CPU::ORByte>;
+	m_Instructions[Instruction::OR_A_L]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexL, &CPU::ORByte>;
+	m_Instructions[Instruction::OR_A_n]   = &CPU::BinaryInstruction_r_n<Registers::RegisterIndexA, &CPU::ORByte>;
+	m_Instructions[Instruction::OR_A_aHL] = &CPU::BinaryInstruction_r_arr<Registers::RegisterIndexA, Registers::RegisterIndexHL, &CPU::ORByte>;
+
+	// 8-bit XOR instructions
+	m_Instructions[Instruction::XOR_A_A]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexA, &CPU::XORByte>;
+	m_Instructions[Instruction::XOR_A_B]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexB, &CPU::XORByte>;
+	m_Instructions[Instruction::XOR_A_C]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexC, &CPU::XORByte>;
+	m_Instructions[Instruction::XOR_A_D]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexD, &CPU::XORByte>;
+	m_Instructions[Instruction::XOR_A_E]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexE, &CPU::XORByte>;
+	m_Instructions[Instruction::XOR_A_H]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexH, &CPU::XORByte>;
+	m_Instructions[Instruction::XOR_A_L]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexL, &CPU::XORByte>;
+	m_Instructions[Instruction::XOR_A_n]   = &CPU::BinaryInstruction_r_n<Registers::RegisterIndexA, &CPU::XORByte>;
+	m_Instructions[Instruction::XOR_A_aHL] = &CPU::BinaryInstruction_r_arr<Registers::RegisterIndexA, Registers::RegisterIndexHL, &CPU::XORByte>;
+
+	// 8-bit compare instructions
+	m_Instructions[Instruction::CP_A_A]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexA, &CPU::SubtractByte<false>, false>;
+	m_Instructions[Instruction::CP_A_B]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexB, &CPU::SubtractByte<false>, false>;
+	m_Instructions[Instruction::CP_A_C]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexC, &CPU::SubtractByte<false>, false>;
+	m_Instructions[Instruction::CP_A_D]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexD, &CPU::SubtractByte<false>, false>;
+	m_Instructions[Instruction::CP_A_E]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexE, &CPU::SubtractByte<false>, false>;
+	m_Instructions[Instruction::CP_A_H]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexH, &CPU::SubtractByte<false>, false>;
+	m_Instructions[Instruction::CP_A_L]   = &CPU::BinaryInstruction_r_r<Registers::RegisterIndexA, Registers::RegisterIndexL, &CPU::SubtractByte<false>, false>;
+	m_Instructions[Instruction::CP_A_n]   = &CPU::BinaryInstruction_r_n<Registers::RegisterIndexA, &CPU::SubtractByte<false>, false>;
+	m_Instructions[Instruction::CP_A_aHL] = &CPU::BinaryInstruction_r_arr<Registers::RegisterIndexA, Registers::RegisterIndexHL, &CPU::SubtractByte<false>, false>;
+	
+	// 8-bit increment instructions
+	m_Instructions[Instruction::INC_A]   = &CPU::UnaryInstruction_r<Registers::RegisterIndexA, &CPU::IncrementByte>;
+	m_Instructions[Instruction::INC_B]   = &CPU::UnaryInstruction_r<Registers::RegisterIndexB, &CPU::IncrementByte>;
+	m_Instructions[Instruction::INC_C]   = &CPU::UnaryInstruction_r<Registers::RegisterIndexC, &CPU::IncrementByte>;
+	m_Instructions[Instruction::INC_D]   = &CPU::UnaryInstruction_r<Registers::RegisterIndexD, &CPU::IncrementByte>;
+	m_Instructions[Instruction::INC_E]   = &CPU::UnaryInstruction_r<Registers::RegisterIndexE, &CPU::IncrementByte>;
+	m_Instructions[Instruction::INC_H]   = &CPU::UnaryInstruction_r<Registers::RegisterIndexH, &CPU::IncrementByte>;
+	m_Instructions[Instruction::INC_L]   = &CPU::UnaryInstruction_r<Registers::RegisterIndexL, &CPU::IncrementByte>;
+	m_Instructions[Instruction::INC_aHL] = &CPU::UnaryInstruction_arr<Registers::RegisterIndexHL, &CPU::IncrementByte>;
+
+	// 16-bit increment instructions
+	m_Instructions[Instruction::INC_BC] = &CPU::UnaryInstruction_rr<Registers::RegisterIndexBC, &CPU::IncrementWord>;
+	m_Instructions[Instruction::INC_DE] = &CPU::UnaryInstruction_rr<Registers::RegisterIndexDE, &CPU::IncrementWord>;
+	m_Instructions[Instruction::INC_HL] = &CPU::UnaryInstruction_rr<Registers::RegisterIndexHL, &CPU::IncrementWord>;
+	m_Instructions[Instruction::INC_SP] = &CPU::UnaryInstruction_rr<Registers::RegisterIndexSP, &CPU::IncrementWord>;
+	
+	// 8-bit decrement instructions
+	m_Instructions[Instruction::DEC_A]   = &CPU::UnaryInstruction_r<Registers::RegisterIndexA, &CPU::DecrementByte>;
+	m_Instructions[Instruction::DEC_B]   = &CPU::UnaryInstruction_r<Registers::RegisterIndexB, &CPU::DecrementByte>;
+	m_Instructions[Instruction::DEC_C]   = &CPU::UnaryInstruction_r<Registers::RegisterIndexC, &CPU::DecrementByte>;
+	m_Instructions[Instruction::DEC_D]   = &CPU::UnaryInstruction_r<Registers::RegisterIndexD, &CPU::DecrementByte>;
+	m_Instructions[Instruction::DEC_E]   = &CPU::UnaryInstruction_r<Registers::RegisterIndexE, &CPU::DecrementByte>;
+	m_Instructions[Instruction::DEC_H]   = &CPU::UnaryInstruction_r<Registers::RegisterIndexH, &CPU::DecrementByte>;
+	m_Instructions[Instruction::DEC_L]   = &CPU::UnaryInstruction_r<Registers::RegisterIndexL, &CPU::DecrementByte>;
+	m_Instructions[Instruction::DEC_aHL] = &CPU::UnaryInstruction_arr<Registers::RegisterIndexHL, &CPU::DecrementByte>;
+
+	// 16-bit decrement instructions
+	m_Instructions[Instruction::DEC_BC] = &CPU::UnaryInstruction_rr<Registers::RegisterIndexBC, &CPU::DecrementWord>;
+	m_Instructions[Instruction::DEC_DE] = &CPU::UnaryInstruction_rr<Registers::RegisterIndexDE, &CPU::DecrementWord>;
+	m_Instructions[Instruction::DEC_HL] = &CPU::UnaryInstruction_rr<Registers::RegisterIndexHL, &CPU::DecrementWord>;
+	m_Instructions[Instruction::DEC_SP] = &CPU::UnaryInstruction_rr<Registers::RegisterIndexSP, &CPU::DecrementWord>;
 
 	// Absolute jump instructions
 	m_Instructions[Instruction::JP_nn]    = &CPU::JP_nn;
@@ -300,8 +398,17 @@ uint16_t CPU::ReadNextWord() noexcept
 	return word;
 }
 
+template <bool Carry>
 uint8_t CPU::AddByte(uint8_t a_Left, uint8_t a_Right) noexcept
 {
+	if constexpr (Carry)
+	{
+		if (m_Registers.GetCarry())
+		{
+			++a_Right;
+		}
+	}
+
 	const uint16_t result = static_cast<uint16_t>(a_Left) + static_cast<uint16_t>(a_Right);
 
 	m_Registers.SetZero((result & 0xFF) == 0);
@@ -312,9 +419,18 @@ uint8_t CPU::AddByte(uint8_t a_Left, uint8_t a_Right) noexcept
 	return static_cast<uint8_t>(result);
 }
 
+template <bool Carry>
 uint8_t CPU::SubtractByte(uint8_t a_Left, uint8_t a_Right) noexcept
 {
-	const uint8_t value = AddByte(a_Left, (~a_Right) + 1);
+	if constexpr (Carry)
+	{
+		if (m_Registers.GetCarry())
+		{
+			++a_Right;
+		}
+	}
+
+	const uint8_t value = AddByte<false>(a_Left, (~a_Right) + 1);
 
 	m_Registers.SetSubtract(true);
 	m_Registers.SetHalfCarry(!m_Registers.GetHalfCarry());
@@ -340,6 +456,16 @@ uint8_t CPU::DecrementByte(uint8_t a_Value) noexcept
 	m_Registers.SetHalfCarry((a_Value & 0xF) == 0);
 	// Carry flag is not affected by decrements
 
+	return --a_Value;
+}
+
+uint16_t CPU::IncrementWord(uint16_t a_Value) noexcept
+{
+	return ++a_Value;
+}
+
+uint16_t CPU::DecrementWord(uint16_t a_Value) noexcept
+{
 	return --a_Value;
 }
 
@@ -388,18 +514,82 @@ void CPU::Conditional() noexcept
 	}
 }
 
-template <uint8_t Register, CPU::InstructionCallback Callback>
-void CPU::Increment16() noexcept
+template <CPU::InstructionCallback Callback, CPU::InstructionCallback... Callbacks>
+void CPU::Join() noexcept
 {
-	const uint16_t value = m_Registers.GetRegister16(Register) + 1_u16;
-	m_Registers.SetRegister16(Register, value);
+	(this->*Callback)();
+
+	if constexpr (sizeof...(Callbacks) > 0)
+	{
+		Join<Callbacks...>();
+	}
 }
 
-template <uint8_t Register, CPU::InstructionCallback Callback>
-void CPU::Decrement16() noexcept
+template <uint8_t Destination, CPU::UnaryOperator8 Operator, bool Store>
+void CPU::UnaryInstruction_r() noexcept
 {
-	const uint16_t value = m_Registers.GetRegister16(Register) - 1_u16;
-	m_Registers.SetRegister16(Register, value);
+	const uint8_t destination_value = m_Registers.GetRegister8(Destination);
+	const uint8_t result = (this->*Operator)(destination_value);
+	if constexpr (Store)
+	{
+		m_Registers.SetRegister8(Destination, result);
+	}
+}
+
+template <uint8_t Destination, CPU::UnaryOperator8 Operator, bool Store>
+void CPU::UnaryInstruction_arr() noexcept
+{
+	const uint16_t address = m_Registers.GetRegister16(Destination);
+	const uint8_t destination_value = m_Memory.Load8(address);
+	const uint8_t result = (this->*Operator)(destination_value);
+	if constexpr (Store)
+	{
+		m_Memory.Store8(address, result);
+	}
+}
+
+template <uint8_t Destination, CPU::UnaryOperator16 Operator, bool Store>
+void CPU::UnaryInstruction_rr() noexcept
+{
+	const uint16_t destination_value = m_Registers.GetRegister16(Destination);
+	const uint16_t result = (this->*Operator)(destination_value);
+	if constexpr (Store)
+	{
+		m_Registers.SetRegister16(Destination, result);
+	}
+}
+
+template <uint8_t Destination, CPU::BinaryOperator8 Operator, bool Store>
+void CPU::BinaryInstruction_r_x(uint8_t a_Value) noexcept
+{
+	const uint8_t destination_value = m_Registers.GetRegister8(Destination);
+	const uint8_t result = (this->*Operator)(destination_value, a_Value);
+	if constexpr (Store)
+	{
+		m_Registers.SetRegister8(Destination, result);
+	}
+}
+
+template <uint8_t Destination, CPU::BinaryOperator8 Operator, bool Store>
+void CPU::BinaryInstruction_r_n() noexcept
+{
+	const uint8_t value = ReadNextByte();
+	BinaryInstruction_r_x<Destination, Operator, Store>(value);
+}
+
+template <uint8_t Destination, uint8_t Source, CPU::BinaryOperator8 Operator, bool Store>
+void CPU::BinaryInstruction_r_r() noexcept
+{
+	const uint8_t value = m_Registers.GetRegister8(Source);
+	BinaryInstruction_r_x<Destination, Operator, Store>(value);
+}
+
+template <uint8_t Destination, uint8_t Source, CPU::BinaryOperator8 Operator, bool Store>
+void CPU::BinaryInstruction_r_arr() noexcept
+{
+	const uint16_t address = m_Registers.GetRegister16(Source);
+	const uint8_t value = m_Memory.Load8(address);
+	BinaryInstruction_r_x<Destination, Operator, Store>(value);
 }
 
 void CPU::NotImplemented() noexcept
@@ -582,45 +772,6 @@ void CPU::LD_ann_rr() noexcept
 	LD_xx_rr<Source>(address);
 }
 
-template <uint8_t Destination, bool Carry>
-void CPU::ADD_r_x(uint8_t a_Value) noexcept
-{
-	const uint8_t destination_value = m_Registers.GetRegister8(Destination);
-	const bool carry = m_Registers.GetCarry();
-	uint8_t result = AddByte(destination_value, a_Value);
-	if constexpr(Carry)
-	{
-		if (carry)
-		{
-			++result;
-		}
-	}
-	
-	m_Registers.SetRegister8(Destination, result);
-}
-
-template <uint8_t Destination, bool Carry>
-void CPU::ADD_r_n() noexcept
-{
-	const uint8_t value = ReadNextByte();
-	ADD_r_x<Destination, Carry>(value);
-}
-
-template <uint8_t Destination, uint8_t Source, bool Carry>
-void CPU::ADD_r_r() noexcept
-{
-	const uint8_t value = m_Registers.GetRegister8(Source);
-	ADD_r_x<Destination, Carry>(value);
-}
-
-template <uint8_t Destination, uint8_t Source, bool Carry>
-void CPU::ADD_r_arr() noexcept
-{
-	const uint16_t address = m_Registers.GetRegister16(Source);
-	const uint8_t value = m_Memory.Load8(address);
-	ADD_r_x<Destination, Carry>(value);
-}
-
 template <uint8_t Destination>
 void CPU::ADD_rr_xx(uint16_t a_Value) noexcept
 {
@@ -641,34 +792,6 @@ void CPU::ADD_rr_rr() noexcept
 	ADD_rr_xx<Destination>(value);
 }
 
-template <uint8_t Destination, bool Carry>
-void CPU::SUB_r_x(uint8_t a_Value) noexcept
-{
-	SUB_r
-}
-
-template <uint8_t Destination, bool Carry>
-void CPU::SUB_r_n() noexcept
-{
-	const uint8_t value = ReadNextByte();
-	SUB_r_x<Destination, Carry>(value);
-}
-
-template <uint8_t Destination, uint8_t Source, bool Carry>
-void CPU::SUB_r_r() noexcept
-{
-	const uint8_t value = m_Registers.GetRegister8(Source);
-	SUB_r_x<Destination, Carry>(value);
-}
-
-template <uint8_t Destination, uint8_t Source, bool Carry>
-void CPU::SUB_r_arr() noexcept
-{
-	const uint16_t address = m_Registers.GetRegister16(Source);
-	const uint8_t value = m_Memory.Load8(address);
-	SUB_r_x<Destination, Carry>(value);
-}
-
 void CPU::JP_xx(uint16_t a_Address) noexcept
 {
 	m_Registers.SetPC(a_Address);
@@ -687,7 +810,14 @@ void CPU::JP_rr() noexcept
 
 void CPU::JR_x(uint8_t a_Offset) noexcept
 {
-	JP_xx(m_Registers.GetPC() + a_Offset);
+	if ((a_Offset & 0x80) == 0)
+	{
+		JP_xx(m_Registers.GetPC() + a_Offset);
+	}
+	else
+	{
+		JP_xx(m_Registers.GetPC() - (static_cast<uint16_t>(static_cast<uint8_t>(~a_Offset)) + 1));
+	}
 }
 
 void CPU::JR_n() noexcept

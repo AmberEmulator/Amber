@@ -60,19 +60,34 @@ namespace Demu::Gameboy
 		uint8_t ReadNextByte() noexcept;
 		uint16_t ReadNextWord() noexcept;
 
-		// Operator helpers
-		uint8_t AddByte(uint8_t a_Left, uint8_t a_Right) noexcept;
-		uint8_t SubtractByte(uint8_t a_Left, uint8_t a_Right) noexcept;
+		// Operators
+		using UnaryOperator8 = uint8_t(CPU::*)(uint8_t a_Value);
+		using UnaryOperator16 = uint16_t(CPU::*)(uint16_t a_Value);
+		using BinaryOperator8 = uint8_t(CPU::*)(uint8_t a_Left, uint8_t a_Right);
+		using BinaryOperator16 = uint16_t(CPU::*)(uint16_t a_Left, uint16_t a_Right);
+
+		template <bool Carry> uint8_t AddByte(uint8_t a_Left, uint8_t a_Right) noexcept;
+		template <bool Carry> uint8_t SubtractByte(uint8_t a_Left, uint8_t a_Right) noexcept;
 		uint8_t IncrementByte(uint8_t a_Value) noexcept;
 		uint8_t DecrementByte(uint8_t a_Value) noexcept;
+		uint16_t IncrementWord(uint16_t a_Value) noexcept;
+		uint16_t DecrementWord(uint16_t a_Value) noexcept;
 		uint8_t ANDByte(uint8_t a_Left, uint8_t a_Right) noexcept;
 		uint8_t ORByte(uint8_t a_Left, uint8_t a_Right) noexcept;
 		uint8_t XORByte(uint8_t a_Left, uint8_t a_Right) noexcept;
 		
 		// Instruction helpers
 		template <uint8_t Flag, bool Set, InstructionCallback Callback> void Conditional() noexcept;
-		template <uint8_t Register, InstructionCallback Callback> void Increment16() noexcept;
-		template <uint8_t Register, InstructionCallback Callback> void Decrement16() noexcept;
+		template <InstructionCallback Callback, InstructionCallback... Callbacks> void Join() noexcept;
+
+		template <uint8_t Destination, UnaryOperator8 Operator, bool Store = true> void UnaryInstruction_r() noexcept;
+		template <uint8_t Destination, UnaryOperator8 Operator, bool Store = true> void UnaryInstruction_arr() noexcept;
+		template <uint8_t Destination, UnaryOperator16 Operator, bool Store = true> void UnaryInstruction_rr() noexcept;
+
+		template <uint8_t Destination, BinaryOperator8 Operator, bool Store = true> void BinaryInstruction_r_x(uint8_t a_Value) noexcept;
+		template <uint8_t Destination, BinaryOperator8 Operator, bool Store = true> void BinaryInstruction_r_n() noexcept;
+		template <uint8_t Destination, uint8_t Source, BinaryOperator8 Operator, bool Store = true> void BinaryInstruction_r_r() noexcept;
+		template <uint8_t Destination, uint8_t Source, BinaryOperator8 Operator, bool Store = true> void BinaryInstruction_r_arr() noexcept;
 
 		// Misc instructions
 		void NotImplemented() noexcept;
@@ -113,22 +128,10 @@ namespace Demu::Gameboy
 		template <uint8_t Source> void LD_xx_rr(uint16_t a_Address) noexcept;
 		template <uint8_t Source> void LD_ann_rr() noexcept;
 
-		// 8-bit add instructions
-		template <uint8_t Destination, bool Carry> void ADD_r_x(uint8_t a_Value) noexcept;
-		template <uint8_t Destination, bool Carry> void ADD_r_n() noexcept;
-		template <uint8_t Destination, uint8_t Source, bool Carry> void ADD_r_r() noexcept;
-		template <uint8_t Destination, uint8_t Source, bool Carry> void ADD_r_arr() noexcept;
-
 		// 16-bit add instructions
 		template <uint8_t Destination> void ADD_rr_xx(uint16_t a_Value) noexcept;
 		template <uint8_t Destination> void ADD_rr_n() noexcept;
 		template <uint8_t Destination, uint8_t Source> void ADD_rr_rr() noexcept;
-
-		// 8-bit subtract instructions
-		template <uint8_t Destination, bool Carry> void SUB_r_x(uint8_t a_Value) noexcept;
-		template <uint8_t Destination, bool Carry> void SUB_r_n() noexcept;
-		template <uint8_t Destination, uint8_t Source, bool Carry> void SUB_r_r() noexcept;
-		template <uint8_t Destination, uint8_t Source, bool Carry> void SUB_r_arr() noexcept;
 
 		// Absolute jump instructions
 		void JP_xx(uint16_t a_Address) noexcept;
