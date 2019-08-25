@@ -1,18 +1,18 @@
-#ifndef H_DEMU_GAMEBOY_DISASSEMBLY
-#define H_DEMU_GAMEBOY_DISASSEMBLY
+#ifndef H_DEMU_GAMEBOY_DEBUGGER
+#define H_DEMU_GAMEBOY_DEBUGGER
 
 #include <gameboy/api.hpp>
 #include <gameboy/cpu.hpp>
 
-#include <common/disassembly.hpp>
+#include <common/debugger.hpp>
 
 namespace Demu::Gameboy
 {
-	class GAMEBOY_API Disassembly : public Common::Disassembly
+	class GAMEBOY_API Debugger : public Common::Debugger
 	{
 		public:
-		Disassembly(CPU& a_CPU);
-		~Disassembly() noexcept override = default;
+		Debugger(CPU& a_CPU);
+		~Debugger() noexcept override = default;
 
 		uint64_t GetMaximumAddress() const noexcept override;
 

@@ -1,14 +1,14 @@
-#ifndef H_DEMU_COMMON_DISASSEMBLY
-#define H_DEMU_COMMON_DISASSEMBLY
+#ifndef H_DEMU_COMMON_DEBUGGER
+#define H_DEMU_COMMON_DEBUGGER
 
 #include <common/api.hpp>
 
 namespace Demu::Common
 {
-	class COMMON_API Disassembly
+	class COMMON_API Debugger
 	{
 		public:
-		virtual ~Disassembly() noexcept = 0;
+		virtual ~Debugger() noexcept = 0;
 
 		virtual uint64_t GetMaximumAddress() const noexcept;
 		virtual size_t GetMaximumAddressWidth() const noexcept;

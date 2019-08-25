@@ -3,13 +3,13 @@
 
 #include <client/api.hpp>
 
-#include <common/disassembly.hpp>
+#include <common/debugger.hpp>
 
 namespace Demu::Client
 {
 	struct DisassemblyState
 	{
-		Common::Disassembly* m_Disassembly = nullptr;
+		Common::Debugger* m_Debugger = nullptr;
 		uint64_t m_ViewAddress = 0;
 		uint64_t m_SelectedAddress = 0;
 	};

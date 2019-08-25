@@ -7,7 +7,7 @@ using namespace Client;
 
 void Demu::Client::ShowDisassembly(const char* a_Name, DisassemblyState& a_State)
 {
-	auto& disassembly = *(a_State.m_Disassembly);
+	auto& debugger = *(a_State.m_Debugger);
 
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 	ImGui::BeginChild(a_Name, ImGui::GetContentRegionAvail(), false, ImGuiWindowFlags_AlwaysVerticalScrollbar);
@@ -17,7 +17,7 @@ void Demu::Client::ShowDisassembly(const char* a_Name, DisassemblyState& a_State
 	const float row_height = font_height + style.FramePadding.y * 2.0f;
 	const float font_y_offset = style.FramePadding.y;
 
-	const size_t maximum_address_length = disassembly.GetMaximumAddressWidth();
+	const size_t maximum_address_length = debugger.GetMaximumAddressWidth();
 	const std::string test_string(maximum_address_length, 'A');
 	const float address_width = ImGui::CalcTextSize(test_string.c_str()).x;
 	const float space_width = ImGui::CalcTextSize(" ").x;
@@ -44,7 +44,7 @@ void Demu::Client::ShowDisassembly(const char* a_Name, DisassemblyState& a_State
 	{
 		ImGui::PushID(static_cast<int>(i));
 
-		while (!disassembly.IsValidAddress(address))
+		while (!debugger.IsValidAddress(address))
 		{
 			++address;
 		}
@@ -52,8 +52,8 @@ void Demu::Client::ShowDisassembly(const char* a_Name, DisassemblyState& a_State
 		try
 		{
 			// Get instruction info
-			const std::string address_name = disassembly.GetAddressName(address);
-			const std::string instruction_name = disassembly.GetInstructionName(address);
+			const std::string address_name = debugger.GetAddressName(address);
+			const std::string instruction_name = debugger.GetInstructionName(address);
 
 			const ImVec2 row_top_left(window_top_left.x, window_top_left.y + i * row_height);
 			const ImVec2 row_bottom_right(window_bottom_right.x, row_top_left.y + row_height);
@@ -69,10 +69,10 @@ void Demu::Client::ShowDisassembly(const char* a_Name, DisassemblyState& a_State
 			ImGui::SetCursorScreenPos(row_top_left);
 			if (ImGui::InvisibleButton("##Breakpoint", ImVec2(row_height, row_height)))
 			{
-				disassembly.SetBreakpoint(address, !disassembly.HasBreakpoint(address));
+				debugger.SetBreakpoint(address, !debugger.HasBreakpoint(address));
 			}
 
-			if (disassembly.HasBreakpoint(address))
+			if (debugger.HasBreakpoint(address))
 			{
 				const ImVec2 circle_pos = ImVec2(row_top_left.x + row_height / 2.0f + 0.5f, row_top_left.y + row_height / 2.0f + 0.5f);
 
@@ -84,7 +84,7 @@ void Demu::Client::ShowDisassembly(const char* a_Name, DisassemblyState& a_State
 			draw_list.AddText(ImVec2(row_top_left.x + instruction_offset, text_y), font_color, instruction_name.c_str());
 
 			// Go to next address
-			address += disassembly.GetInstructionSize(address);
+			address += debugger.GetInstructionSize(address);
 		}
 		catch (...)
 		{

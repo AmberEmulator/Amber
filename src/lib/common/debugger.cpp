@@ -1,18 +1,18 @@
-#include <common/disassembly.hpp>
+#include <common/debugger.hpp>
 
 #include <limits>
 
 using namespace Demu;
 using namespace Common;
 
-Disassembly::~Disassembly() noexcept = default;
+Debugger::~Debugger() noexcept = default;
 
-uint64_t Disassembly::GetMaximumAddress() const noexcept
+uint64_t Debugger::GetMaximumAddress() const noexcept
 {
 	return std::numeric_limits<uint64_t>::max();
 }
 
-size_t Disassembly::GetMaximumAddressWidth() const noexcept
+size_t Debugger::GetMaximumAddressWidth() const noexcept
 {
 	// TODO: portable
 	const uint64_t maximum_address = GetMaximumAddress();
@@ -21,7 +21,7 @@ size_t Disassembly::GetMaximumAddressWidth() const noexcept
 	return static_cast<size_t>((result + 4) / 4);
 }
 
-std::string Disassembly::GetAddressName(uint64_t a_Address) const
+std::string Debugger::GetAddressName(uint64_t a_Address) const
 {
 	// Hex character lookup table
 	constexpr char hex_characters[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
@@ -42,11 +42,11 @@ std::string Disassembly::GetAddressName(uint64_t a_Address) const
 	return name;
 }
 
-bool Disassembly::HasBreakpoint(uint64_t a_Address) const noexcept
+bool Debugger::HasBreakpoint(uint64_t a_Address) const noexcept
 {
 	return false;
 }
 
-void Disassembly::SetBreakpoint(uint64_t a_Address, bool a_Enabled)
+void Debugger::SetBreakpoint(uint64_t a_Address, bool a_Enabled)
 {
 }

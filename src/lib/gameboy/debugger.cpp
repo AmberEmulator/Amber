@@ -1,21 +1,21 @@
-#include <gameboy/disassembly.hpp>
+#include <gameboy/debugger.hpp>
 
 #include <limits>
 
 using namespace Demu;
 using namespace Gameboy;
 
-Disassembly::Disassembly(CPU& a_CPU):
+Debugger::Debugger(CPU& a_CPU):
 	m_CPU(a_CPU)
 {
 }
 
-uint64_t Disassembly::GetMaximumAddress() const noexcept
+uint64_t Debugger::GetMaximumAddress() const noexcept
 {
 	return static_cast<uint64_t>(std::numeric_limits<uint16_t>::max());
 }
 
-bool Disassembly::IsValidAddress(uint64_t a_Address) const noexcept
+bool Debugger::IsValidAddress(uint64_t a_Address) const noexcept
 {
 	if (a_Address > 0xFFFF)
 	{
@@ -38,7 +38,7 @@ bool Disassembly::IsValidAddress(uint64_t a_Address) const noexcept
 	return true;
 }
 
-uint64_t Disassembly::GetInstructionSize(uint64_t a_Address) const
+uint64_t Debugger::GetInstructionSize(uint64_t a_Address) const
 {
 	const auto instruction = GetInstruction(a_Address);
 
@@ -52,7 +52,7 @@ uint64_t Disassembly::GetInstructionSize(uint64_t a_Address) const
 	}
 }
 
-std::string Disassembly::GetInstructionName(uint64_t a_Address) const
+std::string Debugger::GetInstructionName(uint64_t a_Address) const
 {
 	const auto instruction = GetInstruction(a_Address);
 
@@ -66,19 +66,19 @@ std::string Disassembly::GetInstructionName(uint64_t a_Address) const
 	}
 }
 
-bool Disassembly::HasBreakpoint(uint64_t a_Address) const noexcept
+bool Debugger::HasBreakpoint(uint64_t a_Address) const noexcept
 {
 	const uint16_t address = static_cast<uint16_t>(a_Address);
 	return m_CPU.HasBreakpoint(address);
 }
 
-void Disassembly::SetBreakpoint(uint64_t a_Address, bool a_Enabled)
+void Debugger::SetBreakpoint(uint64_t a_Address, bool a_Enabled)
 {
 	const uint16_t address = static_cast<uint16_t>(a_Address);
 	m_CPU.SetBreakpoint(address, a_Enabled);
 }
 
-Disassembly::InstructionInfo Disassembly::GetInstruction(uint64_t a_Address) const
+Debugger::InstructionInfo Debugger::GetInstruction(uint64_t a_Address) const
 {
 	auto& memory = m_CPU.GetMemory();
 

@@ -4,7 +4,7 @@
 #include <client/gameboywidgets.hpp>
 
 #include <gameboy/cpu.hpp>
-#include <gameboy/disassembly.hpp>
+#include <gameboy/debugger.hpp>
 #include <gameboy/registers.hpp>
 
 #include <common/ram.h>
@@ -58,10 +58,10 @@ void Application::Tick()
 	DrawRegisterWindow("Registers", cpu.GetRegisters());
 
 	// Show disassembly
-	static Gameboy::Disassembly disassembly(cpu);
+	static Gameboy::Debugger debugger(cpu);
 
 	static DisassemblyState disassembly_state;
-	disassembly_state.m_Disassembly = &disassembly;
+	disassembly_state.m_Debugger = &debugger;
 	disassembly_state.m_ViewAddress = cpu.GetRegisters().GetPC();
 
 	ImGui::SetNextWindowDockID(dock_id, ImGuiSetCond_FirstUseEver);
