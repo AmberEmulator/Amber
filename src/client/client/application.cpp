@@ -41,14 +41,35 @@ void Application::Tick()
 		return cpu;
 	}();
 
+	// Create debugger
+	static Gameboy::Debugger debugger(cpu);
+
 	ImGui::ShowDemoWindow();
 
 	// Show debugger
+	static bool running = false;
+	if (running)
+	{
+		running = debugger.Run();
+	}
+
 	if (ImGui::Begin("Debugger"))
 	{
-		if (ImGui::Button("Step forward"))
+		if (ImGui::Button("Run"))
 		{
-			cpu.ExecuteNextInstruction();
+			running = true;
+		}
+
+		ImGui::SameLine();
+		if (ImGui::Button("Step forward") && !running)
+		{
+			debugger.Step();
+		}
+
+		ImGui::SameLine();
+		if (ImGui::Button("Reset") && !running)
+		{
+			debugger.Reset();
 		}
 	}
 	ImGui::End();
@@ -58,7 +79,6 @@ void Application::Tick()
 	DrawRegisterWindow("Registers", cpu.GetRegisters());
 
 	// Show disassembly
-	static Gameboy::Debugger debugger(cpu);
 
 	static DisassemblyState disassembly_state;
 	disassembly_state.m_Debugger = &debugger;

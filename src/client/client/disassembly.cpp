@@ -21,9 +21,11 @@ void Demu::Client::ShowDisassembly(const char* a_Name, DisassemblyState& a_State
 	const std::string test_string(maximum_address_length, 'A');
 	const float address_width = ImGui::CalcTextSize(test_string.c_str()).x;
 	const float space_width = ImGui::CalcTextSize(" ").x;
+	const float byte_width = ImGui::CalcTextSize("AA").x;
 
 	const float address_offset = row_height + style.ItemInnerSpacing.x;
-	const float instruction_offset = address_offset + address_width + style.ItemInnerSpacing.x + space_width * 2.0f;
+	const float instruction_bytes_offset = address_offset + address_width + space_width * 2.0f + style.ItemInnerSpacing.x;
+	const float instruction_offset = instruction_bytes_offset + (byte_width * 3.0f) + (space_width * 2.0f) + space_width * 2.0f + style.ItemInnerSpacing.x;
 
 	// Colors
 	const ImU32 background_color = ImColor(style.Colors[ImGuiCol_TitleBg]);
@@ -54,6 +56,7 @@ void Demu::Client::ShowDisassembly(const char* a_Name, DisassemblyState& a_State
 			// Get instruction info
 			const std::string address_name = debugger.GetAddressName(address);
 			const std::string instruction_name = debugger.GetInstructionName(address);
+			const uint64_t instruction_size = debugger.GetInstructionSize(address);
 
 			const ImVec2 row_top_left(window_top_left.x, window_top_left.y + i * row_height);
 			const ImVec2 row_bottom_right(window_bottom_right.x, row_top_left.y + row_height);
@@ -79,8 +82,27 @@ void Demu::Client::ShowDisassembly(const char* a_Name, DisassemblyState& a_State
 				draw_list.AddCircleFilled(circle_pos, row_height / 2.0f - 3.0f, breakpoint_color);
 			}
 
-			// Text
+			// Draw address
 			draw_list.AddText(ImVec2(row_top_left.x + address_offset, text_y), font_color, address_name.c_str());
+
+			// Draw instruction bytes
+			float byte_offset = instruction_bytes_offset;
+			for (uint64_t byte_index = 0; byte_index < instruction_size; ++byte_index)
+			{
+				const uint8_t byte_value = debugger.Load8(address + byte_index);
+
+				constexpr char hex_characters[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+				char byte_string[3];
+				byte_string[0] = hex_characters[byte_value >> 4];
+				byte_string[1] = hex_characters[byte_value & 0x0F];
+				byte_string[2] = '\0';
+
+				draw_list.AddText(ImVec2(row_top_left.x + byte_offset, text_y), font_color, byte_string);
+
+				byte_offset += byte_width + space_width;
+			}
+
+			// Draw instruction
 			draw_list.AddText(ImVec2(row_top_left.x + instruction_offset, text_y), font_color, instruction_name.c_str());
 
 			// Go to next address

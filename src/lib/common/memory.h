@@ -36,11 +36,15 @@ namespace Demu::Common
 
 		void Replace8(Address a_Address, uint8_t a_Value)
 		{
-			const uint8_t original_value = Load8(a_Address);
-			Store8(a_Address, a_Value);
-
 			const uint64_t physical_address = GetPhysicalAddress(a_Address);
-			m_ReplacedBytes.insert_or_assign(physical_address, original_value);
+			const auto it = m_ReplacedBytes.find(physical_address);
+			if (it == m_ReplacedBytes.end())
+			{
+				const uint8_t original_value = Load8(a_Address);
+				m_ReplacedBytes.emplace(physical_address, original_value);
+			}
+
+			Store8(a_Address, a_Value);
 		}
 
 		void Restore8(Address a_Address)

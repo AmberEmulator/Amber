@@ -330,13 +330,14 @@ namespace Demu::Gameboy
 			RST_30 = 0xF7,
 			RST_38 = 0xFF,
 
-			// The instructions below do not exist on the gameboym and can instead be used by the debugger
+			// The instructions below do not exist on the gameboy and can instead be used by the debugger
 
 			// Software interrupts
-			BREAKPOINT = 0xFC,
+			BREAKPOINT_STOP     = 0xFC,
+			BREAKPOINT_CONTINUE = 0xFD,
 
 			// Reserved
-			RESERVED_D3 = 0xD3,
+			RESERVED_FC = 0xD3,
 			RESERVED_DB = 0xDB,
 			RESERVED_DD = 0xDD,
 			RESERVED_E3 = 0xE3,
@@ -345,7 +346,6 @@ namespace Demu::Gameboy
 			RESERVED_EC = 0xEC,
 			RESERVED_ED = 0xED,
 			RESERVED_F5 = 0xF5,
-			RESERVED_FD = 0xFD,
 		};
 
 		namespace Internal

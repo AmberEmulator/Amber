@@ -8,6 +8,7 @@ using namespace Gameboy;
 Debugger::Debugger(CPU& a_CPU):
 	m_CPU(a_CPU)
 {
+	m_CPU.SetBreakpointCallback([&] { m_Break = true; });
 }
 
 uint64_t Debugger::GetMaximumAddress() const noexcept
@@ -66,6 +67,12 @@ std::string Debugger::GetInstructionName(uint64_t a_Address) const
 	}
 }
 
+uint8_t Debugger::Load8(uint64_t a_Address) const
+{
+	const uint16_t address = static_cast<uint16_t>(a_Address);
+	return m_CPU.GetMemory().Load8(address);
+}
+
 bool Debugger::HasBreakpoint(uint64_t a_Address) const noexcept
 {
 	const uint16_t address = static_cast<uint16_t>(a_Address);
@@ -76,6 +83,33 @@ void Debugger::SetBreakpoint(uint64_t a_Address, bool a_Enabled)
 {
 	const uint16_t address = static_cast<uint16_t>(a_Address);
 	m_CPU.SetBreakpoint(address, a_Enabled);
+}
+
+bool Debugger::Run()
+{
+	m_Break = false;
+
+	// TODO: timing cycles
+	for (size_t i = 0; i < 100; ++i)
+	{
+		Step();
+		if (m_Break)
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+void Debugger::Step()
+{
+	m_CPU.ExecuteNextInstruction();
+}
+
+void Debugger::Reset()
+{
+	m_CPU.Reset();
 }
 
 Debugger::InstructionInfo Debugger::GetInstruction(uint64_t a_Address) const
@@ -91,7 +125,7 @@ Debugger::InstructionInfo Debugger::GetInstruction(uint64_t a_Address) const
 	instruction.m_Instruction = static_cast<Instruction::Enum>(memory.Load8(address));
 
 	// Check if the instruction was replaced with an interrupt
-	if (instruction.m_Instruction == Instruction::BREAKPOINT)
+	if (instruction.m_Instruction == Instruction::BREAKPOINT_STOP || instruction.m_Instruction == Instruction::BREAKPOINT_CONTINUE)
 	{
 		instruction.m_Instruction = static_cast<Instruction::Enum>(memory.GetReplaced8(address).value_or(instruction.m_Instruction));
 	}

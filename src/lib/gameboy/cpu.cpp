@@ -17,7 +17,8 @@ CPU::CPU(Memory16& a_Memory, GameboyType::Enum a_GameboyType):
 
 	// Misc instructions
 	m_Instructions[Instruction::NOP] = &CPU::NOP;
-	m_Instructions[Instruction::BREAKPOINT] = &CPU::BREAKPOINT;
+	m_Instructions[Instruction::BREAKPOINT_STOP] = &CPU::BREAKPOINT_STOP;
+	m_Instructions[Instruction::BREAKPOINT_CONTINUE] = &CPU::BREAKPOINT_CONTINUE;
 
 	// 8-bit load instructions
 	m_Instructions[Instruction::LD_A_A]    = &CPU::LD_r_r<Registers::RegisterIndexA, Registers::RegisterIndexA>;
@@ -252,19 +253,19 @@ CPU::CPU(Memory16& a_Memory, GameboyType::Enum a_GameboyType):
 	m_Instructions[Instruction::DEC_SP] = &CPU::UnaryInstruction_rr<Registers::RegisterIndexSP, &CPU::DecrementWord>;
 
 	// Absolute jump instructions
-	m_Instructions[Instruction::JP_nn]    = &CPU::JP_nn;
-	m_Instructions[Instruction::JP_NZ_nn] = &CPU::Conditional<Registers::FlagIndexZero, false, &CPU::JP_nn>;
-	m_Instructions[Instruction::JP_Z_nn]  = &CPU::Conditional<Registers::FlagIndexZero, true, &CPU::JP_nn>;
-	m_Instructions[Instruction::JP_NC_nn] = &CPU::Conditional<Registers::FlagIndexCarry, false, &CPU::JP_nn>;
-	m_Instructions[Instruction::JP_C_nn]  = &CPU::Conditional<Registers::FlagIndexCarry, true, &CPU::JP_nn>;
-	m_Instructions[Instruction::JP_HL]    = &CPU::JP_rr<Registers::RegisterIndexHL>;
+	m_Instructions[Instruction::JP_nn]    = &CPU::JP_nn<Registers::FlagIndexInvalid, false>;
+	m_Instructions[Instruction::JP_NZ_nn] = &CPU::JP_nn<Registers::FlagIndexZero, false>;
+	m_Instructions[Instruction::JP_Z_nn]  = &CPU::JP_nn<Registers::FlagIndexZero, true>;
+	m_Instructions[Instruction::JP_NC_nn] = &CPU::JP_nn<Registers::FlagIndexCarry, false>;
+	m_Instructions[Instruction::JP_C_nn]  = &CPU::JP_nn<Registers::FlagIndexCarry, true>;
+	m_Instructions[Instruction::JP_HL]    = &CPU::JP_rr<Registers::FlagIndexInvalid, false, Registers::RegisterIndexHL>;
 
 	// Relative jump instructions
-	m_Instructions[Instruction::JR_n]    = &CPU::JR_n;
-	m_Instructions[Instruction::JR_NZ_n] = &CPU::Conditional<Registers::FlagIndexZero, false, &CPU::JR_n>;
-	m_Instructions[Instruction::JR_Z_n]  = &CPU::Conditional<Registers::FlagIndexZero, true, &CPU::JR_n>;
-	m_Instructions[Instruction::JR_NC_n] = &CPU::Conditional<Registers::FlagIndexCarry, false, &CPU::JR_n>;
-	m_Instructions[Instruction::JR_C_n]  = &CPU::Conditional<Registers::FlagIndexCarry, true, &CPU::JR_n>;
+	m_Instructions[Instruction::JR_n]    = &CPU::JR_n<Registers::FlagIndexInvalid, false>;
+	m_Instructions[Instruction::JR_NZ_n] = &CPU::JR_n<Registers::FlagIndexZero, false>;
+	m_Instructions[Instruction::JR_Z_n]  = &CPU::JR_n<Registers::FlagIndexZero, true>;
+	m_Instructions[Instruction::JR_NC_n] = &CPU::JR_n<Registers::FlagIndexCarry, false>;
+	m_Instructions[Instruction::JR_C_n]  = &CPU::JR_n<Registers::FlagIndexCarry, true>;
 }
 
 GameboyType::Enum CPU::GetGameboyType() const noexcept
@@ -367,12 +368,17 @@ void CPU::SetBreakpoint(uint16_t a_Address, bool a_Enabled)
 {
 	if (a_Enabled)
 	{
-		m_Memory.Replace8(a_Address, Instruction::BREAKPOINT);
+		m_Memory.Replace8(a_Address, Instruction::BREAKPOINT_STOP);
 	}
 	else
 	{
 		m_Memory.Restore8(a_Address);
 	}
+}
+
+void CPU::SetBreakpointCallback(std::function<void()>&& a_Callback)
+{
+	m_BreakpointCallback = std::move(a_Callback);
 }
 
 void CPU::ExecuteInstruction(Instruction::Enum a_Instruction)
@@ -523,15 +529,6 @@ uint8_t CPU::XORByte(uint8_t a_Left, uint8_t a_Right) noexcept
 	return result;
 }
 
-template <uint8_t Flag, bool Set, CPU::InstructionCallback Callback>
-void CPU::Conditional() noexcept
-{
-	if (m_Registers.GetFlag(Flag) == Set)
-	{
-		(this->*Callback)();
-	}
-}
-
 template <CPU::InstructionCallback Callback, CPU::InstructionCallback... Callbacks>
 void CPU::Join() noexcept
 {
@@ -612,14 +609,19 @@ void CPU::BinaryInstruction_r_arr() noexcept
 
 void CPU::NotImplemented() noexcept
 {
-	assert(false && "This instruction has not been implemented.");
+	//assert(false && "This instruction has not been implemented.");
+	m_Registers.SetPC(m_Registers.GetPC() - 1_u16);
+	if (m_BreakpointCallback)
+	{
+		m_BreakpointCallback();
+	}
 }
 
 void CPU::NOP() noexcept
 {
 }
 
-void CPU::BREAKPOINT() noexcept
+void CPU::BREAKPOINT_STOP() noexcept
 {
 	const uint16_t instruction_address = m_Registers.GetPC() - 1_u16;
 	const auto replaced_byte = m_Memory.GetReplaced8(instruction_address);
@@ -628,6 +630,27 @@ void CPU::BREAKPOINT() noexcept
 		NotImplemented();
 		return;
 	}
+
+	m_Memory.Replace8(instruction_address, Instruction::BREAKPOINT_CONTINUE);
+	m_Registers.SetPC(instruction_address);
+
+	if (m_BreakpointCallback)
+	{
+		m_BreakpointCallback();
+	}
+}
+
+void CPU::BREAKPOINT_CONTINUE() noexcept
+{
+	const uint16_t instruction_address = m_Registers.GetPC() - 1_u16;
+	const auto replaced_byte = m_Memory.GetReplaced8(instruction_address);
+	if (!replaced_byte)
+	{
+		NotImplemented();
+		return;
+	}
+
+	m_Memory.Replace8(instruction_address, Instruction::BREAKPOINT_STOP);
 
 	const auto instruction = static_cast<Instruction::Enum>(*replaced_byte);
 	ExecuteInstruction(instruction);
@@ -824,35 +847,49 @@ void CPU::ADD_rr_rr() noexcept
 	ADD_rr_xx<Destination>(value);
 }
 
+template <uint8_t Flag, bool Set>
 void CPU::JP_xx(uint16_t a_Address) noexcept
 {
+	if constexpr (Flag != Registers::FlagIndexInvalid)
+	{
+		if (m_Registers.GetFlag(Flag) != Set)
+		{
+			return;
+		}
+	}
+
 	m_Registers.SetPC(a_Address);
 }
 
+template <uint8_t Flag, bool Set>
 void CPU::JP_nn() noexcept
 {
-	JP_xx(ReadNextWord());
+	JP_xx<Flag, Set>(ReadNextWord());
 }
 
-template <uint8_t Register>
+template <uint8_t Flag, bool Set, uint8_t Source>
 void CPU::JP_rr() noexcept
 {
-	JP_xx(m_Registers.GetRegister16(Register));
+	JP_xx<Flag, Set>(m_Registers.GetRegister16(Source));
 }
 
+template <uint8_t Flag, bool Set>
 void CPU::JR_x(uint8_t a_Offset) noexcept
 {
 	if ((a_Offset & 0x80) == 0)
 	{
-		JP_xx(m_Registers.GetPC() + a_Offset);
+		const uint16_t address = m_Registers.GetPC() + a_Offset;
+		JP_xx<Flag, Set>(address);
 	}
 	else
 	{
-		JP_xx(m_Registers.GetPC() - (static_cast<uint16_t>(static_cast<uint8_t>(~a_Offset)) + 1));
+		const uint16_t address = m_Registers.GetPC() - (static_cast<uint16_t>(static_cast<uint8_t>(~a_Offset)) + 1);
+		JP_xx<Flag, Set>(address);
 	}
 }
 
+template <uint8_t Flag, bool Set>
 void CPU::JR_n() noexcept
 {
-	JR_x(ReadNextByte());
+	JR_x<Flag, Set>(ReadNextByte());
 }

@@ -9,6 +9,9 @@
 
 #include <common/memory.h>
 
+#include <functional>
+#include <optional>
+
 namespace Demu::Gameboy
 {
 	class GAMEBOY_API CPU
@@ -49,6 +52,7 @@ namespace Demu::Gameboy
 		// Breakpoints
 		bool HasBreakpoint(uint16_t a_Address) const;
 		void SetBreakpoint(uint16_t a_Address, bool a_Enabled);
+		void SetBreakpointCallback(std::function<void()>&& a_Callback);
 
 		private:
 		using InstructionCallback = void (CPU::*)() noexcept;
@@ -81,7 +85,6 @@ namespace Demu::Gameboy
 		uint8_t XORByte(uint8_t a_Left, uint8_t a_Right) noexcept;
 		
 		// Instruction helpers
-		template <uint8_t Flag, bool Set, InstructionCallback Callback> void Conditional() noexcept;
 		template <InstructionCallback Callback, InstructionCallback... Callbacks> void Join() noexcept;
 
 		template <uint8_t Destination, UnaryOperator8 Operator, bool Store = true> void UnaryInstruction_r() noexcept;
@@ -96,7 +99,8 @@ namespace Demu::Gameboy
 		// Misc instructions
 		void NotImplemented() noexcept;
 		void NOP() noexcept;
-		void BREAKPOINT() noexcept;
+		void BREAKPOINT_STOP() noexcept;
+		void BREAKPOINT_CONTINUE() noexcept;
 
 		// 8-bit load instructions
 		template <uint8_t Destination> void LD_r_x(uint8_t a_Value) noexcept;
@@ -139,13 +143,13 @@ namespace Demu::Gameboy
 		template <uint8_t Destination, uint8_t Source> void ADD_rr_rr() noexcept;
 
 		// Absolute jump instructions
-		void JP_xx(uint16_t a_Address) noexcept;
-		void JP_nn() noexcept;
-		template <uint8_t Register> void JP_rr() noexcept;
+		template <uint8_t Flag, bool Set> void JP_xx(uint16_t a_Address) noexcept;
+		template <uint8_t Flag, bool Set> void JP_nn() noexcept;
+		template <uint8_t Flag, bool Set, uint8_t Source> void JP_rr() noexcept;
 
 		// Relative jump instructions
-		void JR_x(uint8_t a_Offset) noexcept;
-		void JR_n() noexcept;
+		template <uint8_t Flag, bool Set> void JR_x(uint8_t a_Offset) noexcept;
+		template <uint8_t Flag, bool Set> void JR_n() noexcept;
 
 		// Gameboy state
 		const GameboyType::Enum m_GameboyType;
@@ -156,6 +160,9 @@ namespace Demu::Gameboy
 		// Instructions
 		InstructionCallback m_Instructions[256];
 		InstructionCallback m_ExtendedInstructions[256];
+
+		// Breakpoints
+		std::function<void()> m_BreakpointCallback;
 	};
 }
 
