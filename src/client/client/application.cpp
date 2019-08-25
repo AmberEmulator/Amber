@@ -61,6 +61,12 @@ void Application::Tick()
 		}
 
 		ImGui::SameLine();
+		if (ImGui::Button("Break"))
+		{
+			running = false;
+		}
+
+		ImGui::SameLine();
 		if (ImGui::Button("Step forward") && !running)
 		{
 			debugger.Step();

@@ -85,6 +85,7 @@ namespace Demu::Gameboy
 		uint8_t XORByte(uint8_t a_Left, uint8_t a_Right) noexcept;
 		
 		// Instruction helpers
+		template <uint8_t Flag, bool Set> bool Condition() noexcept;
 		template <InstructionCallback Callback, InstructionCallback... Callbacks> void Join() noexcept;
 
 		template <uint8_t Destination, UnaryOperator8 Operator, bool Store = true> void UnaryInstruction_r() noexcept;
@@ -99,6 +100,8 @@ namespace Demu::Gameboy
 		// Misc instructions
 		void NotImplemented() noexcept;
 		void NOP() noexcept;
+		void DI() noexcept;
+		void EI() noexcept;
 		void BREAKPOINT_STOP() noexcept;
 		void BREAKPOINT_CONTINUE() noexcept;
 
@@ -150,6 +153,24 @@ namespace Demu::Gameboy
 		// Relative jump instructions
 		template <uint8_t Flag, bool Set> void JR_x(uint8_t a_Offset) noexcept;
 		template <uint8_t Flag, bool Set> void JR_n() noexcept;
+
+		// Push instructions
+		void PUSH_xx(uint16_t a_Value) noexcept;
+		template <uint8_t Source> void PUSH_rr() noexcept;
+
+		// Pop instructions
+		uint16_t POP_xx() noexcept;
+		template <uint8_t Destination> void POP_rr() noexcept;
+		
+		// Call instructions
+		template <uint8_t Flag, bool Set> void CALL_xx(uint16_t a_Address) noexcept;
+		template <uint8_t Flag, bool Set> void CALL_nn() noexcept;
+
+		// Return instructions
+		template <uint8_t Flag, bool Set> void RET() noexcept;
+
+		// Restart instructions
+		template <uint16_t Address> void RST() noexcept;
 
 		// Gameboy state
 		const GameboyType::Enum m_GameboyType;

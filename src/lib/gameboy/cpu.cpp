@@ -17,6 +17,8 @@ CPU::CPU(Memory16& a_Memory, GameboyType::Enum a_GameboyType):
 
 	// Misc instructions
 	m_Instructions[Instruction::NOP] = &CPU::NOP;
+	m_Instructions[Instruction::DI] = &CPU::DI;
+	m_Instructions[Instruction::EI] = &CPU::EI;
 	m_Instructions[Instruction::BREAKPOINT_STOP] = &CPU::BREAKPOINT_STOP;
 	m_Instructions[Instruction::BREAKPOINT_CONTINUE] = &CPU::BREAKPOINT_CONTINUE;
 
@@ -266,6 +268,43 @@ CPU::CPU(Memory16& a_Memory, GameboyType::Enum a_GameboyType):
 	m_Instructions[Instruction::JR_Z_n]  = &CPU::JR_n<Registers::FlagIndexZero, true>;
 	m_Instructions[Instruction::JR_NC_n] = &CPU::JR_n<Registers::FlagIndexCarry, false>;
 	m_Instructions[Instruction::JR_C_n]  = &CPU::JR_n<Registers::FlagIndexCarry, true>;
+
+	// Push instructions
+	m_Instructions[Instruction::PUSH_AF] = &CPU::PUSH_rr<Registers::RegisterIndexAF>;
+	m_Instructions[Instruction::PUSH_BC] = &CPU::PUSH_rr<Registers::RegisterIndexBC>;
+	m_Instructions[Instruction::PUSH_DE] = &CPU::PUSH_rr<Registers::RegisterIndexDE>;
+	m_Instructions[Instruction::PUSH_HL] = &CPU::PUSH_rr<Registers::RegisterIndexHL>;
+
+	// Pop instructions
+	m_Instructions[Instruction::POP_AF] = &CPU::POP_rr<Registers::RegisterIndexAF>;
+	m_Instructions[Instruction::POP_BC] = &CPU::POP_rr<Registers::RegisterIndexBC>;
+	m_Instructions[Instruction::POP_DE] = &CPU::POP_rr<Registers::RegisterIndexDE>;
+	m_Instructions[Instruction::POP_HL] = &CPU::POP_rr<Registers::RegisterIndexHL>;
+
+	// Call instructions
+	m_Instructions[Instruction::CALL_nn]    = &CPU::CALL_nn<Registers::FlagIndexInvalid, false>;
+	m_Instructions[Instruction::CALL_NZ_nn] = &CPU::CALL_nn<Registers::FlagIndexZero, false>;
+	m_Instructions[Instruction::CALL_Z_nn]  = &CPU::CALL_nn<Registers::FlagIndexZero, true>;
+	m_Instructions[Instruction::CALL_NC_nn] = &CPU::CALL_nn<Registers::FlagIndexCarry, false>;
+	m_Instructions[Instruction::CALL_C_nn]  = &CPU::CALL_nn<Registers::FlagIndexCarry, true>;
+
+	// Return instructions
+	m_Instructions[Instruction::RET]    = &CPU::RET<Registers::FlagIndexInvalid, false>;
+	m_Instructions[Instruction::RET_NZ] = &CPU::RET<Registers::FlagIndexZero, false>;
+	m_Instructions[Instruction::RET_Z]  = &CPU::RET<Registers::FlagIndexZero, true>;
+	m_Instructions[Instruction::RET_NC] = &CPU::RET<Registers::FlagIndexCarry, false>;
+	m_Instructions[Instruction::RET_C]  = &CPU::RET<Registers::FlagIndexCarry, true>;
+	m_Instructions[Instruction::RETI]   = &CPU::Join<&CPU::RET<Registers::FlagIndexInvalid, false>, &CPU::EI>;
+
+	// Restart instructions
+	m_Instructions[Instruction::RST_00] = &CPU::RST<0x00>;
+	m_Instructions[Instruction::RST_08] = &CPU::RST<0x08>;
+	m_Instructions[Instruction::RST_10] = &CPU::RST<0x10>;
+	m_Instructions[Instruction::RST_18] = &CPU::RST<0x18>;
+	m_Instructions[Instruction::RST_20] = &CPU::RST<0x20>;
+	m_Instructions[Instruction::RST_28] = &CPU::RST<0x28>;
+	m_Instructions[Instruction::RST_30] = &CPU::RST<0x30>;
+	m_Instructions[Instruction::RST_38] = &CPU::RST<0x38>;
 }
 
 GameboyType::Enum CPU::GetGameboyType() const noexcept
@@ -529,6 +568,19 @@ uint8_t CPU::XORByte(uint8_t a_Left, uint8_t a_Right) noexcept
 	return result;
 }
 
+template <uint8_t Flag, bool Set>
+bool CPU::Condition() noexcept
+{
+	if constexpr (Flag != Registers::FlagIndexInvalid)
+	{
+		return m_Registers.GetFlag(Flag) == Set;
+	}
+	else
+	{
+		return true;
+	}
+}
+
 template <CPU::InstructionCallback Callback, CPU::InstructionCallback... Callbacks>
 void CPU::Join() noexcept
 {
@@ -619,6 +671,16 @@ void CPU::NotImplemented() noexcept
 
 void CPU::NOP() noexcept
 {
+}
+
+void CPU::DI() noexcept
+{
+	// TODO: implement interrupts
+}
+
+void CPU::EI() noexcept
+{
+	// TODO: implement interrupts
 }
 
 void CPU::BREAKPOINT_STOP() noexcept
@@ -850,15 +912,10 @@ void CPU::ADD_rr_rr() noexcept
 template <uint8_t Flag, bool Set>
 void CPU::JP_xx(uint16_t a_Address) noexcept
 {
-	if constexpr (Flag != Registers::FlagIndexInvalid)
+	if (Condition<Flag, Set>())
 	{
-		if (m_Registers.GetFlag(Flag) != Set)
-		{
-			return;
-		}
+		m_Registers.SetPC(a_Address);
 	}
-
-	m_Registers.SetPC(a_Address);
 }
 
 template <uint8_t Flag, bool Set>
@@ -892,4 +949,66 @@ template <uint8_t Flag, bool Set>
 void CPU::JR_n() noexcept
 {
 	JR_x<Flag, Set>(ReadNextByte());
+}
+
+void CPU::PUSH_xx(uint16_t a_Value) noexcept
+{
+	const uint16_t address = m_Registers.GetSP();
+	m_Memory.Store16(address, a_Value);
+	m_Registers.SetSP(address - 2_u16);
+}
+
+template <uint8_t Source>
+void CPU::PUSH_rr() noexcept
+{
+	const uint16_t value = m_Registers.GetRegister16(Source);
+	PUSH_xx(value);
+}
+
+uint16_t CPU::POP_xx() noexcept
+{
+	const uint16_t address = m_Registers.GetSP();
+	const uint16_t value = m_Memory.Load16(address);
+	m_Registers.SetSP(address + 2_u16);
+	return value;
+}
+
+template <uint8_t Destination>
+void CPU::POP_rr() noexcept
+{
+	const uint16_t value = POP_xx();
+	m_Registers.SetRegister16(Destination, value);
+}
+
+template <uint8_t Flag, bool Set>
+void CPU::CALL_xx(uint16_t a_Address) noexcept
+{
+	if (Condition<Flag, Set>())
+	{
+		PUSH_xx(m_Registers.GetPC());
+		m_Registers.SetPC(a_Address);
+	}
+}
+
+template <uint8_t Flag, bool Set>
+void CPU::CALL_nn() noexcept
+{
+	const uint16_t address = ReadNextWord();
+	CALL_xx<Flag, Set>(address);
+}
+
+template <uint8_t Flag, bool Set>
+void CPU::RET() noexcept
+{
+	if (Condition<Flag, Set>())
+	{
+		const uint16_t address = POP_xx();
+		m_Registers.SetPC(address);
+	}
+}
+
+template <uint16_t Address>
+void CPU::RST() noexcept
+{
+	CALL_xx<Registers::FlagIndexInvalid, false>(Address);
 }
