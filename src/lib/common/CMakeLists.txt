@@ -26,4 +26,4 @@ demu_add_sources(common "foo.cpp")
 
 
 # Debugging
-demu_add_sources(common "disassembly.hpp" "disassembly.cpp" FILTER "Debugging/Disassembly")
+demu_add_sources(common "debugger.hpp" "debugger.cpp" FILTER "Debugging/Debugger")
