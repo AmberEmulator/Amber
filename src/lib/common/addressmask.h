@@ -1,12 +1,12 @@
-#ifndef H_DEMU_COMMON_ADDRESSMASK
-#define H_DEMU_COMMON_ADDRESSMASK
+#ifndef H_AMBER_COMMON_ADDRESSMASK
+#define H_AMBER_COMMON_ADDRESSMASK
 
 #include <cassert>
 #include <cstdint>
 #include <memory>
 #include <type_traits>
 
-namespace Demu::Common
+namespace Amber::Common
 {
 	template <typename T>
 	class AddressMask

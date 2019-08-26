@@ -1,11 +1,11 @@
-#ifndef H_DEMU_CLIENT_DISASSEMBLY
-#define H_DEMU_CLIENT_DISASSEMBLY
+#ifndef H_AMBER_CLIENT_DISASSEMBLY
+#define H_AMBER_CLIENT_DISASSEMBLY
 
 #include <client/api.hpp>
 
 #include <common/debugger.hpp>
 
-namespace Demu::Client
+namespace Amber::Client
 {
 	struct DisassemblyState
 	{

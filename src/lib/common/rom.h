@@ -1,11 +1,11 @@
-#ifndef H_DEMU_COMMON_ROM
-#define H_DEMU_COMMON_ROM
+#ifndef H_AMBER_COMMON_ROM
+#define H_AMBER_COMMON_ROM
 
 #include <common/memory.h>
 
 #include <memory>
 
-namespace Demu::Common
+namespace Amber::Common
 {
 	template <typename T, bool BE>
 	class ROM : public MemoryHelper<T, BE>

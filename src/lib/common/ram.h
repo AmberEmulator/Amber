@@ -1,9 +1,9 @@
-#ifndef H_DEMU_COMMON_RAM
-#define H_DEMU_COMMON_RAM
+#ifndef H_AMBER_COMMON_RAM
+#define H_AMBER_COMMON_RAM
 
 #include <common/rom.h>
 
-namespace Demu::Common
+namespace Amber::Common
 {
 	template <typename T, bool BE>
 	class RAM : public ROM<T, BE>

@@ -1,6 +1,6 @@
 #include <gameboy/cpu.hpp>
 
-using namespace Demu;
+using namespace Amber;
 using namespace Common;
 using namespace Gameboy;
 

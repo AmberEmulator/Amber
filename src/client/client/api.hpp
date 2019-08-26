@@ -1,5 +1,5 @@
-#ifndef H_DEMU_CLIENT_API
-#define H_DEMU_CLIENT_API
+#ifndef H_AMBER_CLIENT_API
+#define H_AMBER_CLIENT_API
 
 #include <common/api.hpp>
 

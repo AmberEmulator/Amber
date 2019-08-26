@@ -1,12 +1,12 @@
-#ifndef H_DEMU_COMMON_MEMORY
-#define H_DEMU_COMMON_MEMORY
+#ifndef H_AMBER_COMMON_MEMORY
+#define H_AMBER_COMMON_MEMORY
 
 #include <common/addressmask.h>
 
 #include <optional>
 #include <unordered_map>
 
-namespace Demu::Common
+namespace Amber::Common
 {
 	template <typename T>
 	class Memory

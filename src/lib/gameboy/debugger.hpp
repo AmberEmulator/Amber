@@ -1,12 +1,12 @@
-#ifndef H_DEMU_GAMEBOY_DEBUGGER
-#define H_DEMU_GAMEBOY_DEBUGGER
+#ifndef H_AMBER_GAMEBOY_DEBUGGER
+#define H_AMBER_GAMEBOY_DEBUGGER
 
 #include <gameboy/api.hpp>
 #include <gameboy/cpu.hpp>
 
 #include <common/debugger.hpp>
 
-namespace Demu::Gameboy
+namespace Amber::Gameboy
 {
 	class GAMEBOY_API Debugger : public Common::Debugger
 	{

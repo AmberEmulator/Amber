@@ -15,7 +15,7 @@
 
 #include <client/application.hpp>
 
-using namespace Demu;
+using namespace Amber;
 using namespace Client;
 
 int main(int, char**)

@@ -1,9 +1,9 @@
-#ifndef H_DEMU_GAMEBOY_REGISTERS
-#define H_DEMU_GAMEBOY_REGISTERS
+#ifndef H_AMBER_GAMEBOY_REGISTERS
+#define H_AMBER_GAMEBOY_REGISTERS
 
 #include <gameboy/api.hpp>
 
-namespace Demu::Gameboy
+namespace Amber::Gameboy
 {
 	class Registers
 	{

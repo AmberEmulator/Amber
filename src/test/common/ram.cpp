@@ -4,7 +4,7 @@
 
 #include <algorithm>
 
-using namespace Demu;
+using namespace Amber;
 using namespace Common;
 
 #define TEST_RAM_TYPES \

@@ -1,6 +1,6 @@
 # Add library
-demu_add_library(gameboy)
-demu_target_filter(gameboy Libraries)
+amber_add_library(gameboy)
+amber_target_filter(gameboy Libraries)
 
 # Add dependencies
 target_link_libraries(gameboy PUBLIC common)
@@ -12,18 +12,18 @@ target_include_directories(gameboy PUBLIC
 
 # Add sources
 # Natvis
-demu_add_sources(gameboy "gameboy.natvis" FILTER "Natvis")
+amber_add_sources(gameboy "gameboy.natvis" FILTER "Natvis")
 
 # API
-demu_add_sources(gameboy "api.hpp" FILTER "API")
+amber_add_sources(gameboy "api.hpp" FILTER "API")
 
 # Gameboy
-demu_add_sources(gameboy "gameboytype.hpp" FILTER "Gameboy")
+amber_add_sources(gameboy "gameboytype.hpp" FILTER "Gameboy")
 
 # CPU
-demu_add_sources(gameboy "cpu.hpp" "cpu.cpp" FILTER "CPU/CPU")
-demu_add_sources(gameboy "registers.hpp" FILTER "CPU/Registers")
-demu_add_sources(gameboy "instruction.hpp" "extendedinstruction.hpp" FILTER "CPU/Instructions")
+amber_add_sources(gameboy "cpu.hpp" "cpu.cpp" FILTER "CPU/CPU")
+amber_add_sources(gameboy "registers.hpp" FILTER "CPU/Registers")
+amber_add_sources(gameboy "instruction.hpp" "extendedinstruction.hpp" FILTER "CPU/Instructions")
 
 # Debugging
-demu_add_sources(gameboy "debugger.hpp" "debugger.cpp" FILTER "Debugging/Debugger")
+amber_add_sources(gameboy "debugger.hpp" "debugger.cpp" FILTER "Debugging/Debugger")

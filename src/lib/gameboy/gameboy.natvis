@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
 
-	<Type Name="Demu::Gameboy::Registers">
+	<Type Name="Amber::Gameboy::Registers">
     <Expand>
       <Item Name="A">uint8_t(m_Registers[0] &gt;&gt; 8),H</Item>
       <Item Name="F">uint8_t(m_Registers[0] &amp; 0xFF),H</Item>

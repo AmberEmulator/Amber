@@ -1,5 +1,5 @@
-#ifndef H_DEMU_COMMON_MMU
-#define H_DEMU_COMMON_MMU
+#ifndef H_AMBER_COMMON_MMU
+#define H_AMBER_COMMON_MMU
 
 #include <common/memory.h>
 
@@ -7,7 +7,7 @@
 #include <type_traits>
 #include <vector>
 
-namespace Demu::Common
+namespace Amber::Common
 {
 	template <typename T, bool BE>
 	class MMU : public MemoryHelper<T, BE>

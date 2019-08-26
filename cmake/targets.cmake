@@ -1,6 +1,6 @@
 include(CMakeParseArguments)
 
-function(demu_add_any _TARGET)
+function(amber_add_any _TARGET)
 	# Compiler specific settings
 	if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 		# Enable multithreaded compilation
@@ -34,25 +34,25 @@ function(demu_add_any _TARGET)
 	source_group("Code Generation\\CMake Rules" REGULAR_EXPRESSION ".rule")
 endfunction()
 
-function(demu_add_library _TARGET)
+function(amber_add_library _TARGET)
 	# Create library
 	add_library("${_TARGET}" ${ARGN} "")
 	
 	# Apply common settings to target
-	demu_add_any("${_TARGET}")
+	amber_add_any("${_TARGET}")
 endfunction()
 
-function(demu_add_executable _TARGET)
+function(amber_add_executable _TARGET)
 	# Create executable
 	add_executable("${_TARGET}" ${ARGN} "")
 	
 	# Apply common settings to target
-	demu_add_any("${_TARGET}")
+	amber_add_any("${_TARGET}")
 endfunction()
 
-function(demu_add_test _TARGET)
+function(amber_add_test _TARGET)
 	# Create exectutable
-	demu_add_executable("${_TARGET}" ${ARGN})
+	amber_add_executable("${_TARGET}" ${ARGN})
 	
 	# Mark it as a test
 	add_test(NAME "${_TARGET}" COMMAND "${_TARGET}")
@@ -61,11 +61,11 @@ function(demu_add_test _TARGET)
 	set_target_properties("${_TARGET}" PROPERTIES FOLDER "Tests")
 endfunction()
 
-function(demu_target_filter _TARGET _FILTER)
+function(amber_target_filter _TARGET _FILTER)
 	set_target_properties("${_TARGET}" PROPERTIES FOLDER "${_FILTER}")
 endfunction()
 
-function(demu_add_sources _TARGET)
+function(amber_add_sources _TARGET)
 	# Parse arguments
 	set(_OPTIONS)
 	set(_ONE_VALUE_ARGS FILTER)

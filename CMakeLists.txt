@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.8)
 
 # Create project
-project(demu CXX)
+project(amber CXX)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Enable testing

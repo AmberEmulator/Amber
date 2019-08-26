@@ -1,6 +1,6 @@
 # Add library
-demu_add_library(common)
-demu_target_filter(common Libraries)
+amber_add_library(common)
+amber_target_filter(common Libraries)
 
 # Add dependencies
 target_include_directories(common PUBLIC  
@@ -11,14 +11,14 @@ target_include_directories(common PUBLIC
 
 # Add sources
 # API
-demu_add_sources(common "api.hpp" FILTER "API")
+amber_add_sources(common "api.hpp" FILTER "API")
 
 # Memory
-demu_add_sources(common "addressmask.h" FILTER "Memory/Address Mask")
-demu_add_sources(common "memory.h" FILTER "Memory/Memory")
-demu_add_sources(common "mmu.hpp" FILTER "Memory/MMU")
-demu_add_sources(common "ram.h" FILTER "Memory/RAM")
-demu_add_sources(common "rom.h" FILTER "Memory/ROM")
+amber_add_sources(common "addressmask.h" FILTER "Memory/Address Mask")
+amber_add_sources(common "memory.h" FILTER "Memory/Memory")
+amber_add_sources(common "mmu.hpp" FILTER "Memory/MMU")
+amber_add_sources(common "ram.h" FILTER "Memory/RAM")
+amber_add_sources(common "rom.h" FILTER "Memory/ROM")
 
 # Debugging
-demu_add_sources(common "debugger.hpp" "debugger.cpp" FILTER "Debugging/Debugger")
+amber_add_sources(common "debugger.hpp" "debugger.cpp" FILTER "Debugging/Debugger")

@@ -4,11 +4,11 @@
 
 #include <algorithm>
 
-using namespace Demu;
+using namespace Amber;
 using namespace Gameboy;
 using namespace Client;
 
-void Demu::Client::DrawRegisterWindow(const char* a_Name, Registers& a_Registers, bool* a_Open, ImGuiWindowFlags a_Flags)
+void Amber::Client::DrawRegisterWindow(const char* a_Name, Registers& a_Registers, bool* a_Open, ImGuiWindowFlags a_Flags)
 {
 	if (ImGui::Begin(a_Name, a_Open, a_Flags))
 	{
@@ -18,7 +18,7 @@ void Demu::Client::DrawRegisterWindow(const char* a_Name, Registers& a_Registers
 	ImGui::End();
 }
 
-void Demu::Client::DrawRegisterWindowContent(Gameboy::Registers& a_Registers)
+void Amber::Client::DrawRegisterWindowContent(Gameboy::Registers& a_Registers)
 {
 	ImGui::BeginGroup();
 

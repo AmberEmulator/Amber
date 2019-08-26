@@ -1,6 +1,6 @@
 # Add library
-demu_add_library(client)
-demu_target_filter(client Client)
+amber_add_library(client)
+amber_target_filter(client Client)
 
 # Add dependencies
 target_link_libraries(client PUBLIC common gameboy imgui)
@@ -12,11 +12,11 @@ target_include_directories(client PUBLIC
 
 # Add sources
 # API
-demu_add_sources(client "api.hpp" FILTER "API")
+amber_add_sources(client "api.hpp" FILTER "API")
 
 # Application
-demu_add_sources(client "application.hpp" "application.cpp" FILTER "Client")
+amber_add_sources(client "application.hpp" "application.cpp" FILTER "Client")
 
 # Widgets
-demu_add_sources(client "disassembly.hpp" "disassembly.cpp" FILTER "Widgets/Disassembly")
-demu_add_sources(client "gameboywidgets.hpp" "gameboywidgets.cpp" FILTER "Widgets/Gameboy")
+amber_add_sources(client "disassembly.hpp" "disassembly.cpp" FILTER "Widgets/Disassembly")
+amber_add_sources(client "gameboywidgets.hpp" "gameboywidgets.cpp" FILTER "Widgets/Gameboy")

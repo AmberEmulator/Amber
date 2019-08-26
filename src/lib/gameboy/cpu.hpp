@@ -1,5 +1,5 @@
-#ifndef H_DEMU_GAMEBOY_CPU
-#define H_DEMU_GAMEBOY_CPU
+#ifndef H_AMBER_GAMEBOY_CPU
+#define H_AMBER_GAMEBOY_CPU
 
 #include <gameboy/api.hpp>
 #include <gameboy/extendedinstruction.hpp>
@@ -12,7 +12,7 @@
 #include <functional>
 #include <optional>
 
-namespace Demu::Gameboy
+namespace Amber::Gameboy
 {
 	class GAMEBOY_API CPU
 	{

@@ -1,5 +1,5 @@
-#ifndef H_DEMU_GAMEBOY_INSTRUCTION
-#define H_DEMU_GAMEBOY_INSTRUCTION
+#ifndef H_AMBER_GAMEBOY_INSTRUCTION
+#define H_AMBER_GAMEBOY_INSTRUCTION
 
 #include <gameboy/api.hpp>
 
@@ -16,7 +16,7 @@
 // If the parameter is the next byte or word, use the letter 'n': n or nn.
 // If the parameter is used as an address (like a pointer), prefix it with the letter 'a': aBC, aHL, ann, etc.
 
-namespace Demu::Gameboy
+namespace Amber::Gameboy
 {
 	namespace Instruction
 	{

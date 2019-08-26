@@ -2,10 +2,10 @@
 
 #include <imgui/imgui.h>
 
-using namespace Demu;
+using namespace Amber;
 using namespace Client;
 
-void Demu::Client::ShowDisassembly(const char* a_Name, DisassemblyState& a_State)
+void Amber::Client::ShowDisassembly(const char* a_Name, DisassemblyState& a_State)
 {
 	auto& debugger = *(a_State.m_Debugger);
 

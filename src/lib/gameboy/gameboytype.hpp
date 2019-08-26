@@ -1,9 +1,9 @@
-#ifndef H_DEMU_GAMEBOY_GAMEBOYTYPE
-#define H_DEMU_GAMEBOY_GAMEBOYTYPE
+#ifndef H_AMBER_GAMEBOY_GAMEBOYTYPE
+#define H_AMBER_GAMEBOY_GAMEBOYTYPE
 
 #include <gameboy/api.hpp>
 
-namespace Demu::Gameboy
+namespace Amber::Gameboy
 {
 	namespace GameboyType
 	{

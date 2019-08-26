@@ -1,5 +1,5 @@
-#ifndef H_DEMU_COMMON_API
-#define H_DEMU_COMMON_API
+#ifndef H_AMBER_COMMON_API
+#define H_AMBER_COMMON_API
 
 #include <cstdint>
 #include <string_view>

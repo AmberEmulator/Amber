@@ -14,7 +14,7 @@
 
 #include <fstream>
 
-using namespace Demu;
+using namespace Amber;
 using namespace Client;
 
 void Application::Tick()

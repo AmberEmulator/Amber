@@ -1,5 +1,5 @@
-#ifndef H_DEMU_GAMEBOY_API
-#define H_DEMU_GAMEBOY_API
+#ifndef H_AMBER_GAMEBOY_API
+#define H_AMBER_GAMEBOY_API
 
 #include <common/api.hpp>
 

@@ -1,9 +1,9 @@
-#ifndef H_DEMU_COMMON_DEBUGGER
-#define H_DEMU_COMMON_DEBUGGER
+#ifndef H_AMBER_COMMON_DEBUGGER
+#define H_AMBER_COMMON_DEBUGGER
 
 #include <common/api.hpp>
 
-namespace Demu::Common
+namespace Amber::Common
 {
 	class COMMON_API Debugger
 	{

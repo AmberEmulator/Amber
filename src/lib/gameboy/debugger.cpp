@@ -2,7 +2,7 @@
 
 #include <limits>
 
-using namespace Demu;
+using namespace Amber;
 using namespace Gameboy;
 
 Debugger::Debugger(CPU& a_CPU):

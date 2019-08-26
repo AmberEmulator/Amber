@@ -1,9 +1,9 @@
-#ifndef H_DEMU_CLIENT_APPLICATION
-#define H_DEMU_CLIENT_APPLICATION
+#ifndef H_AMBER_CLIENT_APPLICATION
+#define H_AMBER_CLIENT_APPLICATION
 
 #include <client/api.hpp>
 
-namespace Demu::Client
+namespace Amber::Client
 {
 	class CLIENT_API Application
 	{
