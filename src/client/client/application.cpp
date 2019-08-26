@@ -8,6 +8,7 @@
 #include <gameboy/registers.hpp>
 
 #include <common/ram.h>
+#include <common/mmu.hpp>
 
 #include <imgui/imgui.h>
 
@@ -31,6 +32,13 @@ void Application::Tick()
 		file.read(reinterpret_cast<char*>(ram.GetData()), std::min<size_t>(size, ram.GetSize()));
 
 		return ram;
+	}();
+
+	static auto mmu = []
+	{
+		Common::MMU<uint16_t, false> mmu(0x1000, 16);
+
+		return mmu;
 	}();
 
 	// Initialize cpu
