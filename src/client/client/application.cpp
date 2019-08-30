@@ -28,7 +28,7 @@ void Application::Tick()
 		std::streamsize size = file.tellg();
 		file.seekg(0, std::ios::beg);
 
-		Common::RAM<uint16_t, false> ram(0x8000);
+		Common::RAM<uint16_t, false> ram(0x8000, 1);
 		file.read(reinterpret_cast<char*>(ram.GetData()), std::min<size_t>(size, ram.GetSize()));
 
 		return ram;
