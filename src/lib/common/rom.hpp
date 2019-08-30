@@ -1,7 +1,7 @@
 #ifndef H_AMBER_COMMON_ROM
 #define H_AMBER_COMMON_ROM
 
-#include <common/memory.h>
+#include <common/memory.hpp>
 
 #include <memory>
 

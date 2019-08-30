@@ -7,7 +7,7 @@
 #include <gameboy/instruction.hpp>
 #include <gameboy/registers.hpp>
 
-#include <common/memory.h>
+#include <common/memory.hpp>
 
 #include <functional>
 #include <optional>

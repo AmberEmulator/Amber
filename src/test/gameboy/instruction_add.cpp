@@ -2,7 +2,7 @@
 
 #include <gameboy/cpu.hpp>
 
-#include <common/rom.h>
+#include <common/rom.hpp>
 
 using namespace Amber;
 using namespace Common;

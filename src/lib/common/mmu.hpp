@@ -1,7 +1,7 @@
 #ifndef H_AMBER_COMMON_MMU
 #define H_AMBER_COMMON_MMU
 
-#include <common/memory.h>
+#include <common/memory.hpp>
 #include <common/memorymapping.hpp>
 
 #include <cstdint>

@@ -1,7 +1,7 @@
 #ifndef H_AMBER_COMMON_RAM
 #define H_AMBER_COMMON_RAM
 
-#include <common/rom.h>
+#include <common/rom.hpp>
 
 namespace Amber::Common
 {

@@ -1,7 +1,7 @@
 #ifndef H_AMBER_COMMON_MEMORY
 #define H_AMBER_COMMON_MEMORY
 
-#include <common/addressmask.h>
+#include <common/api.hpp>
 
 #include <optional>
 #include <unordered_map>

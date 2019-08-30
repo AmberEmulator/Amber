@@ -7,7 +7,7 @@
 #include <gameboy/debugger.hpp>
 #include <gameboy/registers.hpp>
 
-#include <common/ram.h>
+#include <common/ram.hpp>
 #include <common/mmu.hpp>
 
 #include <imgui/imgui.h>

@@ -1,6 +1,6 @@
 #include <catch2/catch.hpp>
 
-#include <common/ram.h>
+#include <common/ram.hpp>
 
 #include <algorithm>
 
