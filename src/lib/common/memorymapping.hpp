@@ -12,6 +12,8 @@ namespace Amber::Common
 			Read = 0x01,
 			Write = 0x02
 		};
+
+		using Type = std::underlying_type_t<Enum>;
 	}
 
 	template <typename T>
@@ -35,7 +37,7 @@ namespace Amber::Common
 			return m_Offset;
 		}
 
-		MemoryAccess::Enum GetAccess() const noexcept
+		MemoryAccess::Type GetAccess() const noexcept
 		{
 			return m_Access;
 		}
@@ -55,7 +57,7 @@ namespace Amber::Common
 			m_Offset = a_Offset;
 		}
 
-		void SetAccess(MemoryAccess::Enum a_Access)
+		void SetAccess(MemoryAccess::Type a_Access)
 		{
 			m_Access = a_Access;
 		}
@@ -64,8 +66,13 @@ namespace Amber::Common
 		Address m_Start = 0;
 		Address m_Size = 0;
 		Address m_Offset = 0;
-		MemoryAccess::Enum m_Access = Read | Write;
+		MemoryAccess::Type m_Access = MemoryAccess::Read | MemoryAccess::Write;
 	};
+
+	using MemoryMapping8 = MemoryMapping<uint8_t>;
+	using MemoryMapping16 = MemoryMapping<uint16_t>;
+	using MemoryMapping32 = MemoryMapping<uint32_t>;
+	using MemoryMapping64 = MemoryMapping<uint64_t>;
 }
 
 #endif

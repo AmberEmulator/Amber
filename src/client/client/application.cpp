@@ -22,13 +22,13 @@ void Application::Tick()
 	const auto dock_id = ImGui::DockSpaceOverViewport();
 
 	// Load cartridge
-	static auto memory = []
+	static auto cartridge = []
 	{
 		std::ifstream file("C:\\ROMs\\test.gb", std::ios::binary | std::ios::ate);
 		std::streamsize size = file.tellg();
 		file.seekg(0, std::ios::beg);
 
-		Common::RAM<uint16_t, false> ram(0x10000);
+		Common::RAM<uint16_t, false> ram(0x8000);
 		file.read(reinterpret_cast<char*>(ram.GetData()), std::min<size_t>(size, ram.GetSize()));
 
 		return ram;
@@ -38,13 +38,18 @@ void Application::Tick()
 	{
 		Common::MMU<uint16_t, false> mmu(0x1000, 16);
 
+		Common::MemoryMapping16 cartridge_mapping;
+		cartridge_mapping.SetStart(0);
+		cartridge_mapping.SetSize(cartridge.GetSize());
+		mmu.Map(&cartridge, cartridge_mapping);
+
 		return mmu;
 	}();
 
 	// Initialize cpu
 	static auto cpu = []
 	{
-		Gameboy::CPU cpu(memory, Gameboy::GameboyType::Classic);
+		Gameboy::CPU cpu(mmu, Gameboy::GameboyType::Classic);
 		cpu.Reset();
 		return cpu;
 	}();

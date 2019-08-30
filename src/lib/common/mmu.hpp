@@ -23,12 +23,26 @@ namespace Amber::Common
 
 		uint8_t Load8(Address a_Address) const override
 		{
-			return GetReadBlock(a_Address).m_Memory->Load8(a_Address % m_BlockSize);
+			const auto memory = GetReadBlock(a_Address).m_Memory;
+			if (memory == nullptr)
+			{
+				// TODO: handle error
+				return 0xFF;
+			}
+
+			return memory->Load8(a_Address % m_BlockSize);
 		}
 
 		void Store8(Address a_Address, uint8_t a_Value) override
 		{
-			GetWriteBlock(a_Address).m_Memory->Store8(a_Address % m_BlockSize, a_Value);
+			const auto memory = GetWriteBlock(a_Address).m_Memory;
+			if (memory == nullptr)
+			{
+				// TODO: handle error
+				return;
+			}
+
+			memory->Store8(a_Address % m_BlockSize, a_Value);
 		}
 
 		void Map(Memory<Address>* a_Memory, const MemoryMapping<Address>& a_Mapping)
