@@ -16,6 +16,7 @@ amber_add_sources(common "api.hpp" FILTER "API")
 # Memory
 amber_add_sources(common "addressmask.h" FILTER "Memory/Address Mask")
 amber_add_sources(common "memory.h" FILTER "Memory/Memory")
+amber_add_sources(common "memorymapping.hpp" FILTER "Memory/Memory Mapping")
 amber_add_sources(common "mmu.hpp" FILTER "Memory/MMU")
 amber_add_sources(common "ram.h" FILTER "Memory/RAM")
 amber_add_sources(common "rom.h" FILTER "Memory/ROM")

@@ -33,13 +33,6 @@ namespace Amber::Common
 			return m_Data.get();
 		}
 
-		AddressMask<Address> GetAddressMask() const override
-		{
-			AddressMask<Address> address_mask(GetSize() * 8);
-			address_mask.SetReadBits(0, GetSize() * 8, true);
-			return address_mask;
-		}
-
 		uint8_t Load8(Address a_Address) const override
 		{
 			return GetData()[a_Address];

@@ -40,32 +40,6 @@ TEMPLATE_TEST_CASE("ROM is initialized with the correct amount of bytes", TEST_T
 	REQUIRE(rom.GetSize() == rom_size);
 }
 
-TEMPLATE_TEST_CASE("RAM returns the correct address mask", TEST_TAGS, TEST_RAM_TYPES)
-{
-	const size_t ram_size = TEST_ROM_SIZES;
-	TestType ram(ram_size);
-
-	const auto address_mask = ram.GetAddressMask();
-	for (size_t i = 0; i < ram_size; ++i)
-	{
-		REQUIRE(address_mask.GetReadBit(i));
-		REQUIRE(address_mask.GetWriteBit(i));
-	}
-}
-
-TEMPLATE_TEST_CASE("ROM returns the correct address mask", TEST_TAGS, TEST_ROM_TYPES)
-{
-	const size_t rom_size = TEST_ROM_SIZES;
-	TestType rom(rom_size);
-
-	const auto address_mask = rom.GetAddressMask();
-	for (size_t i = 0; i < rom_size; ++i)
-	{
-		REQUIRE(address_mask.GetReadBit(i));
-		REQUIRE_FALSE(address_mask.GetWriteBit(i));
-	}
-}
-
 TEMPLATE_TEST_CASE("ROM can load bytes", TEST_TAGS, TEST_RAM_AND_ROM_TYPES)
 {
 	const size_t rom_size = TEST_ROM_SIZES;

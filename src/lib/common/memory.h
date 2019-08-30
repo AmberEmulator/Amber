@@ -17,8 +17,6 @@ namespace Amber::Common
 
 		virtual ~Memory() noexcept = 0;
 
-		virtual AddressMask<Address> GetAddressMask() const = 0;
-
 		virtual uint8_t  Load8(Address a_Address) const = 0;
 		virtual uint16_t Load16(Address a_Address) const = 0;
 		virtual uint32_t Load32(Address a_Address) const = 0;

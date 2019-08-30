@@ -13,14 +13,7 @@ namespace Amber::Common
 			ROM(a_Size)
 		{
 		}
-
-		AddressMask<Address> GetAddressMask() const override
-		{
-			auto address_mask = ROM::GetAddressMask();
-			address_mask.SetWriteBits(0, GetSize() * 8, true);
-			return address_mask;
-		}
-
+		
 		void Store8(Address a_Address, uint8_t a_Value) override
 		{
 			GetData()[a_Address] = a_Value;
