@@ -19,6 +19,11 @@ namespace Amber::Common
 			GetActiveBankData()[a_Address] = a_Value;
 		}
 	};
+
+	template <bool BE> using RAM8  = RAM<uint8_t, BE>;
+	template <bool BE> using RAM16 = RAM<uint16_t, BE>;
+	template <bool BE> using RAM32 = RAM<uint32_t, BE>;
+	template <bool BE> using RAM64 = RAM<uint64_t, BE>;
 }
 
 #endif

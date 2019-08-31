@@ -2,10 +2,12 @@
 
 #include <client/disassembly.hpp>
 #include <client/gameboywidgets.hpp>
+#include <client/texture.hpp>
 
 #include <gameboy/cpu.hpp>
 #include <gameboy/debugger.hpp>
 #include <gameboy/registers.hpp>
+#include <gameboy/videoviewer.hpp>
 
 #include <common/ram.hpp>
 #include <common/mmu.hpp>
@@ -22,7 +24,7 @@ void Application::Tick()
 	const auto dock_id = ImGui::DockSpaceOverViewport();
 
 	// Load cartridge
-	static auto cartridge = []
+	static auto rom = []
 	{
 		std::ifstream file("C:\\ROMs\\test.gb", std::ios::binary | std::ios::ate);
 		std::streamsize size = file.tellg();
@@ -34,14 +36,44 @@ void Application::Tick()
 		return ram;
 	}();
 
+	static Common::RAM<uint16_t, false> vram(0x2000, 1);
+	static Common::RAM<uint16_t, false> eram(0x2000, 1);
+	static Common::RAM<uint16_t, false> wram(0x2000, 1);
+	static Common::RAM<uint16_t, false> pad(0x1000, 1);
+
 	static auto mmu = []
 	{
 		Common::MMU<uint16_t, false> mmu(0x1000, 16);
 
-		Common::MemoryMapping16 cartridge_mapping;
-		cartridge_mapping.SetStart(0);
-		cartridge_mapping.SetSize(cartridge.GetSize());
-		mmu.Map(&cartridge, cartridge_mapping);
+		Common::MemoryMapping16 rom_mapping;
+		rom_mapping.SetStart(0);
+		rom_mapping.SetSize(0x8000);
+		mmu.Map(&rom, rom_mapping);
+
+		Common::MemoryMapping16 vram_mapping;
+		vram_mapping.SetStart(0x8000);
+		vram_mapping.SetSize(0x2000);
+		mmu.Map(&vram, vram_mapping);
+
+		Common::MemoryMapping16 eram_mapping;
+		eram_mapping.SetStart(0xA000);
+		eram_mapping.SetSize(0x2000);
+		mmu.Map(&eram, eram_mapping);
+
+		Common::MemoryMapping16 wram_mapping;
+		wram_mapping.SetStart(0xC000);
+		wram_mapping.SetSize(0x2000);
+		mmu.Map(&wram, wram_mapping);
+
+		Common::MemoryMapping16 wram_echo_mapping;
+		wram_echo_mapping.SetStart(0xE000);
+		wram_echo_mapping.SetSize(0x1E00);
+		mmu.Map(&wram, wram_echo_mapping);
+
+		Common::MemoryMapping16 pad_mapping;
+		pad_mapping.SetStart(0xF000);
+		pad_mapping.SetSize(0x1000);
+		mmu.Map(&pad, pad_mapping);
 
 		return mmu;
 	}();
@@ -53,6 +85,33 @@ void Application::Tick()
 		cpu.Reset();
 		return cpu;
 	}();
+
+	static Gameboy::VideoViewer video_viewer(vram);
+
+	static const size_t tile_columns = 16;
+	static const size_t tile_rows = video_viewer.GetTileCount() / tile_columns;
+	static const size_t tile_width = video_viewer.GetTileWidth();
+	static const size_t tile_height = video_viewer.GetTileHeight();
+	static const size_t tile_texture_width = tile_columns * tile_width;
+	static const size_t tile_texture_height = tile_rows * tile_height;
+
+	static Texture tile_texture(tile_texture_width, tile_texture_height);
+
+	static const size_t tile_buffer_size = tile_texture_width * tile_texture_height * 4;
+	static const auto tile_buffer = std::make_unique<uint8_t[]>(tile_buffer_size);
+
+	for (size_t row = 0; row < tile_rows; ++row)
+	{
+		for (size_t column = 0; column < tile_columns; ++column)
+		{
+			const size_t tile = column + row * tile_columns;
+			uint8_t* const destination = tile_buffer.get() + (column * tile_width + row * tile_width * tile_height * tile_columns) * 4;
+
+			video_viewer.BlitTile(tile, destination, tile_texture_width);
+		}
+	}
+
+	tile_texture.Blit(0, 0, tile_texture_width, tile_texture_height, tile_buffer.get());
 
 	// Create debugger
 	static Gameboy::Debugger debugger(cpu);
@@ -90,6 +149,8 @@ void Application::Tick()
 		{
 			debugger.Reset();
 		}
+
+		ImGui::Image(reinterpret_cast<ImTextureID>(tile_texture.GetNativeHandle()), ImVec2(tile_texture_width * 2, tile_texture_height * 2));
 	}
 	ImGui::End();
 

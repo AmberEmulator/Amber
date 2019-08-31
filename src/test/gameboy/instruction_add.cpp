@@ -13,7 +13,7 @@ struct CPUTestFixture
 	static constexpr uint16_t ROMSize = 16;
 
 	CPUTestFixture():
-		m_ROM(ROMSize),
+		m_ROM(ROMSize, 1),
 		m_CPU(m_ROM, GameboyType::Classic)
 	{
 		auto& registers = m_CPU.GetRegisters();

@@ -89,6 +89,11 @@ namespace Amber::Common
 		size_t m_ActiveBank = 0;
 		std::unique_ptr<uint8_t[]> m_Data;
 	};
+
+	template <bool BE> using ROM8  = ROM<uint8_t, BE>;
+	template <bool BE> using ROM16 = ROM<uint16_t, BE>;
+	template <bool BE> using ROM32 = ROM<uint32_t, BE>;
+	template <bool BE> using ROM64 = ROM<uint64_t, BE>;
 }
 
 #endif

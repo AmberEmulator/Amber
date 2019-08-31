@@ -52,12 +52,12 @@ namespace Amber::Common
 				return;
 			}
 
-			const Address start_address = a_Mapping.GetStart();
-			const Address end_address = start_address + a_Mapping.GetSize();
-			assert(start_address < end_address);
+			const Address first_address = a_Mapping.GetStart();
+			const Address last_address = first_address + (a_Mapping.GetSize() - 1);
+			assert(first_address < last_address);
 
-			const Address first_block_index = start_address / m_BlockSize;
-			const Address last_block_index = start_address / m_BlockSize;
+			const Address first_block_index = first_address / m_BlockSize;
+			const Address last_block_index = last_address / m_BlockSize;
 
 			for (Address block_index = first_block_index; block_index <= last_block_index; ++block_index)
 			{

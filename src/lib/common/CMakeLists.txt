@@ -22,3 +22,4 @@ amber_add_sources(common "rom.hpp" FILTER "Memory/ROM")
 
 # Debugging
 amber_add_sources(common "debugger.hpp" "debugger.cpp" FILTER "Debugging/Debugger")
+amber_add_sources(common "videoviewer.hpp" "videoviewer.cpp" FILTER "Debugging/Video Viewer")
