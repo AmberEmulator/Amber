@@ -17,8 +17,9 @@ CPU::CPU(Memory16& a_Memory, GameboyType::Enum a_GameboyType):
 
 	// Misc instructions
 	m_Instructions[Instruction::NOP] = &CPU::NOP;
-	m_Instructions[Instruction::DI] = &CPU::DI;
-	m_Instructions[Instruction::EI] = &CPU::EI;
+	m_Instructions[Instruction::DI]  = &CPU::DI;
+	m_Instructions[Instruction::EI]  = &CPU::EI;
+	m_Instructions[Instruction::EXT] = &CPU::ExecuteNextExtendedInstruction;
 	m_Instructions[Instruction::BREAKPOINT_STOP] = &CPU::BREAKPOINT_STOP;
 	m_Instructions[Instruction::BREAKPOINT_CONTINUE] = &CPU::BREAKPOINT_CONTINUE;
 
@@ -254,6 +255,12 @@ CPU::CPU(Memory16& a_Memory, GameboyType::Enum a_GameboyType):
 	m_Instructions[Instruction::DEC_HL] = &CPU::UnaryInstruction_rr<Registers::RegisterIndexHL, &CPU::DecrementWord>;
 	m_Instructions[Instruction::DEC_SP] = &CPU::UnaryInstruction_rr<Registers::RegisterIndexSP, &CPU::DecrementWord>;
 
+	// 8-bit rotate instructions
+	m_Instructions[Instruction::RLC_A] = &CPU::UnaryInstruction_r<Registers::RegisterIndexA, &CPU::RotateLeftByte>;
+	m_Instructions[Instruction::RL_A]  = &CPU::UnaryInstruction_r<Registers::RegisterIndexA, &CPU::RotateLeftThroughCarryByte>;
+	m_Instructions[Instruction::RRC_A] = &CPU::UnaryInstruction_r<Registers::RegisterIndexA, &CPU::RotateRightByte>;
+	m_Instructions[Instruction::RR_A]  = &CPU::UnaryInstruction_r<Registers::RegisterIndexA, &CPU::RotateRightThroughCarryByte>;
+
 	// Absolute jump instructions
 	m_Instructions[Instruction::JP_nn]    = &CPU::JP_nn<Registers::FlagIndexInvalid, false>;
 	m_Instructions[Instruction::JP_NZ_nn] = &CPU::JP_nn<Registers::FlagIndexZero, false>;
@@ -305,6 +312,116 @@ CPU::CPU(Memory16& a_Memory, GameboyType::Enum a_GameboyType):
 	m_Instructions[Instruction::RST_28] = &CPU::RST<0x28>;
 	m_Instructions[Instruction::RST_30] = &CPU::RST<0x30>;
 	m_Instructions[Instruction::RST_38] = &CPU::RST<0x38>;
+
+	// 8-bit rotate instructions
+	m_ExtendedInstructions[ExtendedInstruction::RLC_A]   = &CPU::UnaryInstruction_r<Registers::RegisterIndexA, &CPU::RotateLeftByte>;
+	m_ExtendedInstructions[ExtendedInstruction::RLC_B]   = &CPU::UnaryInstruction_r<Registers::RegisterIndexB, &CPU::RotateLeftByte>;
+	m_ExtendedInstructions[ExtendedInstruction::RLC_C]   = &CPU::UnaryInstruction_r<Registers::RegisterIndexC, &CPU::RotateLeftByte>;
+	m_ExtendedInstructions[ExtendedInstruction::RLC_D]   = &CPU::UnaryInstruction_r<Registers::RegisterIndexD, &CPU::RotateLeftByte>;
+	m_ExtendedInstructions[ExtendedInstruction::RLC_E]   = &CPU::UnaryInstruction_r<Registers::RegisterIndexE, &CPU::RotateLeftByte>;
+	m_ExtendedInstructions[ExtendedInstruction::RLC_H]   = &CPU::UnaryInstruction_r<Registers::RegisterIndexH, &CPU::RotateLeftByte>;
+	m_ExtendedInstructions[ExtendedInstruction::RLC_L]   = &CPU::UnaryInstruction_r<Registers::RegisterIndexL, &CPU::RotateLeftByte>;
+	m_ExtendedInstructions[ExtendedInstruction::RLC_aHL] = &CPU::UnaryInstruction_arr<Registers::RegisterIndexHL, &CPU::RotateLeftByte>;
+
+	m_ExtendedInstructions[ExtendedInstruction::RL_A]   = &CPU::UnaryInstruction_r<Registers::RegisterIndexA, &CPU::RotateLeftThroughCarryByte>;
+	m_ExtendedInstructions[ExtendedInstruction::RL_B]   = &CPU::UnaryInstruction_r<Registers::RegisterIndexB, &CPU::RotateLeftThroughCarryByte>;
+	m_ExtendedInstructions[ExtendedInstruction::RL_C]   = &CPU::UnaryInstruction_r<Registers::RegisterIndexC, &CPU::RotateLeftThroughCarryByte>;
+	m_ExtendedInstructions[ExtendedInstruction::RL_D]   = &CPU::UnaryInstruction_r<Registers::RegisterIndexD, &CPU::RotateLeftThroughCarryByte>;
+	m_ExtendedInstructions[ExtendedInstruction::RL_E]   = &CPU::UnaryInstruction_r<Registers::RegisterIndexE, &CPU::RotateLeftThroughCarryByte>;
+	m_ExtendedInstructions[ExtendedInstruction::RL_H]   = &CPU::UnaryInstruction_r<Registers::RegisterIndexH, &CPU::RotateLeftThroughCarryByte>;
+	m_ExtendedInstructions[ExtendedInstruction::RL_L]   = &CPU::UnaryInstruction_r<Registers::RegisterIndexL, &CPU::RotateLeftThroughCarryByte>;
+	m_ExtendedInstructions[ExtendedInstruction::RL_aHL] = &CPU::UnaryInstruction_arr<Registers::RegisterIndexHL, &CPU::RotateLeftThroughCarryByte>;
+
+	m_ExtendedInstructions[ExtendedInstruction::RRC_A]   = &CPU::UnaryInstruction_r<Registers::RegisterIndexA, &CPU::RotateRightByte>;
+	m_ExtendedInstructions[ExtendedInstruction::RRC_B]   = &CPU::UnaryInstruction_r<Registers::RegisterIndexB, &CPU::RotateRightByte>;
+	m_ExtendedInstructions[ExtendedInstruction::RRC_C]   = &CPU::UnaryInstruction_r<Registers::RegisterIndexC, &CPU::RotateRightByte>;
+	m_ExtendedInstructions[ExtendedInstruction::RRC_D]   = &CPU::UnaryInstruction_r<Registers::RegisterIndexD, &CPU::RotateRightByte>;
+	m_ExtendedInstructions[ExtendedInstruction::RRC_E]   = &CPU::UnaryInstruction_r<Registers::RegisterIndexE, &CPU::RotateRightByte>;
+	m_ExtendedInstructions[ExtendedInstruction::RRC_H]   = &CPU::UnaryInstruction_r<Registers::RegisterIndexH, &CPU::RotateRightByte>;
+	m_ExtendedInstructions[ExtendedInstruction::RRC_L]   = &CPU::UnaryInstruction_r<Registers::RegisterIndexL, &CPU::RotateRightByte>;
+	m_ExtendedInstructions[ExtendedInstruction::RRC_aHL] = &CPU::UnaryInstruction_arr<Registers::RegisterIndexHL, &CPU::RotateRightByte>;
+
+	m_ExtendedInstructions[ExtendedInstruction::RR_A]   = &CPU::UnaryInstruction_r<Registers::RegisterIndexA, &CPU::RotateRightThroughCarryByte>;
+	m_ExtendedInstructions[ExtendedInstruction::RR_B]   = &CPU::UnaryInstruction_r<Registers::RegisterIndexB, &CPU::RotateRightThroughCarryByte>;
+	m_ExtendedInstructions[ExtendedInstruction::RR_C]   = &CPU::UnaryInstruction_r<Registers::RegisterIndexC, &CPU::RotateRightThroughCarryByte>;
+	m_ExtendedInstructions[ExtendedInstruction::RR_D]   = &CPU::UnaryInstruction_r<Registers::RegisterIndexD, &CPU::RotateRightThroughCarryByte>;
+	m_ExtendedInstructions[ExtendedInstruction::RR_E]   = &CPU::UnaryInstruction_r<Registers::RegisterIndexE, &CPU::RotateRightThroughCarryByte>;
+	m_ExtendedInstructions[ExtendedInstruction::RR_H]   = &CPU::UnaryInstruction_r<Registers::RegisterIndexH, &CPU::RotateRightThroughCarryByte>;
+	m_ExtendedInstructions[ExtendedInstruction::RR_L]   = &CPU::UnaryInstruction_r<Registers::RegisterIndexL, &CPU::RotateRightThroughCarryByte>;
+	m_ExtendedInstructions[ExtendedInstruction::RR_aHL] = &CPU::UnaryInstruction_arr<Registers::RegisterIndexHL, &CPU::RotateRightThroughCarryByte>;
+
+	// 8-bit test bit instructions
+	m_ExtendedInstructions[ExtendedInstruction::BIT_A_0] = &CPU::BIT_r_b<Registers::RegisterIndexA, 0>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_A_1] = &CPU::BIT_r_b<Registers::RegisterIndexA, 1>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_A_2] = &CPU::BIT_r_b<Registers::RegisterIndexA, 2>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_A_3] = &CPU::BIT_r_b<Registers::RegisterIndexA, 3>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_A_4] = &CPU::BIT_r_b<Registers::RegisterIndexA, 4>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_A_5] = &CPU::BIT_r_b<Registers::RegisterIndexA, 5>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_A_6] = &CPU::BIT_r_b<Registers::RegisterIndexA, 6>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_A_7] = &CPU::BIT_r_b<Registers::RegisterIndexA, 7>;
+
+	m_ExtendedInstructions[ExtendedInstruction::BIT_B_0] = &CPU::BIT_r_b<Registers::RegisterIndexB, 0>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_B_1] = &CPU::BIT_r_b<Registers::RegisterIndexB, 1>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_B_2] = &CPU::BIT_r_b<Registers::RegisterIndexB, 2>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_B_3] = &CPU::BIT_r_b<Registers::RegisterIndexB, 3>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_B_4] = &CPU::BIT_r_b<Registers::RegisterIndexB, 4>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_B_5] = &CPU::BIT_r_b<Registers::RegisterIndexB, 5>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_B_6] = &CPU::BIT_r_b<Registers::RegisterIndexB, 6>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_B_7] = &CPU::BIT_r_b<Registers::RegisterIndexB, 7>;
+
+	m_ExtendedInstructions[ExtendedInstruction::BIT_C_0] = &CPU::BIT_r_b<Registers::RegisterIndexC, 0>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_C_1] = &CPU::BIT_r_b<Registers::RegisterIndexC, 1>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_C_2] = &CPU::BIT_r_b<Registers::RegisterIndexC, 2>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_C_3] = &CPU::BIT_r_b<Registers::RegisterIndexC, 3>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_C_4] = &CPU::BIT_r_b<Registers::RegisterIndexC, 4>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_C_5] = &CPU::BIT_r_b<Registers::RegisterIndexC, 5>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_C_6] = &CPU::BIT_r_b<Registers::RegisterIndexC, 6>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_C_7] = &CPU::BIT_r_b<Registers::RegisterIndexC, 7>;
+
+	m_ExtendedInstructions[ExtendedInstruction::BIT_D_0] = &CPU::BIT_r_b<Registers::RegisterIndexD, 0>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_D_1] = &CPU::BIT_r_b<Registers::RegisterIndexD, 1>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_D_2] = &CPU::BIT_r_b<Registers::RegisterIndexD, 2>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_D_3] = &CPU::BIT_r_b<Registers::RegisterIndexD, 3>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_D_4] = &CPU::BIT_r_b<Registers::RegisterIndexD, 4>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_D_5] = &CPU::BIT_r_b<Registers::RegisterIndexD, 5>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_D_6] = &CPU::BIT_r_b<Registers::RegisterIndexD, 6>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_D_7] = &CPU::BIT_r_b<Registers::RegisterIndexD, 7>;
+
+	m_ExtendedInstructions[ExtendedInstruction::BIT_E_0] = &CPU::BIT_r_b<Registers::RegisterIndexE, 0>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_E_1] = &CPU::BIT_r_b<Registers::RegisterIndexE, 1>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_E_2] = &CPU::BIT_r_b<Registers::RegisterIndexE, 2>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_E_3] = &CPU::BIT_r_b<Registers::RegisterIndexE, 3>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_E_4] = &CPU::BIT_r_b<Registers::RegisterIndexE, 4>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_E_5] = &CPU::BIT_r_b<Registers::RegisterIndexE, 5>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_E_6] = &CPU::BIT_r_b<Registers::RegisterIndexE, 6>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_E_7] = &CPU::BIT_r_b<Registers::RegisterIndexE, 7>;
+
+	m_ExtendedInstructions[ExtendedInstruction::BIT_H_0] = &CPU::BIT_r_b<Registers::RegisterIndexH, 0>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_H_1] = &CPU::BIT_r_b<Registers::RegisterIndexH, 1>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_H_2] = &CPU::BIT_r_b<Registers::RegisterIndexH, 2>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_H_3] = &CPU::BIT_r_b<Registers::RegisterIndexH, 3>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_H_4] = &CPU::BIT_r_b<Registers::RegisterIndexH, 4>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_H_5] = &CPU::BIT_r_b<Registers::RegisterIndexH, 5>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_H_6] = &CPU::BIT_r_b<Registers::RegisterIndexH, 6>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_H_7] = &CPU::BIT_r_b<Registers::RegisterIndexH, 7>;
+
+	m_ExtendedInstructions[ExtendedInstruction::BIT_L_0] = &CPU::BIT_r_b<Registers::RegisterIndexL, 0>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_L_1] = &CPU::BIT_r_b<Registers::RegisterIndexL, 1>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_L_2] = &CPU::BIT_r_b<Registers::RegisterIndexL, 2>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_L_3] = &CPU::BIT_r_b<Registers::RegisterIndexL, 3>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_L_4] = &CPU::BIT_r_b<Registers::RegisterIndexL, 4>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_L_5] = &CPU::BIT_r_b<Registers::RegisterIndexL, 5>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_L_6] = &CPU::BIT_r_b<Registers::RegisterIndexL, 6>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_L_7] = &CPU::BIT_r_b<Registers::RegisterIndexL, 7>;
+
+	m_ExtendedInstructions[ExtendedInstruction::BIT_aHL_0] = &CPU::BIT_arr_b<Registers::RegisterIndexHL, 0>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_aHL_1] = &CPU::BIT_arr_b<Registers::RegisterIndexHL, 1>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_aHL_2] = &CPU::BIT_arr_b<Registers::RegisterIndexHL, 2>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_aHL_3] = &CPU::BIT_arr_b<Registers::RegisterIndexHL, 3>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_aHL_4] = &CPU::BIT_arr_b<Registers::RegisterIndexHL, 4>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_aHL_5] = &CPU::BIT_arr_b<Registers::RegisterIndexHL, 5>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_aHL_6] = &CPU::BIT_arr_b<Registers::RegisterIndexHL, 6>;
+	m_ExtendedInstructions[ExtendedInstruction::BIT_aHL_7] = &CPU::BIT_arr_b<Registers::RegisterIndexHL, 7>;
 }
 
 GameboyType::Enum CPU::GetGameboyType() const noexcept
@@ -391,7 +508,7 @@ CPU::ExecutedInstruction CPU::ExecuteNextInstruction()
 	ExecutedInstruction instruction;
 
 	instruction.m_Instruction = static_cast<Instruction::Enum>(ReadNextByte());
-	instruction.m_ExtendedInstruction = instruction.m_Instruction == Instruction::EXT ? static_cast<ExtendedInstruction::Enum>(0) : static_cast<ExtendedInstruction::Enum>(PeekNextByte());
+	instruction.m_ExtendedInstruction = instruction.m_Instruction == Instruction::EXT ? static_cast<ExtendedInstruction::Enum>(PeekNextByte()) : static_cast<ExtendedInstruction::Enum>(0);
 
 	ExecuteInstruction(instruction.m_Instruction);
 
@@ -420,18 +537,18 @@ void CPU::SetBreakpointCallback(std::function<void()>&& a_Callback)
 	m_BreakpointCallback = std::move(a_Callback);
 }
 
-void CPU::ExecuteInstruction(Instruction::Enum a_Instruction)
+void CPU::ExecuteInstruction(Instruction::Enum a_Instruction) noexcept
 {
 	(this->*(m_Instructions[a_Instruction]))();
 	m_CycleCount += Instruction::GetCycles(a_Instruction).value_or(0);
 }
 
-void CPU::ExecuteNextExtendedInstruction()
+void CPU::ExecuteNextExtendedInstruction() noexcept
 {
 	ExecuteExtendedInstruction(static_cast<ExtendedInstruction::Enum>(ReadNextByte()));
 }
 
-void CPU::ExecuteExtendedInstruction(ExtendedInstruction::Enum a_Instruction)
+void CPU::ExecuteExtendedInstruction(ExtendedInstruction::Enum a_Instruction) noexcept
 {
 	(this->*(m_ExtendedInstructions[a_Instruction]))();
 	m_CycleCount += ExtendedInstruction::GetCycles(a_Instruction).value_or(0);
@@ -568,6 +685,66 @@ uint8_t CPU::XORByte(uint8_t a_Left, uint8_t a_Right) noexcept
 	return result;
 }
 
+uint8_t CPU::SwapByte(uint8_t a_Value) noexcept
+{
+	const uint8_t result = ((a_Value & 0x0F) << 4) | ((a_Value & 0xF0) >> 4);
+
+	m_Registers.SetZero(result == 0);
+	m_Registers.SetSubtract(false);
+	m_Registers.SetHalfCarry(false);
+	m_Registers.SetCarry(false);
+
+	return result;
+}
+
+uint8_t CPU::RotateLeftByte(uint8_t a_Value) noexcept
+{
+	const uint8_t result = (a_Value << 1) | (a_Value >> 7);
+
+	m_Registers.SetZero(result == 0);
+	m_Registers.SetSubtract(false);
+	m_Registers.SetHalfCarry(false);
+	m_Registers.SetCarry((a_Value & 0x80) != 0);
+
+	return result;
+}
+
+uint8_t CPU::RotateLeftThroughCarryByte(uint8_t a_Value) noexcept
+{
+	const uint8_t result = (a_Value << 1) | (m_Registers.GetCarry() ? 0x01 : 0x00);
+
+	m_Registers.SetZero(result == 0);
+	m_Registers.SetSubtract(false);
+	m_Registers.SetHalfCarry(false);
+	m_Registers.SetCarry((a_Value & 0x80) != 0);
+
+	return result;
+}
+
+uint8_t CPU::RotateRightByte(uint8_t a_Value) noexcept
+{
+	const uint8_t result = (a_Value >> 1) | (a_Value << 7);
+
+	m_Registers.SetZero(result == 0);
+	m_Registers.SetSubtract(false);
+	m_Registers.SetHalfCarry(false);
+	m_Registers.SetCarry((a_Value & 0x01) != 0);
+
+	return result;
+}
+
+uint8_t CPU::RotateRightThroughCarryByte(uint8_t a_Value) noexcept
+{
+	const uint8_t result = (a_Value >> 1) | (m_Registers.GetCarry() ? 0x80 : 0x00);
+
+	m_Registers.SetZero(result == 0);
+	m_Registers.SetSubtract(false);
+	m_Registers.SetHalfCarry(false);
+	m_Registers.SetCarry((a_Value & 0x01) != 0);
+
+	return result;
+}
+
 template <uint8_t Flag, bool Set>
 bool CPU::Condition() noexcept
 {
@@ -662,7 +839,15 @@ void CPU::BinaryInstruction_r_arr() noexcept
 void CPU::NotImplemented() noexcept
 {
 	//assert(false && "This instruction has not been implemented.");
-	m_Registers.SetPC(m_Registers.GetPC() - 1_u16);
+	if (m_Memory.Load8(m_Registers.GetPC() - 2) == Instruction::EXT)
+	{
+		m_Registers.SetPC(m_Registers.GetPC() - 2_u16);
+	}
+	else
+	{
+		m_Registers.SetPC(m_Registers.GetPC() - 1_u16);
+	}
+
 	if (m_BreakpointCallback)
 	{
 		m_BreakpointCallback();
@@ -953,9 +1138,9 @@ void CPU::JR_n() noexcept
 
 void CPU::PUSH_xx(uint16_t a_Value) noexcept
 {
-	const uint16_t address = m_Registers.GetSP();
+	const uint16_t address = m_Registers.GetSP() - 2_u16;
 	m_Memory.Store16(address, a_Value);
-	m_Registers.SetSP(address - 2_u16);
+	m_Registers.SetSP(address);
 }
 
 template <uint8_t Source>
@@ -1011,4 +1196,27 @@ template <uint16_t Address>
 void CPU::RST() noexcept
 {
 	CALL_xx<Registers::FlagIndexInvalid, false>(Address);
+}
+
+template <uint8_t Bit>
+void CPU::BIT_x_b(uint8_t a_Value) noexcept
+{
+	m_Registers.SetZero((a_Value & (1 << Bit)) == 0);
+	m_Registers.SetSubtract(false);
+	m_Registers.SetHalfCarry(true);
+}
+
+template <uint8_t Source, uint8_t Bit>
+void CPU::BIT_r_b() noexcept
+{
+	const uint8_t value = m_Registers.GetRegister8(Source);
+	BIT_x_b<Bit>(value);
+}
+
+template <uint8_t Source, uint8_t Bit>
+void CPU::BIT_arr_b() noexcept
+{
+	const uint16_t address = m_Registers.GetRegister16(Source);
+	const uint8_t value = m_Memory.Load8(address);
+	BIT_x_b<Bit>(value);
 }

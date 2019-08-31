@@ -3,6 +3,7 @@
 
 #include <gameboy/api.hpp>
 
+#include <array>
 #include <optional>
 
 // Instruction naming convention:
@@ -56,6 +57,33 @@ namespace Amber::Gameboy
 			RR_H = 0x1C,
 			RR_L = 0x1D,
 			RR_aHL = 0x1E,
+
+			SLA_A = 0x27,
+			SLA_B = 0x20,
+			SLA_C = 0x21,
+			SLA_D = 0x22,
+			SLA_E = 0x23,
+			SLA_H = 0x24,
+			SLA_L = 0x25,
+			SLA_aHL = 0x26,
+
+			SRA_A = 0x2F,
+			SRA_B = 0x28,
+			SRA_C = 0x29,
+			SRA_D = 0x2A,
+			SRA_E = 0x2B,
+			SRA_H = 0x2C,
+			SRA_L = 0x2D,
+			SRA_aHL = 0x2E,
+
+			SRL_A = 0x3F,
+			SRL_B = 0x38,
+			SRL_C = 0x39,
+			SRL_D = 0x3A,
+			SRL_E = 0x3B,
+			SRL_H = 0x3C,
+			SRL_L = 0x3D,
+			SRL_aHL = 0x3E,
 
 			SWAP_A = 0x37,
 			SWAP_B = 0x30,
@@ -283,524 +311,324 @@ namespace Amber::Gameboy
 			SET_aHL_7 = 0xFE,
 		};
 
+		namespace Internal
+		{
+			struct InstructionInfo
+			{
+				std::optional<uint16_t> m_Cycles;
+				std::optional<uint16_t> m_Size;
+				std::optional<std::string_view> m_Name;
+			};
+
+			constexpr std::array<InstructionInfo, 256> g_InstructionInfo = []() constexpr
+			{
+				std::array<InstructionInfo, 256> info;
+
+				info[ExtendedInstruction::RLC_A]   = {  8_u16, 1_u16, "RLC A" };
+				info[ExtendedInstruction::RLC_B]   = {  8_u16, 1_u16, "RLC B" };
+				info[ExtendedInstruction::RLC_C]   = {  8_u16, 1_u16, "RLC C" };
+				info[ExtendedInstruction::RLC_D]   = {  8_u16, 1_u16, "RLC D" };
+				info[ExtendedInstruction::RLC_E]   = {  8_u16, 1_u16, "RLC E" };
+				info[ExtendedInstruction::RLC_H]   = {  8_u16, 1_u16, "RLC H" };
+				info[ExtendedInstruction::RLC_L]   = {  8_u16, 1_u16, "RLC L" };
+				info[ExtendedInstruction::RLC_aHL] = { 16_u16, 1_u16, "RLC (HL)" };
+
+				info[ExtendedInstruction::RRC_A]   = {  8_u16, 1_u16, "RRC A" };
+				info[ExtendedInstruction::RRC_B]   = {  8_u16, 1_u16, "RRC B" };
+				info[ExtendedInstruction::RRC_C]   = {  8_u16, 1_u16, "RRC C" };
+				info[ExtendedInstruction::RRC_D]   = {  8_u16, 1_u16, "RRC D" };
+				info[ExtendedInstruction::RRC_E]   = {  8_u16, 1_u16, "RRC E" };
+				info[ExtendedInstruction::RRC_H]   = {  8_u16, 1_u16, "RRC H" };
+				info[ExtendedInstruction::RRC_L]   = {  8_u16, 1_u16, "RRC L" };
+				info[ExtendedInstruction::RRC_aHL] = { 16_u16, 1_u16, "RRC (HL)" };
+
+				info[ExtendedInstruction::RL_A]   = {  8_u16, 1_u16, "RL A" };
+				info[ExtendedInstruction::RL_B]   = {  8_u16, 1_u16, "RL B" };
+				info[ExtendedInstruction::RL_C]   = {  8_u16, 1_u16, "RL C" };
+				info[ExtendedInstruction::RL_D]   = {  8_u16, 1_u16, "RL D" };
+				info[ExtendedInstruction::RL_E]   = {  8_u16, 1_u16, "RL E" };
+				info[ExtendedInstruction::RL_H]   = {  8_u16, 1_u16, "RL H" };
+				info[ExtendedInstruction::RL_L]   = {  8_u16, 1_u16, "RL L" };
+				info[ExtendedInstruction::RL_aHL] = { 16_u16, 1_u16, "RL (HL)" };
+
+				info[ExtendedInstruction::RR_A]   = {  8_u16, 1_u16, "RR A" };
+				info[ExtendedInstruction::RR_B]   = {  8_u16, 1_u16, "RR B" };
+				info[ExtendedInstruction::RR_C]   = {  8_u16, 1_u16, "RR C" };
+				info[ExtendedInstruction::RR_D]   = {  8_u16, 1_u16, "RR D" };
+				info[ExtendedInstruction::RR_E]   = {  8_u16, 1_u16, "RR E" };
+				info[ExtendedInstruction::RR_H]   = {  8_u16, 1_u16, "RR H" };
+				info[ExtendedInstruction::RR_L]   = {  8_u16, 1_u16, "RR L" };
+				info[ExtendedInstruction::RR_aHL] = { 16_u16, 1_u16, "RR (HL)" };
+
+				info[ExtendedInstruction::SLA_A]   = {  8_u16, 1_u16, "SLA A" };
+				info[ExtendedInstruction::SLA_B]   = {  8_u16, 1_u16, "SLA B" };
+				info[ExtendedInstruction::SLA_C]   = {  8_u16, 1_u16, "SLA C" };
+				info[ExtendedInstruction::SLA_D]   = {  8_u16, 1_u16, "SLA D" };
+				info[ExtendedInstruction::SLA_E]   = {  8_u16, 1_u16, "SLA E" };
+				info[ExtendedInstruction::SLA_H]   = {  8_u16, 1_u16, "SLA H" };
+				info[ExtendedInstruction::SLA_L]   = {  8_u16, 1_u16, "SLA L" };
+				info[ExtendedInstruction::SLA_aHL] = { 16_u16, 1_u16, "SLA (HL)" };
+
+				info[ExtendedInstruction::SRA_A]   = {  8_u16, 1_u16, "SRA A" };
+				info[ExtendedInstruction::SRA_B]   = {  8_u16, 1_u16, "SRA B" };
+				info[ExtendedInstruction::SRA_C]   = {  8_u16, 1_u16, "SRA C" };
+				info[ExtendedInstruction::SRA_D]   = {  8_u16, 1_u16, "SRA D" };
+				info[ExtendedInstruction::SRA_E]   = {  8_u16, 1_u16, "SRA E" };
+				info[ExtendedInstruction::SRA_H]   = {  8_u16, 1_u16, "SRA H" };
+				info[ExtendedInstruction::SRA_L]   = {  8_u16, 1_u16, "SRA L" };
+				info[ExtendedInstruction::SRA_aHL] = { 16_u16, 1_u16, "SRA (HL)" };
+
+				info[ExtendedInstruction::SRL_A]   = {  8_u16, 1_u16, "SRL A" };
+				info[ExtendedInstruction::SRL_B]   = {  8_u16, 1_u16, "SRL B" };
+				info[ExtendedInstruction::SRL_C]   = {  8_u16, 1_u16, "SRL C" };
+				info[ExtendedInstruction::SRL_D]   = {  8_u16, 1_u16, "SRL D" };
+				info[ExtendedInstruction::SRL_E]   = {  8_u16, 1_u16, "SRL E" };
+				info[ExtendedInstruction::SRL_H]   = {  8_u16, 1_u16, "SRL H" };
+				info[ExtendedInstruction::SRL_L]   = {  8_u16, 1_u16, "SRL L" };
+				info[ExtendedInstruction::SRL_aHL] = { 16_u16, 1_u16, "SRL (HL)" };
+
+				info[ExtendedInstruction::SWAP_A]   = {  8_u16, 1_u16, "SWAP A" };
+				info[ExtendedInstruction::SWAP_B]   = {  8_u16, 1_u16, "SWAP B" };
+				info[ExtendedInstruction::SWAP_C]   = {  8_u16, 1_u16, "SWAP C" };
+				info[ExtendedInstruction::SWAP_D]   = {  8_u16, 1_u16, "SWAP D" };
+				info[ExtendedInstruction::SWAP_E]   = {  8_u16, 1_u16, "SWAP E" };
+				info[ExtendedInstruction::SWAP_H]   = {  8_u16, 1_u16, "SWAP H" };
+				info[ExtendedInstruction::SWAP_L]   = {  8_u16, 1_u16, "SWAP L" };
+				info[ExtendedInstruction::SWAP_aHL] = { 16_u16, 1_u16, "SWAP (HL)" };
+
+				info[ExtendedInstruction::BIT_A_0]   = {  8_u16, 1_u16, "BIT A,0" };
+				info[ExtendedInstruction::BIT_B_0]   = {  8_u16, 1_u16, "BIT B,0" };
+				info[ExtendedInstruction::BIT_C_0]   = {  8_u16, 1_u16, "BIT C,0" };
+				info[ExtendedInstruction::BIT_D_0]   = {  8_u16, 1_u16, "BIT D,0" };
+				info[ExtendedInstruction::BIT_E_0]   = {  8_u16, 1_u16, "BIT E,0" };
+				info[ExtendedInstruction::BIT_H_0]   = {  8_u16, 1_u16, "BIT H,0" };
+				info[ExtendedInstruction::BIT_L_0]   = {  8_u16, 1_u16, "BIT L,0" };
+				info[ExtendedInstruction::BIT_aHL_0] = { 16_u16, 1_u16, "BIT (HL),0" };
+
+				info[ExtendedInstruction::BIT_A_1]   = {  8_u16, 1_u16, "BIT A,1" };
+				info[ExtendedInstruction::BIT_B_1]   = {  8_u16, 1_u16, "BIT B,1" };
+				info[ExtendedInstruction::BIT_C_1]   = {  8_u16, 1_u16, "BIT C,1" };
+				info[ExtendedInstruction::BIT_D_1]   = {  8_u16, 1_u16, "BIT D,1" };
+				info[ExtendedInstruction::BIT_E_1]   = {  8_u16, 1_u16, "BIT E,1" };
+				info[ExtendedInstruction::BIT_H_1]   = {  8_u16, 1_u16, "BIT H,1" };
+				info[ExtendedInstruction::BIT_L_1]   = {  8_u16, 1_u16, "BIT L,1" };
+				info[ExtendedInstruction::BIT_aHL_1] = { 16_u16, 1_u16, "BIT (HL),1" };
+
+				info[ExtendedInstruction::BIT_A_2]   = {  8_u16, 1_u16, "BIT A,2" };
+				info[ExtendedInstruction::BIT_B_2]   = {  8_u16, 1_u16, "BIT B,2" };
+				info[ExtendedInstruction::BIT_C_2]   = {  8_u16, 1_u16, "BIT C,2" };
+				info[ExtendedInstruction::BIT_D_2]   = {  8_u16, 1_u16, "BIT D,2" };
+				info[ExtendedInstruction::BIT_E_2]   = {  8_u16, 1_u16, "BIT E,2" };
+				info[ExtendedInstruction::BIT_H_2]   = {  8_u16, 1_u16, "BIT H,2" };
+				info[ExtendedInstruction::BIT_L_2]   = {  8_u16, 1_u16, "BIT L,2" };
+				info[ExtendedInstruction::BIT_aHL_2] = { 16_u16, 1_u16, "BIT (HL),2" };
+
+				info[ExtendedInstruction::BIT_A_3]   = {  8_u16, 1_u16, "BIT A,3" };
+				info[ExtendedInstruction::BIT_B_3]   = {  8_u16, 1_u16, "BIT B,3" };
+				info[ExtendedInstruction::BIT_C_3]   = {  8_u16, 1_u16, "BIT C,3" };
+				info[ExtendedInstruction::BIT_D_3]   = {  8_u16, 1_u16, "BIT D,3" };
+				info[ExtendedInstruction::BIT_E_3]   = {  8_u16, 1_u16, "BIT E,3" };
+				info[ExtendedInstruction::BIT_H_3]   = {  8_u16, 1_u16, "BIT H,3" };
+				info[ExtendedInstruction::BIT_L_3]   = {  8_u16, 1_u16, "BIT L,3" };
+				info[ExtendedInstruction::BIT_aHL_3] = { 16_u16, 1_u16, "BIT (HL),3" };
+
+				info[ExtendedInstruction::BIT_A_4]   = {  8_u16, 1_u16, "BIT A,4" };
+				info[ExtendedInstruction::BIT_B_4]   = {  8_u16, 1_u16, "BIT B,4" };
+				info[ExtendedInstruction::BIT_C_4]   = {  8_u16, 1_u16, "BIT C,4" };
+				info[ExtendedInstruction::BIT_D_4]   = {  8_u16, 1_u16, "BIT D,4" };
+				info[ExtendedInstruction::BIT_E_4]   = {  8_u16, 1_u16, "BIT E,4" };
+				info[ExtendedInstruction::BIT_H_4]   = {  8_u16, 1_u16, "BIT H,4" };
+				info[ExtendedInstruction::BIT_L_4]   = {  8_u16, 1_u16, "BIT L,4" };
+				info[ExtendedInstruction::BIT_aHL_4] = { 16_u16, 1_u16, "BIT (HL),4" };
+
+				info[ExtendedInstruction::BIT_A_5]   = {  8_u16, 1_u16, "BIT A,5" };
+				info[ExtendedInstruction::BIT_B_5]   = {  8_u16, 1_u16, "BIT B,5" };
+				info[ExtendedInstruction::BIT_C_5]   = {  8_u16, 1_u16, "BIT C,5" };
+				info[ExtendedInstruction::BIT_D_5]   = {  8_u16, 1_u16, "BIT D,5" };
+				info[ExtendedInstruction::BIT_E_5]   = {  8_u16, 1_u16, "BIT E,5" };
+				info[ExtendedInstruction::BIT_H_5]   = {  8_u16, 1_u16, "BIT H,5" };
+				info[ExtendedInstruction::BIT_L_5]   = {  8_u16, 1_u16, "BIT L,5" };
+				info[ExtendedInstruction::BIT_aHL_5] = { 16_u16, 1_u16, "BIT (HL),5" };
+
+				info[ExtendedInstruction::BIT_A_6]   = {  8_u16, 1_u16, "BIT A,6" };
+				info[ExtendedInstruction::BIT_B_6]   = {  8_u16, 1_u16, "BIT B,6" };
+				info[ExtendedInstruction::BIT_C_6]   = {  8_u16, 1_u16, "BIT C,6" };
+				info[ExtendedInstruction::BIT_D_6]   = {  8_u16, 1_u16, "BIT D,6" };
+				info[ExtendedInstruction::BIT_E_6]   = {  8_u16, 1_u16, "BIT E,6" };
+				info[ExtendedInstruction::BIT_H_6]   = {  8_u16, 1_u16, "BIT H,6" };
+				info[ExtendedInstruction::BIT_L_6]   = {  8_u16, 1_u16, "BIT L,6" };
+				info[ExtendedInstruction::BIT_aHL_6] = { 16_u16, 1_u16, "BIT (HL),6" };
+
+				info[ExtendedInstruction::BIT_A_7]   = {  8_u16, 1_u16, "BIT A,7" };
+				info[ExtendedInstruction::BIT_B_7]   = {  8_u16, 1_u16, "BIT B,7" };
+				info[ExtendedInstruction::BIT_C_7]   = {  8_u16, 1_u16, "BIT C,7" };
+				info[ExtendedInstruction::BIT_D_7]   = {  8_u16, 1_u16, "BIT D,7" };
+				info[ExtendedInstruction::BIT_E_7]   = {  8_u16, 1_u16, "BIT E,7" };
+				info[ExtendedInstruction::BIT_H_7]   = {  8_u16, 1_u16, "BIT H,7" };
+				info[ExtendedInstruction::BIT_L_7]   = {  8_u16, 1_u16, "BIT L,7" };
+				info[ExtendedInstruction::BIT_aHL_7] = { 16_u16, 1_u16, "BIT (HL),7" };
+
+				info[ExtendedInstruction::BIT_A_0]   = {  8_u16, 1_u16, "BIT A,0" };
+				info[ExtendedInstruction::BIT_B_0]   = {  8_u16, 1_u16, "BIT B,0" };
+				info[ExtendedInstruction::BIT_C_0]   = {  8_u16, 1_u16, "BIT C,0" };
+				info[ExtendedInstruction::BIT_D_0]   = {  8_u16, 1_u16, "BIT D,0" };
+				info[ExtendedInstruction::BIT_E_0]   = {  8_u16, 1_u16, "BIT E,0" };
+				info[ExtendedInstruction::BIT_H_0]   = {  8_u16, 1_u16, "BIT H,0" };
+				info[ExtendedInstruction::BIT_L_0]   = {  8_u16, 1_u16, "BIT L,0" };
+				info[ExtendedInstruction::BIT_aHL_0] = { 16_u16, 1_u16, "BIT (HL),0" };
+
+				info[ExtendedInstruction::RES_A_1]   = {  8_u16, 1_u16, "RES A,1" };
+				info[ExtendedInstruction::RES_B_1]   = {  8_u16, 1_u16, "RES B,1" };
+				info[ExtendedInstruction::RES_C_1]   = {  8_u16, 1_u16, "RES C,1" };
+				info[ExtendedInstruction::RES_D_1]   = {  8_u16, 1_u16, "RES D,1" };
+				info[ExtendedInstruction::RES_E_1]   = {  8_u16, 1_u16, "RES E,1" };
+				info[ExtendedInstruction::RES_H_1]   = {  8_u16, 1_u16, "RES H,1" };
+				info[ExtendedInstruction::RES_L_1]   = {  8_u16, 1_u16, "RES L,1" };
+				info[ExtendedInstruction::RES_aHL_1] = { 16_u16, 1_u16, "RES (HL),1" };
+
+				info[ExtendedInstruction::RES_A_2]   = {  8_u16, 1_u16, "RES A,2" };
+				info[ExtendedInstruction::RES_B_2]   = {  8_u16, 1_u16, "RES B,2" };
+				info[ExtendedInstruction::RES_C_2]   = {  8_u16, 1_u16, "RES C,2" };
+				info[ExtendedInstruction::RES_D_2]   = {  8_u16, 1_u16, "RES D,2" };
+				info[ExtendedInstruction::RES_E_2]   = {  8_u16, 1_u16, "RES E,2" };
+				info[ExtendedInstruction::RES_H_2]   = {  8_u16, 1_u16, "RES H,2" };
+				info[ExtendedInstruction::RES_L_2]   = {  8_u16, 1_u16, "RES L,2" };
+				info[ExtendedInstruction::RES_aHL_2] = { 16_u16, 1_u16, "RES (HL),2" };
+
+				info[ExtendedInstruction::RES_A_3]   = {  8_u16, 1_u16, "RES A,3" };
+				info[ExtendedInstruction::RES_B_3]   = {  8_u16, 1_u16, "RES B,3" };
+				info[ExtendedInstruction::RES_C_3]   = {  8_u16, 1_u16, "RES C,3" };
+				info[ExtendedInstruction::RES_D_3]   = {  8_u16, 1_u16, "RES D,3" };
+				info[ExtendedInstruction::RES_E_3]   = {  8_u16, 1_u16, "RES E,3" };
+				info[ExtendedInstruction::RES_H_3]   = {  8_u16, 1_u16, "RES H,3" };
+				info[ExtendedInstruction::RES_L_3]   = {  8_u16, 1_u16, "RES L,3" };
+				info[ExtendedInstruction::RES_aHL_3] = { 16_u16, 1_u16, "RES (HL),3" };
+
+				info[ExtendedInstruction::RES_A_4]   = {  8_u16, 1_u16, "RES A,4" };
+				info[ExtendedInstruction::RES_B_4]   = {  8_u16, 1_u16, "RES B,4" };
+				info[ExtendedInstruction::RES_C_4]   = {  8_u16, 1_u16, "RES C,4" };
+				info[ExtendedInstruction::RES_D_4]   = {  8_u16, 1_u16, "RES D,4" };
+				info[ExtendedInstruction::RES_E_4]   = {  8_u16, 1_u16, "RES E,4" };
+				info[ExtendedInstruction::RES_H_4]   = {  8_u16, 1_u16, "RES H,4" };
+				info[ExtendedInstruction::RES_L_4]   = {  8_u16, 1_u16, "RES L,4" };
+				info[ExtendedInstruction::RES_aHL_4] = { 16_u16, 1_u16, "RES (HL),4" };
+
+				info[ExtendedInstruction::RES_A_5]   = {  8_u16, 1_u16, "RES A,5" };
+				info[ExtendedInstruction::RES_B_5]   = {  8_u16, 1_u16, "RES B,5" };
+				info[ExtendedInstruction::RES_C_5]   = {  8_u16, 1_u16, "RES C,5" };
+				info[ExtendedInstruction::RES_D_5]   = {  8_u16, 1_u16, "RES D,5" };
+				info[ExtendedInstruction::RES_E_5]   = {  8_u16, 1_u16, "RES E,5" };
+				info[ExtendedInstruction::RES_H_5]   = {  8_u16, 1_u16, "RES H,5" };
+				info[ExtendedInstruction::RES_L_5]   = {  8_u16, 1_u16, "RES L,5" };
+				info[ExtendedInstruction::RES_aHL_5] = { 16_u16, 1_u16, "RES (HL),5" };
+
+				info[ExtendedInstruction::RES_A_6]   = {  8_u16, 1_u16, "RES A,6" };
+				info[ExtendedInstruction::RES_B_6]   = {  8_u16, 1_u16, "RES B,6" };
+				info[ExtendedInstruction::RES_C_6]   = {  8_u16, 1_u16, "RES C,6" };
+				info[ExtendedInstruction::RES_D_6]   = {  8_u16, 1_u16, "RES D,6" };
+				info[ExtendedInstruction::RES_E_6]   = {  8_u16, 1_u16, "RES E,6" };
+				info[ExtendedInstruction::RES_H_6]   = {  8_u16, 1_u16, "RES H,6" };
+				info[ExtendedInstruction::RES_L_6]   = {  8_u16, 1_u16, "RES L,6" };
+				info[ExtendedInstruction::RES_aHL_6] = { 16_u16, 1_u16, "RES (HL),6" };
+
+				info[ExtendedInstruction::RES_A_7]   = {  8_u16, 1_u16, "RES A,7" };
+				info[ExtendedInstruction::RES_B_7]   = {  8_u16, 1_u16, "RES B,7" };
+				info[ExtendedInstruction::RES_C_7]   = {  8_u16, 1_u16, "RES C,7" };
+				info[ExtendedInstruction::RES_D_7]   = {  8_u16, 1_u16, "RES D,7" };
+				info[ExtendedInstruction::RES_E_7]   = {  8_u16, 1_u16, "RES E,7" };
+				info[ExtendedInstruction::RES_H_7]   = {  8_u16, 1_u16, "RES H,7" };
+				info[ExtendedInstruction::RES_L_7]   = {  8_u16, 1_u16, "RES L,7" };
+				info[ExtendedInstruction::RES_aHL_7] = { 16_u16, 1_u16, "RES (HL),7" };
+
+				info[ExtendedInstruction::SET_A_0]   = {  8_u16, 1_u16, "SET A,0" };
+				info[ExtendedInstruction::SET_B_0]   = {  8_u16, 1_u16, "SET B,0" };
+				info[ExtendedInstruction::SET_C_0]   = {  8_u16, 1_u16, "SET C,0" };
+				info[ExtendedInstruction::SET_D_0]   = {  8_u16, 1_u16, "SET D,0" };
+				info[ExtendedInstruction::SET_E_0]   = {  8_u16, 1_u16, "SET E,0" };
+				info[ExtendedInstruction::SET_H_0]   = {  8_u16, 1_u16, "SET H,0" };
+				info[ExtendedInstruction::SET_L_0]   = {  8_u16, 1_u16, "SET L,0" };
+				info[ExtendedInstruction::SET_aHL_0] = { 16_u16, 1_u16, "SET (HL),0" };
+
+				info[ExtendedInstruction::SET_A_1]   = {  8_u16, 1_u16, "SET A,1" };
+				info[ExtendedInstruction::SET_B_1]   = {  8_u16, 1_u16, "SET B,1" };
+				info[ExtendedInstruction::SET_C_1]   = {  8_u16, 1_u16, "SET C,1" };
+				info[ExtendedInstruction::SET_D_1]   = {  8_u16, 1_u16, "SET D,1" };
+				info[ExtendedInstruction::SET_E_1]   = {  8_u16, 1_u16, "SET E,1" };
+				info[ExtendedInstruction::SET_H_1]   = {  8_u16, 1_u16, "SET H,1" };
+				info[ExtendedInstruction::SET_L_1]   = {  8_u16, 1_u16, "SET L,1" };
+				info[ExtendedInstruction::SET_aHL_1] = { 16_u16, 1_u16, "SET (HL),1" };
+
+				info[ExtendedInstruction::SET_A_2]   = {  8_u16, 1_u16, "SET A,2" };
+				info[ExtendedInstruction::SET_B_2]   = {  8_u16, 1_u16, "SET B,2" };
+				info[ExtendedInstruction::SET_C_2]   = {  8_u16, 1_u16, "SET C,2" };
+				info[ExtendedInstruction::SET_D_2]   = {  8_u16, 1_u16, "SET D,2" };
+				info[ExtendedInstruction::SET_E_2]   = {  8_u16, 1_u16, "SET E,2" };
+				info[ExtendedInstruction::SET_H_2]   = {  8_u16, 1_u16, "SET H,2" };
+				info[ExtendedInstruction::SET_L_2]   = {  8_u16, 1_u16, "SET L,2" };
+				info[ExtendedInstruction::SET_aHL_2] = { 16_u16, 1_u16, "SET (HL),2" };
+
+				info[ExtendedInstruction::SET_A_3]   = {  8_u16, 1_u16, "SET A,3" };
+				info[ExtendedInstruction::SET_B_3]   = {  8_u16, 1_u16, "SET B,3" };
+				info[ExtendedInstruction::SET_C_3]   = {  8_u16, 1_u16, "SET C,3" };
+				info[ExtendedInstruction::SET_D_3]   = {  8_u16, 1_u16, "SET D,3" };
+				info[ExtendedInstruction::SET_E_3]   = {  8_u16, 1_u16, "SET E,3" };
+				info[ExtendedInstruction::SET_H_3]   = {  8_u16, 1_u16, "SET H,3" };
+				info[ExtendedInstruction::SET_L_3]   = {  8_u16, 1_u16, "SET L,3" };
+				info[ExtendedInstruction::SET_aHL_3] = { 16_u16, 1_u16, "SET (HL),3" };
+
+				info[ExtendedInstruction::SET_A_4]   = {  8_u16, 1_u16, "SET A,4" };
+				info[ExtendedInstruction::SET_B_4]   = {  8_u16, 1_u16, "SET B,4" };
+				info[ExtendedInstruction::SET_C_4]   = {  8_u16, 1_u16, "SET C,4" };
+				info[ExtendedInstruction::SET_D_4]   = {  8_u16, 1_u16, "SET D,4" };
+				info[ExtendedInstruction::SET_E_4]   = {  8_u16, 1_u16, "SET E,4" };
+				info[ExtendedInstruction::SET_H_4]   = {  8_u16, 1_u16, "SET H,4" };
+				info[ExtendedInstruction::SET_L_4]   = {  8_u16, 1_u16, "SET L,4" };
+				info[ExtendedInstruction::SET_aHL_4] = { 16_u16, 1_u16, "SET (HL),4" };
+
+				info[ExtendedInstruction::SET_A_5]   = {  8_u16, 1_u16, "SET A,5" };
+				info[ExtendedInstruction::SET_B_5]   = {  8_u16, 1_u16, "SET B,5" };
+				info[ExtendedInstruction::SET_C_5]   = {  8_u16, 1_u16, "SET C,5" };
+				info[ExtendedInstruction::SET_D_5]   = {  8_u16, 1_u16, "SET D,5" };
+				info[ExtendedInstruction::SET_E_5]   = {  8_u16, 1_u16, "SET E,5" };
+				info[ExtendedInstruction::SET_H_5]   = {  8_u16, 1_u16, "SET H,5" };
+				info[ExtendedInstruction::SET_L_5]   = {  8_u16, 1_u16, "SET L,5" };
+				info[ExtendedInstruction::SET_aHL_5] = { 16_u16, 1_u16, "SET (HL),5" };
+
+				info[ExtendedInstruction::SET_A_6]   = {  8_u16, 1_u16, "SET A,6" };
+				info[ExtendedInstruction::SET_B_6]   = {  8_u16, 1_u16, "SET B,6" };
+				info[ExtendedInstruction::SET_C_6]   = {  8_u16, 1_u16, "SET C,6" };
+				info[ExtendedInstruction::SET_D_6]   = {  8_u16, 1_u16, "SET D,6" };
+				info[ExtendedInstruction::SET_E_6]   = {  8_u16, 1_u16, "SET E,6" };
+				info[ExtendedInstruction::SET_H_6]   = {  8_u16, 1_u16, "SET H,6" };
+				info[ExtendedInstruction::SET_L_6]   = {  8_u16, 1_u16, "SET L,6" };
+				info[ExtendedInstruction::SET_aHL_6] = { 16_u16, 1_u16, "SET (HL),6" };
+
+				info[ExtendedInstruction::SET_A_7]   = {  8_u16, 1_u16, "SET A,7" };
+				info[ExtendedInstruction::SET_B_7]   = {  8_u16, 1_u16, "SET B,7" };
+				info[ExtendedInstruction::SET_C_7]   = {  8_u16, 1_u16, "SET C,7" };
+				info[ExtendedInstruction::SET_D_7]   = {  8_u16, 1_u16, "SET D,7" };
+				info[ExtendedInstruction::SET_E_7]   = {  8_u16, 1_u16, "SET E,7" };
+				info[ExtendedInstruction::SET_H_7]   = {  8_u16, 1_u16, "SET H,7" };
+				info[ExtendedInstruction::SET_L_7]   = {  8_u16, 1_u16, "SET L,7" };
+				info[ExtendedInstruction::SET_aHL_7] = { 16_u16, 1_u16, "SET (HL),7" };
+
+				return info;
+			}();
+		}
+
 		constexpr std::optional<uint16_t> GetCycles(ExtendedInstruction::Enum a_Instruction)
 		{
-			switch (a_Instruction)
-			{
-				case ExtendedInstruction::RLC_A:
-				case ExtendedInstruction::RLC_B:
-				case ExtendedInstruction::RLC_C:
-				case ExtendedInstruction::RLC_D:
-				case ExtendedInstruction::RLC_E:
-				case ExtendedInstruction::RLC_H:
-				case ExtendedInstruction::RLC_L:
-				case ExtendedInstruction::RRC_A:
-				case ExtendedInstruction::RRC_B:
-				case ExtendedInstruction::RRC_C:
-				case ExtendedInstruction::RRC_D:
-				case ExtendedInstruction::RRC_E:
-				case ExtendedInstruction::RRC_H:
-				case ExtendedInstruction::RRC_L:
-				case ExtendedInstruction::RL_A:
-				case ExtendedInstruction::RL_B:
-				case ExtendedInstruction::RL_C:
-				case ExtendedInstruction::RL_D:
-				case ExtendedInstruction::RL_E:
-				case ExtendedInstruction::RL_H:
-				case ExtendedInstruction::RL_L:
-				case ExtendedInstruction::RR_A:
-				case ExtendedInstruction::RR_B:
-				case ExtendedInstruction::RR_C:
-				case ExtendedInstruction::RR_D:
-				case ExtendedInstruction::RR_E:
-				case ExtendedInstruction::RR_H:
-				case ExtendedInstruction::RR_L:
-				case ExtendedInstruction::SWAP_A:
-				case ExtendedInstruction::SWAP_B:
-				case ExtendedInstruction::SWAP_C:
-				case ExtendedInstruction::SWAP_D:
-				case ExtendedInstruction::SWAP_E:
-				case ExtendedInstruction::SWAP_H:
-				case ExtendedInstruction::SWAP_L:
-				case ExtendedInstruction::BIT_A_0:
-				case ExtendedInstruction::BIT_A_1:
-				case ExtendedInstruction::BIT_A_2:
-				case ExtendedInstruction::BIT_A_3:
-				case ExtendedInstruction::BIT_A_4:
-				case ExtendedInstruction::BIT_A_5:
-				case ExtendedInstruction::BIT_A_6:
-				case ExtendedInstruction::BIT_A_7:
-				case ExtendedInstruction::BIT_B_0:
-				case ExtendedInstruction::BIT_B_1:
-				case ExtendedInstruction::BIT_B_2:
-				case ExtendedInstruction::BIT_B_3:
-				case ExtendedInstruction::BIT_B_4:
-				case ExtendedInstruction::BIT_B_5:
-				case ExtendedInstruction::BIT_B_6:
-				case ExtendedInstruction::BIT_B_7:
-				case ExtendedInstruction::BIT_C_0:
-				case ExtendedInstruction::BIT_C_1:
-				case ExtendedInstruction::BIT_C_2:
-				case ExtendedInstruction::BIT_C_3:
-				case ExtendedInstruction::BIT_C_4:
-				case ExtendedInstruction::BIT_C_5:
-				case ExtendedInstruction::BIT_C_6:
-				case ExtendedInstruction::BIT_C_7:
-				case ExtendedInstruction::BIT_D_0:
-				case ExtendedInstruction::BIT_D_1:
-				case ExtendedInstruction::BIT_D_2:
-				case ExtendedInstruction::BIT_D_3:
-				case ExtendedInstruction::BIT_D_4:
-				case ExtendedInstruction::BIT_D_5:
-				case ExtendedInstruction::BIT_D_6:
-				case ExtendedInstruction::BIT_D_7:
-				case ExtendedInstruction::BIT_E_0:
-				case ExtendedInstruction::BIT_E_1:
-				case ExtendedInstruction::BIT_E_2:
-				case ExtendedInstruction::BIT_E_3:
-				case ExtendedInstruction::BIT_E_4:
-				case ExtendedInstruction::BIT_E_5:
-				case ExtendedInstruction::BIT_E_6:
-				case ExtendedInstruction::BIT_E_7:
-				case ExtendedInstruction::BIT_H_0:
-				case ExtendedInstruction::BIT_H_1:
-				case ExtendedInstruction::BIT_H_2:
-				case ExtendedInstruction::BIT_H_3:
-				case ExtendedInstruction::BIT_H_4:
-				case ExtendedInstruction::BIT_H_5:
-				case ExtendedInstruction::BIT_H_6:
-				case ExtendedInstruction::BIT_H_7:
-				case ExtendedInstruction::BIT_L_0:
-				case ExtendedInstruction::BIT_L_1:
-				case ExtendedInstruction::BIT_L_2:
-				case ExtendedInstruction::BIT_L_3:
-				case ExtendedInstruction::BIT_L_4:
-				case ExtendedInstruction::BIT_L_5:
-				case ExtendedInstruction::BIT_L_6:
-				case ExtendedInstruction::BIT_L_7:
-				case ExtendedInstruction::RES_A_0:
-				case ExtendedInstruction::RES_A_1:
-				case ExtendedInstruction::RES_A_2:
-				case ExtendedInstruction::RES_A_3:
-				case ExtendedInstruction::RES_A_4:
-				case ExtendedInstruction::RES_A_5:
-				case ExtendedInstruction::RES_A_6:
-				case ExtendedInstruction::RES_A_7:
-				case ExtendedInstruction::RES_B_0:
-				case ExtendedInstruction::RES_B_1:
-				case ExtendedInstruction::RES_B_2:
-				case ExtendedInstruction::RES_B_3:
-				case ExtendedInstruction::RES_B_4:
-				case ExtendedInstruction::RES_B_5:
-				case ExtendedInstruction::RES_B_6:
-				case ExtendedInstruction::RES_B_7:
-				case ExtendedInstruction::RES_C_0:
-				case ExtendedInstruction::RES_C_1:
-				case ExtendedInstruction::RES_C_2:
-				case ExtendedInstruction::RES_C_3:
-				case ExtendedInstruction::RES_C_4:
-				case ExtendedInstruction::RES_C_5:
-				case ExtendedInstruction::RES_C_6:
-				case ExtendedInstruction::RES_C_7:
-				case ExtendedInstruction::RES_D_0:
-				case ExtendedInstruction::RES_D_1:
-				case ExtendedInstruction::RES_D_2:
-				case ExtendedInstruction::RES_D_3:
-				case ExtendedInstruction::RES_D_4:
-				case ExtendedInstruction::RES_D_5:
-				case ExtendedInstruction::RES_D_6:
-				case ExtendedInstruction::RES_D_7:
-				case ExtendedInstruction::RES_E_0:
-				case ExtendedInstruction::RES_E_1:
-				case ExtendedInstruction::RES_E_2:
-				case ExtendedInstruction::RES_E_3:
-				case ExtendedInstruction::RES_E_4:
-				case ExtendedInstruction::RES_E_5:
-				case ExtendedInstruction::RES_E_6:
-				case ExtendedInstruction::RES_E_7:
-				case ExtendedInstruction::RES_H_0:
-				case ExtendedInstruction::RES_H_1:
-				case ExtendedInstruction::RES_H_2:
-				case ExtendedInstruction::RES_H_3:
-				case ExtendedInstruction::RES_H_4:
-				case ExtendedInstruction::RES_H_5:
-				case ExtendedInstruction::RES_H_6:
-				case ExtendedInstruction::RES_H_7:
-				case ExtendedInstruction::RES_L_0:
-				case ExtendedInstruction::RES_L_1:
-				case ExtendedInstruction::RES_L_2:
-				case ExtendedInstruction::RES_L_3:
-				case ExtendedInstruction::RES_L_4:
-				case ExtendedInstruction::RES_L_5:
-				case ExtendedInstruction::RES_L_6:
-				case ExtendedInstruction::RES_L_7:
-				case ExtendedInstruction::SET_A_0:
-				case ExtendedInstruction::SET_A_1:
-				case ExtendedInstruction::SET_A_2:
-				case ExtendedInstruction::SET_A_3:
-				case ExtendedInstruction::SET_A_4:
-				case ExtendedInstruction::SET_A_5:
-				case ExtendedInstruction::SET_A_6:
-				case ExtendedInstruction::SET_A_7:
-				case ExtendedInstruction::SET_B_0:
-				case ExtendedInstruction::SET_B_1:
-				case ExtendedInstruction::SET_B_2:
-				case ExtendedInstruction::SET_B_3:
-				case ExtendedInstruction::SET_B_4:
-				case ExtendedInstruction::SET_B_5:
-				case ExtendedInstruction::SET_B_6:
-				case ExtendedInstruction::SET_B_7:
-				case ExtendedInstruction::SET_C_0:
-				case ExtendedInstruction::SET_C_1:
-				case ExtendedInstruction::SET_C_2:
-				case ExtendedInstruction::SET_C_3:
-				case ExtendedInstruction::SET_C_4:
-				case ExtendedInstruction::SET_C_5:
-				case ExtendedInstruction::SET_C_6:
-				case ExtendedInstruction::SET_C_7:
-				case ExtendedInstruction::SET_D_0:
-				case ExtendedInstruction::SET_D_1:
-				case ExtendedInstruction::SET_D_2:
-				case ExtendedInstruction::SET_D_3:
-				case ExtendedInstruction::SET_D_4:
-				case ExtendedInstruction::SET_D_5:
-				case ExtendedInstruction::SET_D_6:
-				case ExtendedInstruction::SET_D_7:
-				case ExtendedInstruction::SET_E_0:
-				case ExtendedInstruction::SET_E_1:
-				case ExtendedInstruction::SET_E_2:
-				case ExtendedInstruction::SET_E_3:
-				case ExtendedInstruction::SET_E_4:
-				case ExtendedInstruction::SET_E_5:
-				case ExtendedInstruction::SET_E_6:
-				case ExtendedInstruction::SET_E_7:
-				case ExtendedInstruction::SET_H_0:
-				case ExtendedInstruction::SET_H_1:
-				case ExtendedInstruction::SET_H_2:
-				case ExtendedInstruction::SET_H_3:
-				case ExtendedInstruction::SET_H_4:
-				case ExtendedInstruction::SET_H_5:
-				case ExtendedInstruction::SET_H_6:
-				case ExtendedInstruction::SET_H_7:
-				case ExtendedInstruction::SET_L_0:
-				case ExtendedInstruction::SET_L_1:
-				case ExtendedInstruction::SET_L_2:
-				case ExtendedInstruction::SET_L_3:
-				case ExtendedInstruction::SET_L_4:
-				case ExtendedInstruction::SET_L_5:
-				case ExtendedInstruction::SET_L_6:
-				case ExtendedInstruction::SET_L_7:
-				return static_cast<uint16_t>(8);
-
-				case ExtendedInstruction::RLC_aHL:
-				case ExtendedInstruction::RRC_aHL:
-				case ExtendedInstruction::RL_aHL:
-				case ExtendedInstruction::RR_aHL:
-				case ExtendedInstruction::SWAP_aHL:
-				case ExtendedInstruction::BIT_aHL_0:
-				case ExtendedInstruction::BIT_aHL_1:
-				case ExtendedInstruction::BIT_aHL_2:
-				case ExtendedInstruction::BIT_aHL_3:
-				case ExtendedInstruction::BIT_aHL_4:
-				case ExtendedInstruction::BIT_aHL_5:
-				case ExtendedInstruction::BIT_aHL_6:
-				case ExtendedInstruction::BIT_aHL_7:
-				case ExtendedInstruction::RES_aHL_0:
-				case ExtendedInstruction::RES_aHL_1:
-				case ExtendedInstruction::RES_aHL_2:
-				case ExtendedInstruction::RES_aHL_3:
-				case ExtendedInstruction::RES_aHL_4:
-				case ExtendedInstruction::RES_aHL_5:
-				case ExtendedInstruction::RES_aHL_6:
-				case ExtendedInstruction::RES_aHL_7:
-				case ExtendedInstruction::SET_aHL_0:
-				case ExtendedInstruction::SET_aHL_1:
-				case ExtendedInstruction::SET_aHL_2:
-				case ExtendedInstruction::SET_aHL_3:
-				case ExtendedInstruction::SET_aHL_4:
-				case ExtendedInstruction::SET_aHL_5:
-				case ExtendedInstruction::SET_aHL_6:
-				case ExtendedInstruction::SET_aHL_7:
-				return static_cast<uint16_t>(16);
-
-				default:
-				return  {};
-			}
+			return Internal::g_InstructionInfo[a_Instruction].m_Cycles;
 		}
 
 		constexpr std::optional<uint16_t> GetSize(ExtendedInstruction::Enum a_Instruction)
 		{
-			return static_cast<uint16_t>(1);
+			return Internal::g_InstructionInfo[a_Instruction].m_Size;
 		}
 
 		constexpr std::optional<std::string_view> ToString(ExtendedInstruction::Enum a_Instruction)
 		{
-			switch (a_Instruction)
-			{
-				case ExtendedInstruction::RLC_A:     return "RLC A";
-				case ExtendedInstruction::RLC_B:     return "RLC B";
-				case ExtendedInstruction::RLC_C:     return "RLC C";
-				case ExtendedInstruction::RLC_D:     return "RLC D";
-				case ExtendedInstruction::RLC_E:     return "RLC E";
-				case ExtendedInstruction::RLC_H:     return "RLC H";
-				case ExtendedInstruction::RLC_L:     return "RLC L";
-				case ExtendedInstruction::RLC_aHL:   return "RLC (HL)";
-
-				case ExtendedInstruction::RRC_A:     return "RRC A";
-				case ExtendedInstruction::RRC_B:     return "RRC B";
-				case ExtendedInstruction::RRC_C:     return "RRC C";
-				case ExtendedInstruction::RRC_D:     return "RRC D";
-				case ExtendedInstruction::RRC_E:     return "RRC E";
-				case ExtendedInstruction::RRC_H:     return "RRC H";
-				case ExtendedInstruction::RRC_L:     return "RRC L";
-				case ExtendedInstruction::RRC_aHL:   return "RRC (HL)";
-
-				case ExtendedInstruction::RL_A:      return "RL A";
-				case ExtendedInstruction::RL_B:      return "RL B";
-				case ExtendedInstruction::RL_C:      return "RL C";
-				case ExtendedInstruction::RL_D:      return "RL D";
-				case ExtendedInstruction::RL_E:      return "RL E";
-				case ExtendedInstruction::RL_H:      return "RL H";
-				case ExtendedInstruction::RL_L:      return "RL L";
-				case ExtendedInstruction::RL_aHL:    return "RL (HL)";
-
-				case ExtendedInstruction::RR_A:      return "RR A";
-				case ExtendedInstruction::RR_B:      return "RR B";
-				case ExtendedInstruction::RR_C:      return "RR C";
-				case ExtendedInstruction::RR_D:      return "RR D";
-				case ExtendedInstruction::RR_E:      return "RR E";
-				case ExtendedInstruction::RR_H:      return "RR H";
-				case ExtendedInstruction::RR_L:      return "RR L";
-				case ExtendedInstruction::RR_aHL:    return "RR (HL)";
-
-				case ExtendedInstruction::SWAP_A:    return "SWAP A";
-				case ExtendedInstruction::SWAP_B:    return "SWAP B";
-				case ExtendedInstruction::SWAP_C:    return "SWAP C";
-				case ExtendedInstruction::SWAP_D:    return "SWAP D";
-				case ExtendedInstruction::SWAP_E:    return "SWAP E";
-				case ExtendedInstruction::SWAP_H:    return "SWAP H";
-				case ExtendedInstruction::SWAP_L:    return "SWAP L";
-				case ExtendedInstruction::SWAP_aHL:  return "SWAP (HL)";
-
-				case ExtendedInstruction::BIT_A_0:   return "BIT A,0";
-				case ExtendedInstruction::BIT_A_1:   return "BIT A,1";
-				case ExtendedInstruction::BIT_A_2:   return "BIT A,2";
-				case ExtendedInstruction::BIT_A_3:   return "BIT A,3";
-				case ExtendedInstruction::BIT_A_4:   return "BIT A,4";
-				case ExtendedInstruction::BIT_A_5:   return "BIT A,5";
-				case ExtendedInstruction::BIT_A_6:   return "BIT A,6";
-				case ExtendedInstruction::BIT_A_7:   return "BIT A,7";
-
-				case ExtendedInstruction::BIT_B_0:   return "BIT B,0";
-				case ExtendedInstruction::BIT_B_1:   return "BIT B,1";
-				case ExtendedInstruction::BIT_B_2:   return "BIT B,2";
-				case ExtendedInstruction::BIT_B_3:   return "BIT B,3";
-				case ExtendedInstruction::BIT_B_4:   return "BIT B,4";
-				case ExtendedInstruction::BIT_B_5:   return "BIT B,5";
-				case ExtendedInstruction::BIT_B_6:   return "BIT B,6";
-				case ExtendedInstruction::BIT_B_7:   return "BIT B,7";
-
-				case ExtendedInstruction::BIT_C_0:   return "BIT C,0";
-				case ExtendedInstruction::BIT_C_1:   return "BIT C,1";
-				case ExtendedInstruction::BIT_C_2:   return "BIT C,2";
-				case ExtendedInstruction::BIT_C_3:   return "BIT C,3";
-				case ExtendedInstruction::BIT_C_4:   return "BIT C,4";
-				case ExtendedInstruction::BIT_C_5:   return "BIT C,5";
-				case ExtendedInstruction::BIT_C_6:   return "BIT C,6";
-				case ExtendedInstruction::BIT_C_7:   return "BIT C,7";
-
-				case ExtendedInstruction::BIT_D_0:   return "BIT D,0";
-				case ExtendedInstruction::BIT_D_1:   return "BIT D,1";
-				case ExtendedInstruction::BIT_D_2:   return "BIT D,2";
-				case ExtendedInstruction::BIT_D_3:   return "BIT D,3";
-				case ExtendedInstruction::BIT_D_4:   return "BIT D,4";
-				case ExtendedInstruction::BIT_D_5:   return "BIT D,5";
-				case ExtendedInstruction::BIT_D_6:   return "BIT D,6";
-				case ExtendedInstruction::BIT_D_7:   return "BIT D,7";
-
-				case ExtendedInstruction::BIT_E_0:   return "BIT E,0";
-				case ExtendedInstruction::BIT_E_1:   return "BIT E,1";
-				case ExtendedInstruction::BIT_E_2:   return "BIT E,2";
-				case ExtendedInstruction::BIT_E_3:   return "BIT E,3";
-				case ExtendedInstruction::BIT_E_4:   return "BIT E,4";
-				case ExtendedInstruction::BIT_E_5:   return "BIT E,5";
-				case ExtendedInstruction::BIT_E_6:   return "BIT E,6";
-				case ExtendedInstruction::BIT_E_7:   return "BIT E,7";
-
-				case ExtendedInstruction::BIT_H_0:   return "BIT H,0";
-				case ExtendedInstruction::BIT_H_1:   return "BIT H,1";
-				case ExtendedInstruction::BIT_H_2:   return "BIT H,2";
-				case ExtendedInstruction::BIT_H_3:   return "BIT H,3";
-				case ExtendedInstruction::BIT_H_4:   return "BIT H,4";
-				case ExtendedInstruction::BIT_H_5:   return "BIT H,5";
-				case ExtendedInstruction::BIT_H_6:   return "BIT H,6";
-				case ExtendedInstruction::BIT_H_7:   return "BIT H,7";
-
-				case ExtendedInstruction::BIT_L_0:   return "BIT L,0";
-				case ExtendedInstruction::BIT_L_1:   return "BIT L,1";
-				case ExtendedInstruction::BIT_L_2:   return "BIT L,2";
-				case ExtendedInstruction::BIT_L_3:   return "BIT L,3";
-				case ExtendedInstruction::BIT_L_4:   return "BIT L,4";
-				case ExtendedInstruction::BIT_L_5:   return "BIT L,5";
-				case ExtendedInstruction::BIT_L_6:   return "BIT L,6";
-				case ExtendedInstruction::BIT_L_7:   return "BIT L,7";
-
-				case ExtendedInstruction::BIT_aHL_0: return "BIT (HL),0";
-				case ExtendedInstruction::BIT_aHL_1: return "BIT (HL),1";
-				case ExtendedInstruction::BIT_aHL_2: return "BIT (HL),2";
-				case ExtendedInstruction::BIT_aHL_3: return "BIT (HL),3";
-				case ExtendedInstruction::BIT_aHL_4: return "BIT (HL),4";
-				case ExtendedInstruction::BIT_aHL_5: return "BIT (HL),5";
-				case ExtendedInstruction::BIT_aHL_6: return "BIT (HL),6";
-				case ExtendedInstruction::BIT_aHL_7: return "BIT (HL),7";
-
-				case ExtendedInstruction::RES_A_0:   return "RES A,0";
-				case ExtendedInstruction::RES_A_1:   return "RES A,1";
-				case ExtendedInstruction::RES_A_2:   return "RES A,2";
-				case ExtendedInstruction::RES_A_3:   return "RES A,3";
-				case ExtendedInstruction::RES_A_4:   return "RES A,4";
-				case ExtendedInstruction::RES_A_5:   return "RES A,5";
-				case ExtendedInstruction::RES_A_6:   return "RES A,6";
-				case ExtendedInstruction::RES_A_7:   return "RES A,7";
-
-				case ExtendedInstruction::RES_B_0:   return "RES B,0";
-				case ExtendedInstruction::RES_B_1:   return "RES B,1";
-				case ExtendedInstruction::RES_B_2:   return "RES B,2";
-				case ExtendedInstruction::RES_B_3:   return "RES B,3";
-				case ExtendedInstruction::RES_B_4:   return "RES B,4";
-				case ExtendedInstruction::RES_B_5:   return "RES B,5";
-				case ExtendedInstruction::RES_B_6:   return "RES B,6";
-				case ExtendedInstruction::RES_B_7:   return "RES B,7";
-
-				case ExtendedInstruction::RES_C_0:   return "RES C,0";
-				case ExtendedInstruction::RES_C_1:   return "RES C,1";
-				case ExtendedInstruction::RES_C_2:   return "RES C,2";
-				case ExtendedInstruction::RES_C_3:   return "RES C,3";
-				case ExtendedInstruction::RES_C_4:   return "RES C,4";
-				case ExtendedInstruction::RES_C_5:   return "RES C,5";
-				case ExtendedInstruction::RES_C_6:   return "RES C,6";
-				case ExtendedInstruction::RES_C_7:   return "RES C,7";
-
-				case ExtendedInstruction::RES_D_0:   return "RES D,0";
-				case ExtendedInstruction::RES_D_1:   return "RES D,1";
-				case ExtendedInstruction::RES_D_2:   return "RES D,2";
-				case ExtendedInstruction::RES_D_3:   return "RES D,3";
-				case ExtendedInstruction::RES_D_4:   return "RES D,4";
-				case ExtendedInstruction::RES_D_5:   return "RES D,5";
-				case ExtendedInstruction::RES_D_6:   return "RES D,6";
-				case ExtendedInstruction::RES_D_7:   return "RES D,7";
-
-				case ExtendedInstruction::RES_E_0:   return "RES E,0";
-				case ExtendedInstruction::RES_E_1:   return "RES E,1";
-				case ExtendedInstruction::RES_E_2:   return "RES E,2";
-				case ExtendedInstruction::RES_E_3:   return "RES E,3";
-				case ExtendedInstruction::RES_E_4:   return "RES E,4";
-				case ExtendedInstruction::RES_E_5:   return "RES E,5";
-				case ExtendedInstruction::RES_E_6:   return "RES E,6";
-				case ExtendedInstruction::RES_E_7:   return "RES E,7";
-
-				case ExtendedInstruction::RES_H_0:   return "RES H,0";
-				case ExtendedInstruction::RES_H_1:   return "RES H,1";
-				case ExtendedInstruction::RES_H_2:   return "RES H,2";
-				case ExtendedInstruction::RES_H_3:   return "RES H,3";
-				case ExtendedInstruction::RES_H_4:   return "RES H,4";
-				case ExtendedInstruction::RES_H_5:   return "RES H,5";
-				case ExtendedInstruction::RES_H_6:   return "RES H,6";
-				case ExtendedInstruction::RES_H_7:   return "RES H,7";
-
-				case ExtendedInstruction::RES_L_0:   return "RES L,0";
-				case ExtendedInstruction::RES_L_1:   return "RES L,1";
-				case ExtendedInstruction::RES_L_2:   return "RES L,2";
-				case ExtendedInstruction::RES_L_3:   return "RES L,3";
-				case ExtendedInstruction::RES_L_4:   return "RES L,4";
-				case ExtendedInstruction::RES_L_5:   return "RES L,5";
-				case ExtendedInstruction::RES_L_6:   return "RES L,6";
-				case ExtendedInstruction::RES_L_7:   return "RES L,7";
-
-				case ExtendedInstruction::RES_aHL_0: return "RES (HL),0";
-				case ExtendedInstruction::RES_aHL_1: return "RES (HL),1";
-				case ExtendedInstruction::RES_aHL_2: return "RES (HL),2";
-				case ExtendedInstruction::RES_aHL_3: return "RES (HL),3";
-				case ExtendedInstruction::RES_aHL_4: return "RES (HL),4";
-				case ExtendedInstruction::RES_aHL_5: return "RES (HL),5";
-				case ExtendedInstruction::RES_aHL_6: return "RES (HL),6";
-				case ExtendedInstruction::RES_aHL_7: return "RES (HL),7";
-
-				case ExtendedInstruction::SET_A_0:   return "SET A,0";
-				case ExtendedInstruction::SET_A_1:   return "SET A,1";
-				case ExtendedInstruction::SET_A_2:   return "SET A,2";
-				case ExtendedInstruction::SET_A_3:   return "SET A,3";
-				case ExtendedInstruction::SET_A_4:   return "SET A,4";
-				case ExtendedInstruction::SET_A_5:   return "SET A,5";
-				case ExtendedInstruction::SET_A_6:   return "SET A,6";
-				case ExtendedInstruction::SET_A_7:   return "SET A,7";
-
-				case ExtendedInstruction::SET_B_0:   return "SET B,0";
-				case ExtendedInstruction::SET_B_1:   return "SET B,1";
-				case ExtendedInstruction::SET_B_2:   return "SET B,2";
-				case ExtendedInstruction::SET_B_3:   return "SET B,3";
-				case ExtendedInstruction::SET_B_4:   return "SET B,4";
-				case ExtendedInstruction::SET_B_5:   return "SET B,5";
-				case ExtendedInstruction::SET_B_6:   return "SET B,6";
-				case ExtendedInstruction::SET_B_7:   return "SET B,7";
-
-				case ExtendedInstruction::SET_C_0:   return "SET C,0";
-				case ExtendedInstruction::SET_C_1:   return "SET C,1";
-				case ExtendedInstruction::SET_C_2:   return "SET C,2";
-				case ExtendedInstruction::SET_C_3:   return "SET C,3";
-				case ExtendedInstruction::SET_C_4:   return "SET C,4";
-				case ExtendedInstruction::SET_C_5:   return "SET C,5";
-				case ExtendedInstruction::SET_C_6:   return "SET C,6";
-				case ExtendedInstruction::SET_C_7:   return "SET C,7";
-
-				case ExtendedInstruction::SET_D_0:   return "SET D,0";
-				case ExtendedInstruction::SET_D_1:   return "SET D,1";
-				case ExtendedInstruction::SET_D_2:   return "SET D,2";
-				case ExtendedInstruction::SET_D_3:   return "SET D,3";
-				case ExtendedInstruction::SET_D_4:   return "SET D,4";
-				case ExtendedInstruction::SET_D_5:   return "SET D,5";
-				case ExtendedInstruction::SET_D_6:   return "SET D,6";
-				case ExtendedInstruction::SET_D_7:   return "SET D,7";
-
-				case ExtendedInstruction::SET_E_0:   return "SET E,0";
-				case ExtendedInstruction::SET_E_1:   return "SET E,1";
-				case ExtendedInstruction::SET_E_2:   return "SET E,2";
-				case ExtendedInstruction::SET_E_3:   return "SET E,3";
-				case ExtendedInstruction::SET_E_4:   return "SET E,4";
-				case ExtendedInstruction::SET_E_5:   return "SET E,5";
-				case ExtendedInstruction::SET_E_6:   return "SET E,6";
-				case ExtendedInstruction::SET_E_7:   return "SET E,7";
-
-				case ExtendedInstruction::SET_H_0:   return "SET H,0";
-				case ExtendedInstruction::SET_H_1:   return "SET H,1";
-				case ExtendedInstruction::SET_H_2:   return "SET H,2";
-				case ExtendedInstruction::SET_H_3:   return "SET H,3";
-				case ExtendedInstruction::SET_H_4:   return "SET H,4";
-				case ExtendedInstruction::SET_H_5:   return "SET H,5";
-				case ExtendedInstruction::SET_H_6:   return "SET H,6";
-				case ExtendedInstruction::SET_H_7:   return "SET H,7";
-
-				case ExtendedInstruction::SET_L_0:   return "SET L,0";
-				case ExtendedInstruction::SET_L_1:   return "SET L,1";
-				case ExtendedInstruction::SET_L_2:   return "SET L,2";
-				case ExtendedInstruction::SET_L_3:   return "SET L,3";
-				case ExtendedInstruction::SET_L_4:   return "SET L,4";
-				case ExtendedInstruction::SET_L_5:   return "SET L,5";
-				case ExtendedInstruction::SET_L_6:   return "SET L,6";
-				case ExtendedInstruction::SET_L_7:   return "SET L,7";
-
-				case ExtendedInstruction::SET_aHL_0: return "SET (HL),0";
-				case ExtendedInstruction::SET_aHL_1: return "SET (HL),1";
-				case ExtendedInstruction::SET_aHL_2: return "SET (HL),2";
-				case ExtendedInstruction::SET_aHL_3: return "SET (HL),3";
-				case ExtendedInstruction::SET_aHL_4: return "SET (HL),4";
-				case ExtendedInstruction::SET_aHL_5: return "SET (HL),5";
-				case ExtendedInstruction::SET_aHL_6: return "SET (HL),6";
-				case ExtendedInstruction::SET_aHL_7: return "SET (HL),7";
-
-				default:
-				return {};
-			}
+			return Internal::g_InstructionInfo[a_Instruction].m_Name;
 		}
 	}
 }

@@ -58,9 +58,9 @@ namespace Amber::Gameboy
 		using InstructionCallback = void (CPU::*)() noexcept;
 
 		// Instruction Exectution
-		void ExecuteInstruction(Instruction::Enum a_Instruction);
-		void ExecuteNextExtendedInstruction();
-		void ExecuteExtendedInstruction(ExtendedInstruction::Enum a_Instruction);
+		void ExecuteInstruction(Instruction::Enum a_Instruction) noexcept;
+		void ExecuteNextExtendedInstruction() noexcept;
+		void ExecuteExtendedInstruction(ExtendedInstruction::Enum a_Instruction) noexcept;
 
 		// Reading bytes
 		uint8_t PeekNextByte() const noexcept;
@@ -83,6 +83,11 @@ namespace Amber::Gameboy
 		uint8_t ANDByte(uint8_t a_Left, uint8_t a_Right) noexcept;
 		uint8_t ORByte(uint8_t a_Left, uint8_t a_Right) noexcept;
 		uint8_t XORByte(uint8_t a_Left, uint8_t a_Right) noexcept;
+		uint8_t SwapByte(uint8_t a_Value) noexcept;
+		uint8_t RotateLeftByte(uint8_t a_Value) noexcept;
+		uint8_t RotateLeftThroughCarryByte(uint8_t a_Value) noexcept;
+		uint8_t RotateRightByte(uint8_t a_Value) noexcept;
+		uint8_t RotateRightThroughCarryByte(uint8_t a_Value) noexcept;
 		
 		// Instruction helpers
 		template <uint8_t Flag, bool Set> bool Condition() noexcept;
@@ -171,6 +176,13 @@ namespace Amber::Gameboy
 
 		// Restart instructions
 		template <uint16_t Address> void RST() noexcept;
+
+		// 8-bit test bit instructions
+		template <uint8_t Bit> void BIT_x_b(uint8_t a_Value) noexcept;
+		template <uint8_t Source, uint8_t Bit> void BIT_r_b() noexcept;
+		template <uint8_t Source, uint8_t Bit> void BIT_arr_b() noexcept;
+
+
 
 		// Gameboy state
 		const GameboyType::Enum m_GameboyType;

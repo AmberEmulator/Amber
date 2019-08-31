@@ -92,79 +92,97 @@ namespace Amber::Common
 
 		virtual uint16_t Load16(Address a_Address) const override
 		{
+			const uint16_t byte0 = Load8(a_Address);
+			const uint16_t byte1 = Load8(a_Address + 1);
+
 			if constexpr (IsBigEndian)
 			{
-				return (static_cast<uint16_t>(Load8(a_Address)) << 8) | Load8(a_Address + 1);
+				return (byte0 << 8) | byte1;
 			}
 			else
 			{
-				return (static_cast<uint16_t>(Load8(a_Address + 1)) << 8) | Load8(a_Address);
+				return (byte1 << 8) | byte0;
 			}
 		}
 
 		virtual uint32_t Load32(Address a_Address) const override
 		{
+			const uint32_t word0 = Load16(a_Address);
+			const uint32_t word1 = Load16(a_Address + 2);
+
 			if constexpr (IsBigEndian)
 			{
-				return (static_cast<uint32_t>(Load16(a_Address)) << 16) | Load16(a_Address + 2);
+				return (word0 << 16) | word1;
 			}
 			else
 			{
-				return (static_cast<uint32_t>(Load16(a_Address + 2)) << 16) | Load16(a_Address);
+				return (word1 << 16) | word0;
 			}
 		}
 
 		virtual uint64_t Load64(Address a_Address) const override
 		{
+			const uint64_t dword0 = Load32(a_Address);
+			const uint64_t dword1 = Load32(a_Address + 4);
+
 			if constexpr (IsBigEndian)
 			{
-				return (static_cast<uint64_t>(Load32(a_Address)) << 32) | Load32(a_Address + 4);
+				return (dword0 << 32) | dword1;
 			}
 			else
 			{
-				return (static_cast<uint64_t>(Load32(a_Address + 4)) << 32) | Load32(a_Address);
+				return (dword1 << 32) | dword0;
 			}
 		}
 
 		virtual void Store16(Address a_Address, uint16_t a_Value) override
 		{
+			const uint8_t byte0 = a_Value & 0xFF;
+			const uint8_t byte1 = (a_Value >> 8) & 0xFF;
+
 			if constexpr (IsBigEndian)
 			{
-				Store8(a_Address + 1, (a_Value >> 8) & 0xFF);
-				Store8(a_Address, a_Value & 0xFF);
+				Store8(a_Address, byte1);
+				Store8(a_Address + 1, byte0);
 			}
 			else
 			{
-				Store8(a_Address, (a_Value >> 8) & 0xFF);
-				Store8(a_Address + 1, a_Value & 0xFF);
+				Store8(a_Address, byte0);
+				Store8(a_Address + 1, byte1);
 			}
 		}
 
 		virtual void Store32(Address a_Address, uint32_t a_Value) override
 		{
+			const uint16_t word0 = a_Value & 0xFFFF;
+			const uint16_t word1 = (a_Value >> 16) & 0xFFFF;
+
 			if constexpr (IsBigEndian)
 			{
-				Store16(a_Address + 2, (a_Value >> 16) & 0xFFFF);
-				Store16(a_Address, a_Value & 0xFFFF);
+				Store16(a_Address, word1);
+				Store16(a_Address + 2, word0);
 			}
 			else
 			{
-				Store16(a_Address, (a_Value >> 16) & 0xFFFF);
-				Store16(a_Address + 2, a_Value & 0xFFFF);
+				Store16(a_Address, word0);
+				Store16(a_Address + 2, word1);
 			}
 		}
 
 		virtual void Store64(Address a_Address, uint64_t a_Value) override
 		{
+			const uint32_t dword0 = a_Value & 0xFFFFFFFF;
+			const uint32_t dword1 = (a_Value >> 32) & 0xFFFFFFFF;
+
 			if constexpr (IsBigEndian)
 			{
-				Store32(a_Address + 4, (a_Value >> 32) & 0xFFFFFFFF);
-				Store32(a_Address, a_Value & 0xFFFFFFFF);
+				Store32(a_Address, dword1);
+				Store32(a_Address + 4, dword0);
 			}
 			else
 			{
-				Store32(a_Address, (a_Value >> 32) & 0xFFFFFFFF);
-				Store32(a_Address + 4, a_Value & 0xFFFFFFFF);
+				Store32(a_Address, dword0);
+				Store32(a_Address + 4, dword1);
 			}
 		}
 	};

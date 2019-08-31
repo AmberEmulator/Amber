@@ -26,12 +26,17 @@ void Application::Tick()
 	// Load cartridge
 	static auto rom = []
 	{
-		std::ifstream file("C:\\ROMs\\test.gb", std::ios::binary | std::ios::ate);
-		std::streamsize size = file.tellg();
-		file.seekg(0, std::ios::beg);
+		std::ifstream boot("C:\\ROMs\\boot.gb", std::ios::binary | std::ios::ate);
+		std::streamsize boot_size = boot.tellg();
+		boot.seekg(0, std::ios::beg);
+
+		std::ifstream cartidge("C:\\ROMs\\test.gb", std::ios::binary | std::ios::ate);
+		std::streamsize cartidge_size = cartidge.tellg();
+		cartidge.seekg(0, std::ios::beg);
 
 		Common::RAM<uint16_t, false> ram(0x8000, 1);
-		file.read(reinterpret_cast<char*>(ram.GetData()), std::min<size_t>(size, ram.GetSize()));
+		cartidge.read(reinterpret_cast<char*>(ram.GetData()), std::min<size_t>(cartidge_size, ram.GetSize()));
+		boot.read(reinterpret_cast<char*>(ram.GetData()), std::min<size_t>(boot_size, ram.GetSize()));
 
 		return ram;
 	}();
@@ -83,6 +88,7 @@ void Application::Tick()
 	{
 		Gameboy::CPU cpu(mmu, Gameboy::GameboyType::Classic);
 		cpu.Reset();
+		cpu.GetRegisters().SetPC(0);
 		return cpu;
 	}();
 
@@ -127,15 +133,19 @@ void Application::Tick()
 
 	if (ImGui::Begin("Debugger"))
 	{
-		if (ImGui::Button("Run"))
+		if (!running)
 		{
-			running = true;
+			if (ImGui::Button("Run"))
+			{
+				running = true;
+			}
 		}
-
-		ImGui::SameLine();
-		if (ImGui::Button("Break"))
+		else
 		{
-			running = false;
+			if (ImGui::Button("Break"))
+			{
+				running = false;
+			}
 		}
 
 		ImGui::SameLine();
@@ -148,6 +158,7 @@ void Application::Tick()
 		if (ImGui::Button("Reset") && !running)
 		{
 			debugger.Reset();
+			cpu.GetRegisters().SetPC(0);
 		}
 
 		ImGui::Image(reinterpret_cast<ImTextureID>(tile_texture.GetNativeHandle()), ImVec2(tile_texture_width * 2, tile_texture_height * 2));

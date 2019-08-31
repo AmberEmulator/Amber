@@ -3,7 +3,10 @@
 #include <assert.h>
 #include <vector>
 
+#if __has_include(<windows.h>)
 #include <windows.h>
+#endif
+
 #include <gl/GL.h>
 
 using namespace Amber;
