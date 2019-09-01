@@ -1,5 +1,6 @@
 #include <client/application.hpp>
 
+#include <client/breakpoints.hpp>
 #include <client/disassembly.hpp>
 #include <client/gameboywidgets.hpp>
 #include <client/texture.hpp>
@@ -170,7 +171,6 @@ void Application::Tick()
 	DrawRegisterWindow("Registers", cpu.GetRegisters());
 
 	// Show disassembly
-
 	static DisassemblyState disassembly_state;
 	disassembly_state.m_Debugger = &debugger;
 	disassembly_state.m_ViewAddress = cpu.GetRegisters().GetPC();
@@ -182,5 +182,24 @@ void Application::Tick()
 		ShowDisassembly("disassembly", disassembly_state);
 	}
 	ImGui::PopStyleVar();
+	ImGui::End();
+
+
+	// Show breakpoints
+	static BreakpointsState breakpoints_state;
+	breakpoints_state.m_Debugger = &debugger;
+
+	ImGui::SetNextWindowDockID(dock_id, ImGuiSetCond_FirstUseEver);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+	if (ImGui::Begin("Breakpoints"))
+	{
+		ImGui::PopStyleVar();
+		ShowBreakpoints("breakpoints", breakpoints_state);
+	}
+	else
+	{
+		ImGui::PopStyleVar();
+	}
+	
 	ImGui::End();
 }

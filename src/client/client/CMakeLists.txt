@@ -24,5 +24,6 @@ amber_add_sources(client "application.hpp" "application.cpp" FILTER "Client")
 amber_add_sources(client "texture.hpp" "texture.cpp" FILTER "Graphics/Texture")
 
 # Widgets
+amber_add_sources(client "breakpoints.hpp" "breakpoints.cpp" FILTER "Widgets/Breakpoints")
 amber_add_sources(client "disassembly.hpp" "disassembly.cpp" FILTER "Widgets/Disassembly")
 amber_add_sources(client "gameboywidgets.hpp" "gameboywidgets.cpp" FILTER "Widgets/Gameboy")

@@ -83,6 +83,20 @@ void Debugger::SetBreakpoint(uint64_t a_Address, bool a_Enabled)
 {
 	const uint16_t address = static_cast<uint16_t>(a_Address);
 	m_CPU.SetBreakpoint(address, a_Enabled);
+
+	if (a_Enabled)
+	{
+		m_Breakpoints.emplace(a_Address);
+	}
+	else
+	{
+		m_Breakpoints.erase(a_Address);
+	}
+}
+
+std::set<uint64_t> Debugger::GetBreakpoints() const
+{
+	return m_Breakpoints;
 }
 
 bool Debugger::Run()

@@ -50,3 +50,8 @@ bool Debugger::HasBreakpoint(uint64_t a_Address) const noexcept
 void Debugger::SetBreakpoint(uint64_t a_Address, bool a_Enabled)
 {
 }
+
+std::set<uint64_t> Debugger::GetBreakpoints() const
+{
+	return {};
+}

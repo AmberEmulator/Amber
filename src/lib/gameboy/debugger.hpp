@@ -24,6 +24,7 @@ namespace Amber::Gameboy
 
 		bool HasBreakpoint(uint64_t a_Address) const noexcept override;
 		void SetBreakpoint(uint64_t a_Address, bool a_Enabled) override;
+		std::set<uint64_t> GetBreakpoints() const override;
 
 		bool Run() override;
 		void Step() override;
@@ -40,6 +41,7 @@ namespace Amber::Gameboy
 
 		CPU& m_CPU;
 		bool m_Break = false;
+		std::set<uint64_t> m_Breakpoints;
 	};
 }
 
