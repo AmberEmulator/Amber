@@ -8,7 +8,7 @@ using namespace Gameboy;
 Debugger::Debugger(CPU& a_CPU):
 	m_CPU(a_CPU)
 {
-	m_CPU.SetBreakpointCallback([&] { m_Break = true; });
+	//m_CPU.SetBreakpointCallback([&] { m_Break = true; });
 }
 
 uint64_t Debugger::GetMaximumAddress() const noexcept
@@ -76,22 +76,23 @@ uint8_t Debugger::Load8(uint64_t a_Address) const
 bool Debugger::HasBreakpoint(uint64_t a_Address) const noexcept
 {
 	const uint16_t address = static_cast<uint16_t>(a_Address);
-	return m_CPU.HasBreakpoint(address);
+	//return m_CPU.HasBreakpoint(address);
+	return false;
 }
 
 void Debugger::SetBreakpoint(uint64_t a_Address, bool a_Enabled)
 {
-	const uint16_t address = static_cast<uint16_t>(a_Address);
-	m_CPU.SetBreakpoint(address, a_Enabled);
-
-	if (a_Enabled)
-	{
-		m_Breakpoints.emplace(a_Address);
-	}
-	else
-	{
-		m_Breakpoints.erase(a_Address);
-	}
+	//const uint16_t address = static_cast<uint16_t>(a_Address);
+	//m_CPU.SetBreakpoint(address, a_Enabled);
+	//
+	//if (a_Enabled)
+	//{
+	//	m_Breakpoints.emplace(a_Address);
+	//}
+	//else
+	//{
+	//	m_Breakpoints.erase(a_Address);
+	//}
 }
 
 std::set<uint64_t> Debugger::GetBreakpoints() const
@@ -118,12 +119,12 @@ bool Debugger::Run()
 
 void Debugger::Step()
 {
-	m_CPU.ExecuteNextInstruction();
+	m_CPU.Tick();
 }
 
 void Debugger::Reset()
 {
-	m_CPU.Reset();
+	//m_CPU.Reset();
 }
 
 Debugger::InstructionInfo Debugger::GetInstruction(uint64_t a_Address) const

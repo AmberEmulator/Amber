@@ -87,9 +87,9 @@ void Application::Tick()
 	// Initialize cpu
 	static auto cpu = []
 	{
-		Gameboy::CPU cpu(mmu, Gameboy::GameboyType::Classic);
-		cpu.Reset();
-		cpu.GetRegisters().SetPC(0);
+		Gameboy::CPU cpu(mmu/*, Gameboy::GameboyType::Classic*/);
+		//cpu.Reset();
+		//cpu.GetRegisters().SetPC(0);
 		return cpu;
 	}();
 
@@ -159,7 +159,7 @@ void Application::Tick()
 		if (ImGui::Button("Reset") && !running)
 		{
 			debugger.Reset();
-			cpu.GetRegisters().SetPC(0);
+			//cpu.GetRegisters().SetPC(0);
 		}
 
 		ImGui::Image(reinterpret_cast<ImTextureID>(tile_texture.GetNativeHandle()), ImVec2(tile_texture_width * 2, tile_texture_height * 2));
@@ -168,12 +168,13 @@ void Application::Tick()
 
 	// Show registers
 	ImGui::SetNextWindowDockID(dock_id, ImGuiSetCond_FirstUseEver);
-	DrawRegisterWindow("Registers", cpu.GetRegisters());
+	Gameboy::Registers tmp_registers;
+	DrawRegisterWindow("Registers", tmp_registers);
 
 	// Show disassembly
 	static DisassemblyState disassembly_state;
 	disassembly_state.m_Debugger = &debugger;
-	disassembly_state.m_ViewAddress = cpu.GetRegisters().GetPC();
+	disassembly_state.m_ViewAddress = 0;// cpu.GetRegisters().GetPC();
 
 	ImGui::SetNextWindowDockID(dock_id, ImGuiSetCond_FirstUseEver);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
