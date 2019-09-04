@@ -33,8 +33,8 @@ namespace Amber::Gameboy
 		private:
 		struct InstructionInfo
 		{
-			Instruction::Enum m_Instruction;
-			ExtendedInstruction::Enum m_ExtendedInstruction;
+			Opcode::Enum m_Instruction;
+			ExtendedOpcode::Enum m_ExtendedInstruction;
 		};
 
 		InstructionInfo GetInstruction(uint64_t a_Address) const;

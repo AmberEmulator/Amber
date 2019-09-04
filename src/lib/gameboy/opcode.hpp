@@ -1,12 +1,12 @@
-#ifndef H_AMBER_GAMEBOY_INSTRUCTION
-#define H_AMBER_GAMEBOY_INSTRUCTION
+#ifndef H_AMBER_GAMEBOY_OPCODE
+#define H_AMBER_GAMEBOY_OPCODE
 
 #include <gameboy/api.hpp>
 
 #include <array>
 #include <optional>
 
-// Instruction naming convention:
+// Opcode naming convention:
 // 0 parameters: <name>
 // 1 parameter:  <name>_<param1>
 // 2 parameters: <name>_<param1>_<param2>
@@ -18,7 +18,7 @@
 
 namespace Amber::Gameboy
 {
-	namespace Instruction
+	namespace Opcode
 	{
 		enum Enum : uint8_t
 		{
@@ -330,7 +330,7 @@ namespace Amber::Gameboy
 			RST_30 = 0xF7,
 			RST_38 = 0xFF,
 
-			// The instructions below do not exist on the gameboy and can instead be used by the debugger
+			// The opcodes below do not exist on the gameboy and can instead be used by the debugger
 
 			// Software interrupts
 			BREAKPOINT_STOP     = 0xFC,
@@ -350,301 +350,301 @@ namespace Amber::Gameboy
 
 		namespace Internal
 		{
-			struct InstructionInfo
+			struct OpcodeInfo
 			{
 				std::optional<uint16_t> m_Cycles;
 				std::optional<uint16_t> m_Size;
 				std::optional<std::string_view> m_Name;
 			};
 
-			constexpr std::array<InstructionInfo, 256> g_InstructionInfo = []() constexpr
+			constexpr std::array<OpcodeInfo, 256> g_OpcodeInfo = []() constexpr
 			{
-				std::array<InstructionInfo, 256> info;
+				std::array<OpcodeInfo, 256> info;
 
 				// 4 cycles, 1 byte
-				info[Instruction::NOP]     = { 4_u16, 1_u16, "NOP" };
-				info[Instruction::DI]      = { 4_u16, 1_u16, "DI" };
-				info[Instruction::EI]      = { 4_u16, 1_u16, "EI" };
-				info[Instruction::HALT]    = { 4_u16, 1_u16, "HALT" };
-				info[Instruction::STOP]    = { 4_u16, 1_u16, "STOP" };
-				info[Instruction::EXT]     = { 4_u16, 1_u16, "EXT" };
-				info[Instruction::LD_A_A]  = { 4_u16, 1_u16, "LD A,A" };
-				info[Instruction::LD_A_B]  = { 4_u16, 1_u16, "LD A,B" };
-				info[Instruction::LD_A_C]  = { 4_u16, 1_u16, "LD A,C" };
-				info[Instruction::LD_A_D]  = { 4_u16, 1_u16, "LD A,D" };
-				info[Instruction::LD_A_E]  = { 4_u16, 1_u16, "LD A,E" };
-				info[Instruction::LD_A_H]  = { 4_u16, 1_u16, "LD A,H" };
-				info[Instruction::LD_A_L]  = { 4_u16, 1_u16, "LD A,L" };
-				info[Instruction::LD_B_A]  = { 4_u16, 1_u16, "LD B,A" };
-				info[Instruction::LD_B_B]  = { 4_u16, 1_u16, "LD B,B" };
-				info[Instruction::LD_B_C]  = { 4_u16, 1_u16, "LD B,C" };
-				info[Instruction::LD_B_D]  = { 4_u16, 1_u16, "LD B,D" };
-				info[Instruction::LD_B_E]  = { 4_u16, 1_u16, "LD B,E" };
-				info[Instruction::LD_B_H]  = { 4_u16, 1_u16, "LD B,H" };
-				info[Instruction::LD_B_L]  = { 4_u16, 1_u16, "LD B,L" };
-				info[Instruction::LD_C_A]  = { 4_u16, 1_u16, "LD C,A" };
-				info[Instruction::LD_C_B]  = { 4_u16, 1_u16, "LD C,B" };
-				info[Instruction::LD_C_C]  = { 4_u16, 1_u16, "LD C,C" };
-				info[Instruction::LD_C_D]  = { 4_u16, 1_u16, "LD C,D" };
-				info[Instruction::LD_C_E]  = { 4_u16, 1_u16, "LD C,E" };
-				info[Instruction::LD_C_H]  = { 4_u16, 1_u16, "LD C,H" };
-				info[Instruction::LD_C_L]  = { 4_u16, 1_u16, "LD C,L" };
-				info[Instruction::LD_D_A]  = { 4_u16, 1_u16, "LD D,A" };
-				info[Instruction::LD_D_B]  = { 4_u16, 1_u16, "LD D,B" };
-				info[Instruction::LD_D_C]  = { 4_u16, 1_u16, "LD D,C" };
-				info[Instruction::LD_D_D]  = { 4_u16, 1_u16, "LD D,D" };
-				info[Instruction::LD_D_E]  = { 4_u16, 1_u16, "LD D,E" };
-				info[Instruction::LD_D_H]  = { 4_u16, 1_u16, "LD D,H" };
-				info[Instruction::LD_D_L]  = { 4_u16, 1_u16, "LD D,L" };
-				info[Instruction::LD_E_A]  = { 4_u16, 1_u16, "LD E,A" };
-				info[Instruction::LD_E_B]  = { 4_u16, 1_u16, "LD E,B" };
-				info[Instruction::LD_E_C]  = { 4_u16, 1_u16, "LD E,C" };
-				info[Instruction::LD_E_D]  = { 4_u16, 1_u16, "LD E,D" };
-				info[Instruction::LD_E_E]  = { 4_u16, 1_u16, "LD E,E" };
-				info[Instruction::LD_E_H]  = { 4_u16, 1_u16, "LD E,H" };
-				info[Instruction::LD_E_L]  = { 4_u16, 1_u16, "LD E,L" };
-				info[Instruction::LD_H_A]  = { 4_u16, 1_u16, "LD H,A" };
-				info[Instruction::LD_H_B]  = { 4_u16, 1_u16, "LD H,B" };
-				info[Instruction::LD_H_C]  = { 4_u16, 1_u16, "LD H,C" };
-				info[Instruction::LD_H_D]  = { 4_u16, 1_u16, "LD H,D" };
-				info[Instruction::LD_H_E]  = { 4_u16, 1_u16, "LD H,E" };
-				info[Instruction::LD_H_H]  = { 4_u16, 1_u16, "LD H,H" };
-				info[Instruction::LD_H_L]  = { 4_u16, 1_u16, "LD H,L" };
-				info[Instruction::LD_L_A]  = { 4_u16, 1_u16, "LD L,A" };
-				info[Instruction::LD_L_B]  = { 4_u16, 1_u16, "LD L,B" };
-				info[Instruction::LD_L_C]  = { 4_u16, 1_u16, "LD L,C" };
-				info[Instruction::LD_L_D]  = { 4_u16, 1_u16, "LD L,D" };
-				info[Instruction::LD_L_E]  = { 4_u16, 1_u16, "LD L,E" };
-				info[Instruction::LD_L_H]  = { 4_u16, 1_u16, "LD L,H" };
-				info[Instruction::LD_L_L]  = { 4_u16, 1_u16, "LD L,L" };
-				info[Instruction::ADD_A_A] = { 4_u16, 1_u16, "ADD A,A" };
-				info[Instruction::ADD_A_B] = { 4_u16, 1_u16, "ADD A,B" };
-				info[Instruction::ADD_A_C] = { 4_u16, 1_u16, "ADD A,C" };
-				info[Instruction::ADD_A_D] = { 4_u16, 1_u16, "ADD A,D" };
-				info[Instruction::ADD_A_E] = { 4_u16, 1_u16, "ADD A,E" };
-				info[Instruction::ADD_A_H] = { 4_u16, 1_u16, "ADD A,H" };
-				info[Instruction::ADD_A_L] = { 4_u16, 1_u16, "ADD A,L" };
-				info[Instruction::ADC_A_A] = { 4_u16, 1_u16, "ADC A,A" };
-				info[Instruction::ADC_A_B] = { 4_u16, 1_u16, "ADC A,B" };
-				info[Instruction::ADC_A_C] = { 4_u16, 1_u16, "ADC A,C" };
-				info[Instruction::ADC_A_D] = { 4_u16, 1_u16, "ADC A,D" };
-				info[Instruction::ADC_A_E] = { 4_u16, 1_u16, "ADC A,E" };
-				info[Instruction::ADC_A_H] = { 4_u16, 1_u16, "ADC A,H" };
-				info[Instruction::ADC_A_L] = { 4_u16, 1_u16, "ADC A,L" };
-				info[Instruction::SUB_A_A] = { 4_u16, 1_u16, "SUB A,A" };
-				info[Instruction::SUB_A_B] = { 4_u16, 1_u16, "SUB A,B" };
-				info[Instruction::SUB_A_C] = { 4_u16, 1_u16, "SUB A,C" };
-				info[Instruction::SUB_A_D] = { 4_u16, 1_u16, "SUB A,D" };
-				info[Instruction::SUB_A_E] = { 4_u16, 1_u16, "SUB A,E" };
-				info[Instruction::SUB_A_H] = { 4_u16, 1_u16, "SUB A,H" };
-				info[Instruction::SUB_A_L] = { 4_u16, 1_u16, "SUB A,L" };
-				info[Instruction::SBC_A_A] = { 4_u16, 1_u16, "SBC A,A" };
-				info[Instruction::SBC_A_B] = { 4_u16, 1_u16, "SBC A,B" };
-				info[Instruction::SBC_A_C] = { 4_u16, 1_u16, "SBC A,C" };
-				info[Instruction::SBC_A_D] = { 4_u16, 1_u16, "SBC A,D" };
-				info[Instruction::SBC_A_E] = { 4_u16, 1_u16, "SBC A,E" };
-				info[Instruction::SBC_A_H] = { 4_u16, 1_u16, "SBC A,H" };
-				info[Instruction::SBC_A_L] = { 4_u16, 1_u16, "SBC A,L" };
-				info[Instruction::AND_A_A] = { 4_u16, 1_u16, "AND A,A" };
-				info[Instruction::AND_A_B] = { 4_u16, 1_u16, "AND A,B" };
-				info[Instruction::AND_A_C] = { 4_u16, 1_u16, "AND A,C" };
-				info[Instruction::AND_A_D] = { 4_u16, 1_u16, "AND A,D" };
-				info[Instruction::AND_A_E] = { 4_u16, 1_u16, "AND A,E" };
-				info[Instruction::AND_A_H] = { 4_u16, 1_u16, "AND A,H" };
-				info[Instruction::AND_A_L] = { 4_u16, 1_u16, "AND A,L" };
-				info[Instruction::OR_A_A]  = { 4_u16, 1_u16, "OR A,A" };
-				info[Instruction::OR_A_B]  = { 4_u16, 1_u16, "OR A,B" };
-				info[Instruction::OR_A_C]  = { 4_u16, 1_u16, "OR A,C" };
-				info[Instruction::OR_A_D]  = { 4_u16, 1_u16, "OR A,D" };
-				info[Instruction::OR_A_E]  = { 4_u16, 1_u16, "OR A,E" };
-				info[Instruction::OR_A_H]  = { 4_u16, 1_u16, "OR A,H" };
-				info[Instruction::OR_A_L]  = { 4_u16, 1_u16, "OR A,L" };
-				info[Instruction::XOR_A_A] = { 4_u16, 1_u16, "XOR A,A" };
-				info[Instruction::XOR_A_B] = { 4_u16, 1_u16, "XOR A,B" };
-				info[Instruction::XOR_A_C] = { 4_u16, 1_u16, "XOR A,C" };
-				info[Instruction::XOR_A_D] = { 4_u16, 1_u16, "XOR A,D" };
-				info[Instruction::XOR_A_E] = { 4_u16, 1_u16, "XOR A,E" };
-				info[Instruction::XOR_A_H] = { 4_u16, 1_u16, "XOR A,H" };
-				info[Instruction::XOR_A_L] = { 4_u16, 1_u16, "XOR A,L" };
-				info[Instruction::CP_A_A]  = { 4_u16, 1_u16, "CP A,A" };
-				info[Instruction::CP_A_B]  = { 4_u16, 1_u16, "CP A,B" };
-				info[Instruction::CP_A_C]  = { 4_u16, 1_u16, "CP A,C" };
-				info[Instruction::CP_A_D]  = { 4_u16, 1_u16, "CP A,D" };
-				info[Instruction::CP_A_E]  = { 4_u16, 1_u16, "CP A,E" };
-				info[Instruction::CP_A_H]  = { 4_u16, 1_u16, "CP A,H" };
-				info[Instruction::CP_A_L]  = { 4_u16, 1_u16, "CP A,L" };
-				info[Instruction::INC_A]   = { 4_u16, 1_u16, "INC A" };
-				info[Instruction::INC_B]   = { 4_u16, 1_u16, "INC B" };
-				info[Instruction::INC_C]   = { 4_u16, 1_u16, "INC C" };
-				info[Instruction::INC_D]   = { 4_u16, 1_u16, "INC D" };
-				info[Instruction::INC_E]   = { 4_u16, 1_u16, "INC E" };
-				info[Instruction::INC_H]   = { 4_u16, 1_u16, "INC H" };
-				info[Instruction::INC_L]   = { 4_u16, 1_u16, "INC L" };
-				info[Instruction::DEC_A]   = { 4_u16, 1_u16, "DEC A" };
-				info[Instruction::DEC_B]   = { 4_u16, 1_u16, "DEC B" };
-				info[Instruction::DEC_C]   = { 4_u16, 1_u16, "DEC C" };
-				info[Instruction::DEC_D]   = { 4_u16, 1_u16, "DEC D" };
-				info[Instruction::DEC_E]   = { 4_u16, 1_u16, "DEC E" };
-				info[Instruction::DEC_H]   = { 4_u16, 1_u16, "DEC H" };
-				info[Instruction::DEC_L]   = { 4_u16, 1_u16, "DEC L" };
-				info[Instruction::DA_A]    = { 4_u16, 1_u16, "DA A" };
-				info[Instruction::CPL_A]   = { 4_u16, 1_u16, "CPL A" };
-				info[Instruction::CCF]     = { 4_u16, 1_u16, "CCF" };
-				info[Instruction::SCF]     = { 4_u16, 1_u16, "SCF" };
-				info[Instruction::JP_HL]   = { 4_u16, 1_u16, "JP HL" };
-				info[Instruction::RLC_A]   = { 4_u16, 1_u16, "RLC A" };
-				info[Instruction::RL_A]    = { 4_u16, 1_u16, "RL A" };
-				info[Instruction::RRC_A]   = { 4_u16, 1_u16, "RRC A" };
-				info[Instruction::RR_A]    = { 4_u16, 1_u16, "RR A" };
+				info[Opcode::NOP]     = { 4_u16, 1_u16, "NOP" };
+				info[Opcode::DI]      = { 4_u16, 1_u16, "DI" };
+				info[Opcode::EI]      = { 4_u16, 1_u16, "EI" };
+				info[Opcode::HALT]    = { 4_u16, 1_u16, "HALT" };
+				info[Opcode::STOP]    = { 4_u16, 1_u16, "STOP" };
+				info[Opcode::EXT]     = { 4_u16, 1_u16, "EXT" };
+				info[Opcode::LD_A_A]  = { 4_u16, 1_u16, "LD A,A" };
+				info[Opcode::LD_A_B]  = { 4_u16, 1_u16, "LD A,B" };
+				info[Opcode::LD_A_C]  = { 4_u16, 1_u16, "LD A,C" };
+				info[Opcode::LD_A_D]  = { 4_u16, 1_u16, "LD A,D" };
+				info[Opcode::LD_A_E]  = { 4_u16, 1_u16, "LD A,E" };
+				info[Opcode::LD_A_H]  = { 4_u16, 1_u16, "LD A,H" };
+				info[Opcode::LD_A_L]  = { 4_u16, 1_u16, "LD A,L" };
+				info[Opcode::LD_B_A]  = { 4_u16, 1_u16, "LD B,A" };
+				info[Opcode::LD_B_B]  = { 4_u16, 1_u16, "LD B,B" };
+				info[Opcode::LD_B_C]  = { 4_u16, 1_u16, "LD B,C" };
+				info[Opcode::LD_B_D]  = { 4_u16, 1_u16, "LD B,D" };
+				info[Opcode::LD_B_E]  = { 4_u16, 1_u16, "LD B,E" };
+				info[Opcode::LD_B_H]  = { 4_u16, 1_u16, "LD B,H" };
+				info[Opcode::LD_B_L]  = { 4_u16, 1_u16, "LD B,L" };
+				info[Opcode::LD_C_A]  = { 4_u16, 1_u16, "LD C,A" };
+				info[Opcode::LD_C_B]  = { 4_u16, 1_u16, "LD C,B" };
+				info[Opcode::LD_C_C]  = { 4_u16, 1_u16, "LD C,C" };
+				info[Opcode::LD_C_D]  = { 4_u16, 1_u16, "LD C,D" };
+				info[Opcode::LD_C_E]  = { 4_u16, 1_u16, "LD C,E" };
+				info[Opcode::LD_C_H]  = { 4_u16, 1_u16, "LD C,H" };
+				info[Opcode::LD_C_L]  = { 4_u16, 1_u16, "LD C,L" };
+				info[Opcode::LD_D_A]  = { 4_u16, 1_u16, "LD D,A" };
+				info[Opcode::LD_D_B]  = { 4_u16, 1_u16, "LD D,B" };
+				info[Opcode::LD_D_C]  = { 4_u16, 1_u16, "LD D,C" };
+				info[Opcode::LD_D_D]  = { 4_u16, 1_u16, "LD D,D" };
+				info[Opcode::LD_D_E]  = { 4_u16, 1_u16, "LD D,E" };
+				info[Opcode::LD_D_H]  = { 4_u16, 1_u16, "LD D,H" };
+				info[Opcode::LD_D_L]  = { 4_u16, 1_u16, "LD D,L" };
+				info[Opcode::LD_E_A]  = { 4_u16, 1_u16, "LD E,A" };
+				info[Opcode::LD_E_B]  = { 4_u16, 1_u16, "LD E,B" };
+				info[Opcode::LD_E_C]  = { 4_u16, 1_u16, "LD E,C" };
+				info[Opcode::LD_E_D]  = { 4_u16, 1_u16, "LD E,D" };
+				info[Opcode::LD_E_E]  = { 4_u16, 1_u16, "LD E,E" };
+				info[Opcode::LD_E_H]  = { 4_u16, 1_u16, "LD E,H" };
+				info[Opcode::LD_E_L]  = { 4_u16, 1_u16, "LD E,L" };
+				info[Opcode::LD_H_A]  = { 4_u16, 1_u16, "LD H,A" };
+				info[Opcode::LD_H_B]  = { 4_u16, 1_u16, "LD H,B" };
+				info[Opcode::LD_H_C]  = { 4_u16, 1_u16, "LD H,C" };
+				info[Opcode::LD_H_D]  = { 4_u16, 1_u16, "LD H,D" };
+				info[Opcode::LD_H_E]  = { 4_u16, 1_u16, "LD H,E" };
+				info[Opcode::LD_H_H]  = { 4_u16, 1_u16, "LD H,H" };
+				info[Opcode::LD_H_L]  = { 4_u16, 1_u16, "LD H,L" };
+				info[Opcode::LD_L_A]  = { 4_u16, 1_u16, "LD L,A" };
+				info[Opcode::LD_L_B]  = { 4_u16, 1_u16, "LD L,B" };
+				info[Opcode::LD_L_C]  = { 4_u16, 1_u16, "LD L,C" };
+				info[Opcode::LD_L_D]  = { 4_u16, 1_u16, "LD L,D" };
+				info[Opcode::LD_L_E]  = { 4_u16, 1_u16, "LD L,E" };
+				info[Opcode::LD_L_H]  = { 4_u16, 1_u16, "LD L,H" };
+				info[Opcode::LD_L_L]  = { 4_u16, 1_u16, "LD L,L" };
+				info[Opcode::ADD_A_A] = { 4_u16, 1_u16, "ADD A,A" };
+				info[Opcode::ADD_A_B] = { 4_u16, 1_u16, "ADD A,B" };
+				info[Opcode::ADD_A_C] = { 4_u16, 1_u16, "ADD A,C" };
+				info[Opcode::ADD_A_D] = { 4_u16, 1_u16, "ADD A,D" };
+				info[Opcode::ADD_A_E] = { 4_u16, 1_u16, "ADD A,E" };
+				info[Opcode::ADD_A_H] = { 4_u16, 1_u16, "ADD A,H" };
+				info[Opcode::ADD_A_L] = { 4_u16, 1_u16, "ADD A,L" };
+				info[Opcode::ADC_A_A] = { 4_u16, 1_u16, "ADC A,A" };
+				info[Opcode::ADC_A_B] = { 4_u16, 1_u16, "ADC A,B" };
+				info[Opcode::ADC_A_C] = { 4_u16, 1_u16, "ADC A,C" };
+				info[Opcode::ADC_A_D] = { 4_u16, 1_u16, "ADC A,D" };
+				info[Opcode::ADC_A_E] = { 4_u16, 1_u16, "ADC A,E" };
+				info[Opcode::ADC_A_H] = { 4_u16, 1_u16, "ADC A,H" };
+				info[Opcode::ADC_A_L] = { 4_u16, 1_u16, "ADC A,L" };
+				info[Opcode::SUB_A_A] = { 4_u16, 1_u16, "SUB A,A" };
+				info[Opcode::SUB_A_B] = { 4_u16, 1_u16, "SUB A,B" };
+				info[Opcode::SUB_A_C] = { 4_u16, 1_u16, "SUB A,C" };
+				info[Opcode::SUB_A_D] = { 4_u16, 1_u16, "SUB A,D" };
+				info[Opcode::SUB_A_E] = { 4_u16, 1_u16, "SUB A,E" };
+				info[Opcode::SUB_A_H] = { 4_u16, 1_u16, "SUB A,H" };
+				info[Opcode::SUB_A_L] = { 4_u16, 1_u16, "SUB A,L" };
+				info[Opcode::SBC_A_A] = { 4_u16, 1_u16, "SBC A,A" };
+				info[Opcode::SBC_A_B] = { 4_u16, 1_u16, "SBC A,B" };
+				info[Opcode::SBC_A_C] = { 4_u16, 1_u16, "SBC A,C" };
+				info[Opcode::SBC_A_D] = { 4_u16, 1_u16, "SBC A,D" };
+				info[Opcode::SBC_A_E] = { 4_u16, 1_u16, "SBC A,E" };
+				info[Opcode::SBC_A_H] = { 4_u16, 1_u16, "SBC A,H" };
+				info[Opcode::SBC_A_L] = { 4_u16, 1_u16, "SBC A,L" };
+				info[Opcode::AND_A_A] = { 4_u16, 1_u16, "AND A,A" };
+				info[Opcode::AND_A_B] = { 4_u16, 1_u16, "AND A,B" };
+				info[Opcode::AND_A_C] = { 4_u16, 1_u16, "AND A,C" };
+				info[Opcode::AND_A_D] = { 4_u16, 1_u16, "AND A,D" };
+				info[Opcode::AND_A_E] = { 4_u16, 1_u16, "AND A,E" };
+				info[Opcode::AND_A_H] = { 4_u16, 1_u16, "AND A,H" };
+				info[Opcode::AND_A_L] = { 4_u16, 1_u16, "AND A,L" };
+				info[Opcode::OR_A_A]  = { 4_u16, 1_u16, "OR A,A" };
+				info[Opcode::OR_A_B]  = { 4_u16, 1_u16, "OR A,B" };
+				info[Opcode::OR_A_C]  = { 4_u16, 1_u16, "OR A,C" };
+				info[Opcode::OR_A_D]  = { 4_u16, 1_u16, "OR A,D" };
+				info[Opcode::OR_A_E]  = { 4_u16, 1_u16, "OR A,E" };
+				info[Opcode::OR_A_H]  = { 4_u16, 1_u16, "OR A,H" };
+				info[Opcode::OR_A_L]  = { 4_u16, 1_u16, "OR A,L" };
+				info[Opcode::XOR_A_A] = { 4_u16, 1_u16, "XOR A,A" };
+				info[Opcode::XOR_A_B] = { 4_u16, 1_u16, "XOR A,B" };
+				info[Opcode::XOR_A_C] = { 4_u16, 1_u16, "XOR A,C" };
+				info[Opcode::XOR_A_D] = { 4_u16, 1_u16, "XOR A,D" };
+				info[Opcode::XOR_A_E] = { 4_u16, 1_u16, "XOR A,E" };
+				info[Opcode::XOR_A_H] = { 4_u16, 1_u16, "XOR A,H" };
+				info[Opcode::XOR_A_L] = { 4_u16, 1_u16, "XOR A,L" };
+				info[Opcode::CP_A_A]  = { 4_u16, 1_u16, "CP A,A" };
+				info[Opcode::CP_A_B]  = { 4_u16, 1_u16, "CP A,B" };
+				info[Opcode::CP_A_C]  = { 4_u16, 1_u16, "CP A,C" };
+				info[Opcode::CP_A_D]  = { 4_u16, 1_u16, "CP A,D" };
+				info[Opcode::CP_A_E]  = { 4_u16, 1_u16, "CP A,E" };
+				info[Opcode::CP_A_H]  = { 4_u16, 1_u16, "CP A,H" };
+				info[Opcode::CP_A_L]  = { 4_u16, 1_u16, "CP A,L" };
+				info[Opcode::INC_A]   = { 4_u16, 1_u16, "INC A" };
+				info[Opcode::INC_B]   = { 4_u16, 1_u16, "INC B" };
+				info[Opcode::INC_C]   = { 4_u16, 1_u16, "INC C" };
+				info[Opcode::INC_D]   = { 4_u16, 1_u16, "INC D" };
+				info[Opcode::INC_E]   = { 4_u16, 1_u16, "INC E" };
+				info[Opcode::INC_H]   = { 4_u16, 1_u16, "INC H" };
+				info[Opcode::INC_L]   = { 4_u16, 1_u16, "INC L" };
+				info[Opcode::DEC_A]   = { 4_u16, 1_u16, "DEC A" };
+				info[Opcode::DEC_B]   = { 4_u16, 1_u16, "DEC B" };
+				info[Opcode::DEC_C]   = { 4_u16, 1_u16, "DEC C" };
+				info[Opcode::DEC_D]   = { 4_u16, 1_u16, "DEC D" };
+				info[Opcode::DEC_E]   = { 4_u16, 1_u16, "DEC E" };
+				info[Opcode::DEC_H]   = { 4_u16, 1_u16, "DEC H" };
+				info[Opcode::DEC_L]   = { 4_u16, 1_u16, "DEC L" };
+				info[Opcode::DA_A]    = { 4_u16, 1_u16, "DA A" };
+				info[Opcode::CPL_A]   = { 4_u16, 1_u16, "CPL A" };
+				info[Opcode::CCF]     = { 4_u16, 1_u16, "CCF" };
+				info[Opcode::SCF]     = { 4_u16, 1_u16, "SCF" };
+				info[Opcode::JP_HL]   = { 4_u16, 1_u16, "JP HL" };
+				info[Opcode::RLC_A]   = { 4_u16, 1_u16, "RLC A" };
+				info[Opcode::RL_A]    = { 4_u16, 1_u16, "RL A" };
+				info[Opcode::RRC_A]   = { 4_u16, 1_u16, "RRC A" };
+				info[Opcode::RR_A]    = { 4_u16, 1_u16, "RR A" };
 
 				// 8 cycles, 1 byte
-				info[Instruction::LD_A_aBC]  = { 8_u16, 1_u16, "LD A,(BC)" };
-				info[Instruction::LD_A_aDE]  = { 8_u16, 1_u16, "LD A,(DE)" };
-				info[Instruction::LD_A_aHL]  = { 8_u16, 1_u16, "LD A,(HL)" };
-				info[Instruction::LD_A_aFFC] = { 8_u16, 1_u16, "LD A,(FF00+C)" };
-				info[Instruction::LD_B_aHL]  = { 8_u16, 1_u16, "LD B,(HL)" };
-				info[Instruction::LD_C_aHL]  = { 8_u16, 1_u16, "LD C,(HL)" };
-				info[Instruction::LD_D_aHL]  = { 8_u16, 1_u16, "LD D,(HL)" };
-				info[Instruction::LD_E_aHL]  = { 8_u16, 1_u16, "LD E,(HL)" };
-				info[Instruction::LD_H_aHL]  = { 8_u16, 1_u16, "LD H,(HL)" };
-				info[Instruction::LD_L_aHL]  = { 8_u16, 1_u16, "LD L,(HL)" };
-				info[Instruction::LD_aHL_A]  = { 8_u16, 1_u16, "LD (HL),A" };
-				info[Instruction::LD_aHL_B]  = { 8_u16, 1_u16, "LD (HL),B" };
-				info[Instruction::LD_aHL_C]  = { 8_u16, 1_u16, "LD (HL),C" };
-				info[Instruction::LD_aHL_D]  = { 8_u16, 1_u16, "LD (HL),D" };
-				info[Instruction::LD_aHL_E]  = { 8_u16, 1_u16, "LD (HL),E" };
-				info[Instruction::LD_aHL_H]  = { 8_u16, 1_u16, "LD (HL),H" };
-				info[Instruction::LD_aHL_L]  = { 8_u16, 1_u16, "LD (HL),L" };
-				info[Instruction::LD_aBC_A]  = { 8_u16, 1_u16, "LD (BC),A" };
-				info[Instruction::LD_aDE_A]  = { 8_u16, 1_u16, "LD (DE),A" };
-				info[Instruction::LD_aFFC_A] = { 8_u16, 1_u16, "LD (FF00+C),A" };
-				info[Instruction::LD_SP_HL]  = { 8_u16, 1_u16, "LD SP,HL" };
-				info[Instruction::LDI_A_aHL] = { 8_u16, 1_u16, "LDI A,(HL)" };
-				info[Instruction::LDD_A_aHL] = { 8_u16, 1_u16, "LDD A,(HL)" };
-				info[Instruction::LDI_aHL_A] = { 8_u16, 1_u16, "LDI (HL),A" };
-				info[Instruction::LDD_aHL_A] = { 8_u16, 1_u16, "LDD (HL),A" };
-				info[Instruction::ADD_A_aHL] = { 8_u16, 1_u16, "ADD A,(HL)" };
-				info[Instruction::ADD_HL_BC] = { 8_u16, 1_u16, "ADD HL,BC" };
-				info[Instruction::ADD_HL_DE] = { 8_u16, 1_u16, "ADD HL,DE" };
-				info[Instruction::ADD_HL_HL] = { 8_u16, 1_u16, "ADD HL,HL" };
-				info[Instruction::ADD_HL_SP] = { 8_u16, 1_u16, "ADD HL,SP" };
-				info[Instruction::ADC_A_aHL] = { 8_u16, 1_u16, "ADC A,(HL)" };
-				info[Instruction::SUB_A_aHL] = { 8_u16, 1_u16, "SUB A,(HL)" };
-				info[Instruction::SBC_A_aHL] = { 8_u16, 1_u16, "SBC A,(HL)" };
-				info[Instruction::AND_A_aHL] = { 8_u16, 1_u16, "AND A,(HL)" };
-				info[Instruction::OR_A_aHL]  = { 8_u16, 1_u16, "OR A,(HL)" };
-				info[Instruction::XOR_A_aHL] = { 8_u16, 1_u16, "XOR A,(HL)" };
-				info[Instruction::CP_A_aHL]  = { 8_u16, 1_u16, "CP A,(HL)" };
-				info[Instruction::INC_BC]    = { 8_u16, 1_u16, "INC BC" };
-				info[Instruction::INC_DE]    = { 8_u16, 1_u16, "INC DE" };
-				info[Instruction::INC_HL]    = { 8_u16, 1_u16, "INC HL" };
-				info[Instruction::INC_SP]    = { 8_u16, 1_u16, "INC SP" };
-				info[Instruction::DEC_BC]    = { 8_u16, 1_u16, "DEC BC" };
-				info[Instruction::DEC_DE]    = { 8_u16, 1_u16, "DEC DE" };
-				info[Instruction::DEC_HL]    = { 8_u16, 1_u16, "DEC HL" };
-				info[Instruction::DEC_SP]    = { 8_u16, 1_u16, "DEC SP" };
-				info[Instruction::RET]       = { 8_u16, 1_u16, "RET" };
-				info[Instruction::RET_NZ]    = { 8_u16, 1_u16, "RET NZ" };
-				info[Instruction::RET_Z]     = { 8_u16, 1_u16, "RET Z" };
-				info[Instruction::RET_NC]    = { 8_u16, 1_u16, "RET NC" };
-				info[Instruction::RET_C]     = { 8_u16, 1_u16, "RET C" };
-				info[Instruction::RETI]      = { 8_u16, 1_u16, "RETI" };
+				info[Opcode::LD_A_aBC]  = { 8_u16, 1_u16, "LD A,(BC)" };
+				info[Opcode::LD_A_aDE]  = { 8_u16, 1_u16, "LD A,(DE)" };
+				info[Opcode::LD_A_aHL]  = { 8_u16, 1_u16, "LD A,(HL)" };
+				info[Opcode::LD_A_aFFC] = { 8_u16, 1_u16, "LD A,(FF00+C)" };
+				info[Opcode::LD_B_aHL]  = { 8_u16, 1_u16, "LD B,(HL)" };
+				info[Opcode::LD_C_aHL]  = { 8_u16, 1_u16, "LD C,(HL)" };
+				info[Opcode::LD_D_aHL]  = { 8_u16, 1_u16, "LD D,(HL)" };
+				info[Opcode::LD_E_aHL]  = { 8_u16, 1_u16, "LD E,(HL)" };
+				info[Opcode::LD_H_aHL]  = { 8_u16, 1_u16, "LD H,(HL)" };
+				info[Opcode::LD_L_aHL]  = { 8_u16, 1_u16, "LD L,(HL)" };
+				info[Opcode::LD_aHL_A]  = { 8_u16, 1_u16, "LD (HL),A" };
+				info[Opcode::LD_aHL_B]  = { 8_u16, 1_u16, "LD (HL),B" };
+				info[Opcode::LD_aHL_C]  = { 8_u16, 1_u16, "LD (HL),C" };
+				info[Opcode::LD_aHL_D]  = { 8_u16, 1_u16, "LD (HL),D" };
+				info[Opcode::LD_aHL_E]  = { 8_u16, 1_u16, "LD (HL),E" };
+				info[Opcode::LD_aHL_H]  = { 8_u16, 1_u16, "LD (HL),H" };
+				info[Opcode::LD_aHL_L]  = { 8_u16, 1_u16, "LD (HL),L" };
+				info[Opcode::LD_aBC_A]  = { 8_u16, 1_u16, "LD (BC),A" };
+				info[Opcode::LD_aDE_A]  = { 8_u16, 1_u16, "LD (DE),A" };
+				info[Opcode::LD_aFFC_A] = { 8_u16, 1_u16, "LD (FF00+C),A" };
+				info[Opcode::LD_SP_HL]  = { 8_u16, 1_u16, "LD SP,HL" };
+				info[Opcode::LDI_A_aHL] = { 8_u16, 1_u16, "LDI A,(HL)" };
+				info[Opcode::LDD_A_aHL] = { 8_u16, 1_u16, "LDD A,(HL)" };
+				info[Opcode::LDI_aHL_A] = { 8_u16, 1_u16, "LDI (HL),A" };
+				info[Opcode::LDD_aHL_A] = { 8_u16, 1_u16, "LDD (HL),A" };
+				info[Opcode::ADD_A_aHL] = { 8_u16, 1_u16, "ADD A,(HL)" };
+				info[Opcode::ADD_HL_BC] = { 8_u16, 1_u16, "ADD HL,BC" };
+				info[Opcode::ADD_HL_DE] = { 8_u16, 1_u16, "ADD HL,DE" };
+				info[Opcode::ADD_HL_HL] = { 8_u16, 1_u16, "ADD HL,HL" };
+				info[Opcode::ADD_HL_SP] = { 8_u16, 1_u16, "ADD HL,SP" };
+				info[Opcode::ADC_A_aHL] = { 8_u16, 1_u16, "ADC A,(HL)" };
+				info[Opcode::SUB_A_aHL] = { 8_u16, 1_u16, "SUB A,(HL)" };
+				info[Opcode::SBC_A_aHL] = { 8_u16, 1_u16, "SBC A,(HL)" };
+				info[Opcode::AND_A_aHL] = { 8_u16, 1_u16, "AND A,(HL)" };
+				info[Opcode::OR_A_aHL]  = { 8_u16, 1_u16, "OR A,(HL)" };
+				info[Opcode::XOR_A_aHL] = { 8_u16, 1_u16, "XOR A,(HL)" };
+				info[Opcode::CP_A_aHL]  = { 8_u16, 1_u16, "CP A,(HL)" };
+				info[Opcode::INC_BC]    = { 8_u16, 1_u16, "INC BC" };
+				info[Opcode::INC_DE]    = { 8_u16, 1_u16, "INC DE" };
+				info[Opcode::INC_HL]    = { 8_u16, 1_u16, "INC HL" };
+				info[Opcode::INC_SP]    = { 8_u16, 1_u16, "INC SP" };
+				info[Opcode::DEC_BC]    = { 8_u16, 1_u16, "DEC BC" };
+				info[Opcode::DEC_DE]    = { 8_u16, 1_u16, "DEC DE" };
+				info[Opcode::DEC_HL]    = { 8_u16, 1_u16, "DEC HL" };
+				info[Opcode::DEC_SP]    = { 8_u16, 1_u16, "DEC SP" };
+				info[Opcode::RET]       = { 8_u16, 1_u16, "RET" };
+				info[Opcode::RET_NZ]    = { 8_u16, 1_u16, "RET NZ" };
+				info[Opcode::RET_Z]     = { 8_u16, 1_u16, "RET Z" };
+				info[Opcode::RET_NC]    = { 8_u16, 1_u16, "RET NC" };
+				info[Opcode::RET_C]     = { 8_u16, 1_u16, "RET C" };
+				info[Opcode::RETI]      = { 8_u16, 1_u16, "RETI" };
 
 				// 8 cycles, 2 bytes
-				info[Instruction::LD_A_n] =  { 8_u16, 2_u16, "LD A,n" };
-				info[Instruction::LD_B_n] =  { 8_u16, 2_u16, "LD B,n" };
-				info[Instruction::LD_C_n]  = { 8_u16, 2_u16, "LD C,n" };
-				info[Instruction::LD_D_n]  = { 8_u16, 2_u16, "LD D,n" };
-				info[Instruction::LD_E_n]  = { 8_u16, 2_u16, "LD E,n" };
-				info[Instruction::LD_H_n]  = { 8_u16, 2_u16, "LD H,n" };
-				info[Instruction::LD_L_n]  = { 8_u16, 2_u16, "LD L,n" };
-				info[Instruction::ADD_A_n] = { 8_u16, 2_u16, "ADD A,n" };
-				info[Instruction::ADC_A_n] = { 8_u16, 2_u16, "ADC A,n" };
-				info[Instruction::SUB_A_n] = { 8_u16, 2_u16, "SUB A,n" };
-				info[Instruction::SBC_A_n] = { 8_u16, 2_u16, "SBC A,n" };
-				info[Instruction::AND_A_n] = { 8_u16, 2_u16, "ADD A,n" };
-				info[Instruction::OR_A_n]  = { 8_u16, 2_u16, "OR A,n" };
-				info[Instruction::XOR_A_n] = { 8_u16, 2_u16, "XOR A,n" };
-				info[Instruction::CP_A_n]  = { 8_u16, 2_u16, "CP A,n" };
-				info[Instruction::JR_n]    = { 8_u16, 2_u16, "JR n" };
-				info[Instruction::JR_NZ_n] = { 8_u16, 2_u16, "JR NZ,n" };
-				info[Instruction::JR_Z_n]  = { 8_u16, 2_u16, "JR Z,n" };
-				info[Instruction::JR_NC_n] = { 8_u16, 2_u16, "JR NC,n" };
-				info[Instruction::JR_C_n]  = { 8_u16, 2_u16, "JR C,n" };
+				info[Opcode::LD_A_n] =  { 8_u16, 2_u16, "LD A,n" };
+				info[Opcode::LD_B_n] =  { 8_u16, 2_u16, "LD B,n" };
+				info[Opcode::LD_C_n]  = { 8_u16, 2_u16, "LD C,n" };
+				info[Opcode::LD_D_n]  = { 8_u16, 2_u16, "LD D,n" };
+				info[Opcode::LD_E_n]  = { 8_u16, 2_u16, "LD E,n" };
+				info[Opcode::LD_H_n]  = { 8_u16, 2_u16, "LD H,n" };
+				info[Opcode::LD_L_n]  = { 8_u16, 2_u16, "LD L,n" };
+				info[Opcode::ADD_A_n] = { 8_u16, 2_u16, "ADD A,n" };
+				info[Opcode::ADC_A_n] = { 8_u16, 2_u16, "ADC A,n" };
+				info[Opcode::SUB_A_n] = { 8_u16, 2_u16, "SUB A,n" };
+				info[Opcode::SBC_A_n] = { 8_u16, 2_u16, "SBC A,n" };
+				info[Opcode::AND_A_n] = { 8_u16, 2_u16, "ADD A,n" };
+				info[Opcode::OR_A_n]  = { 8_u16, 2_u16, "OR A,n" };
+				info[Opcode::XOR_A_n] = { 8_u16, 2_u16, "XOR A,n" };
+				info[Opcode::CP_A_n]  = { 8_u16, 2_u16, "CP A,n" };
+				info[Opcode::JR_n]    = { 8_u16, 2_u16, "JR n" };
+				info[Opcode::JR_NZ_n] = { 8_u16, 2_u16, "JR NZ,n" };
+				info[Opcode::JR_Z_n]  = { 8_u16, 2_u16, "JR Z,n" };
+				info[Opcode::JR_NC_n] = { 8_u16, 2_u16, "JR NC,n" };
+				info[Opcode::JR_C_n]  = { 8_u16, 2_u16, "JR C,n" };
 
 				// 12 cycles, 1 byte
-				info[Instruction::POP_AF] = { 12_u16, 1_u16, "POP AF" };
-				info[Instruction::POP_BC] = { 12_u16, 1_u16, "POP BC" };
-				info[Instruction::POP_DE] = { 12_u16, 1_u16, "POP DE" };
-				info[Instruction::POP_HL] = { 12_u16, 1_u16, "POP HL" };
+				info[Opcode::POP_AF] = { 12_u16, 1_u16, "POP AF" };
+				info[Opcode::POP_BC] = { 12_u16, 1_u16, "POP BC" };
+				info[Opcode::POP_DE] = { 12_u16, 1_u16, "POP DE" };
+				info[Opcode::POP_HL] = { 12_u16, 1_u16, "POP HL" };
 
 				// 12 cycles, 2 bytes
-				info[Instruction::LD_A_aFFn] = { 12_u16, 2_u16, "LD A,(FF00+n)" };
-				info[Instruction::LD_aHL_n]  = { 12_u16, 2_u16, "LD (HL),n" };
-				info[Instruction::LD_aFFn_A] = { 12_u16, 2_u16, "LD (FF00+n),A" };
-				info[Instruction::LD_HL_SPn] = { 12_u16, 2_u16, "LD HL,SP+n" };
-				info[Instruction::INC_aHL]   = { 12_u16, 2_u16, "INC (HL)" };
-				info[Instruction::DEC_aHL]   = { 12_u16, 2_u16, "DEC (HL)" };
+				info[Opcode::LD_A_aFFn] = { 12_u16, 2_u16, "LD A,(FF00+n)" };
+				info[Opcode::LD_aHL_n]  = { 12_u16, 2_u16, "LD (HL),n" };
+				info[Opcode::LD_aFFn_A] = { 12_u16, 2_u16, "LD (FF00+n),A" };
+				info[Opcode::LD_HL_SPn] = { 12_u16, 2_u16, "LD HL,SP+n" };
+				info[Opcode::INC_aHL]   = { 12_u16, 2_u16, "INC (HL)" };
+				info[Opcode::DEC_aHL]   = { 12_u16, 2_u16, "DEC (HL)" };
 
 				// 12 cycles, 3 bytes
-				info[Instruction::LD_BC_nn]   = { 12_u16, 3_u16, "LD BC,nn" };
-				info[Instruction::LD_DE_nn]   = { 12_u16, 3_u16, "LD DE,nn" };
-				info[Instruction::LD_HL_nn]   = { 12_u16, 3_u16, "LD HL,nn" };
-				info[Instruction::LD_SP_nn]   = { 12_u16, 3_u16, "LD SP,nn" };
-				info[Instruction::JP_nn]      = { 12_u16, 3_u16, "JP nn" };
-				info[Instruction::JP_NZ_nn]   = { 12_u16, 3_u16, "JP NZ nn" };
-				info[Instruction::JP_Z_nn]    = { 12_u16, 3_u16, "JP Z nn" };
-				info[Instruction::JP_NC_nn]   = { 12_u16, 3_u16, "JP NC nn" };
-				info[Instruction::JP_C_nn]    = { 12_u16, 3_u16, "JP C nn" };
-				info[Instruction::CALL_nn]    = { 12_u16, 3_u16, "CALL nn" };
-				info[Instruction::CALL_NZ_nn] = { 12_u16, 3_u16, "CALL NZ nn" };
-				info[Instruction::CALL_Z_nn]  = { 12_u16, 3_u16, "CALL Z nn" };
-				info[Instruction::CALL_NC_nn] = { 12_u16, 3_u16, "CALL NC nn" };
-				info[Instruction::CALL_C_nn]  = { 12_u16, 3_u16, "CALL C nn" };
+				info[Opcode::LD_BC_nn]   = { 12_u16, 3_u16, "LD BC,nn" };
+				info[Opcode::LD_DE_nn]   = { 12_u16, 3_u16, "LD DE,nn" };
+				info[Opcode::LD_HL_nn]   = { 12_u16, 3_u16, "LD HL,nn" };
+				info[Opcode::LD_SP_nn]   = { 12_u16, 3_u16, "LD SP,nn" };
+				info[Opcode::JP_nn]      = { 12_u16, 3_u16, "JP nn" };
+				info[Opcode::JP_NZ_nn]   = { 12_u16, 3_u16, "JP NZ nn" };
+				info[Opcode::JP_Z_nn]    = { 12_u16, 3_u16, "JP Z nn" };
+				info[Opcode::JP_NC_nn]   = { 12_u16, 3_u16, "JP NC nn" };
+				info[Opcode::JP_C_nn]    = { 12_u16, 3_u16, "JP C nn" };
+				info[Opcode::CALL_nn]    = { 12_u16, 3_u16, "CALL nn" };
+				info[Opcode::CALL_NZ_nn] = { 12_u16, 3_u16, "CALL NZ nn" };
+				info[Opcode::CALL_Z_nn]  = { 12_u16, 3_u16, "CALL Z nn" };
+				info[Opcode::CALL_NC_nn] = { 12_u16, 3_u16, "CALL NC nn" };
+				info[Opcode::CALL_C_nn]  = { 12_u16, 3_u16, "CALL C nn" };
 
 				// 16 cycles, 1 byte
-				info[Instruction::PUSH_AF] = { 16_u16, 1_u16, "PUSH AF" };
-				info[Instruction::PUSH_BC] = { 16_u16, 1_u16, "PUSH BC" };
-				info[Instruction::PUSH_DE] = { 16_u16, 1_u16, "PUSH DE" };
-				info[Instruction::PUSH_HL] = { 16_u16, 1_u16, "PUSH HL" };
+				info[Opcode::PUSH_AF] = { 16_u16, 1_u16, "PUSH AF" };
+				info[Opcode::PUSH_BC] = { 16_u16, 1_u16, "PUSH BC" };
+				info[Opcode::PUSH_DE] = { 16_u16, 1_u16, "PUSH DE" };
+				info[Opcode::PUSH_HL] = { 16_u16, 1_u16, "PUSH HL" };
 
 				// 16 cycles, 2 bytes
-				info[Instruction::ADD_SP_n] = { 16_u16, 2_u16, "ADD SP,n" };
+				info[Opcode::ADD_SP_n] = { 16_u16, 2_u16, "ADD SP,n" };
 
 				// 16 cycles, 3 bytes
-				info[Instruction::LD_A_ann] = { 16_u16, 3_u16, "LD A,(nn)" };
-				info[Instruction::LD_ann_A] = { 16_u16, 3_u16, "LD (nn),A" };
+				info[Opcode::LD_A_ann] = { 16_u16, 3_u16, "LD A,(nn)" };
+				info[Opcode::LD_ann_A] = { 16_u16, 3_u16, "LD (nn),A" };
 
 				// 20 cycles, 3 bytes
-				info[Instruction::LD_ann_SP] = { 20_u16, 3_u16, "LD (nn),SP" };
+				info[Opcode::LD_ann_SP] = { 20_u16, 3_u16, "LD (nn),SP" };
 
 				// 32 cycles, 1 byte
-				info[Instruction::RST_00] = { 32_u16, 1_u16, "RST 00" };
-				info[Instruction::RST_08] = { 32_u16, 1_u16, "RST 08" };
-				info[Instruction::RST_10] = { 32_u16, 1_u16, "RST 10" };
-				info[Instruction::RST_18] = { 32_u16, 1_u16, "RST 18" };
-				info[Instruction::RST_20] = { 32_u16, 1_u16, "RST 20" };
-				info[Instruction::RST_28] = { 32_u16, 1_u16, "RST 28" };
-				info[Instruction::RST_30] = { 32_u16, 1_u16, "RST 30" };
-				info[Instruction::RST_38] = { 32_u16, 1_u16, "RST 38" };
+				info[Opcode::RST_00] = { 32_u16, 1_u16, "RST 00" };
+				info[Opcode::RST_08] = { 32_u16, 1_u16, "RST 08" };
+				info[Opcode::RST_10] = { 32_u16, 1_u16, "RST 10" };
+				info[Opcode::RST_18] = { 32_u16, 1_u16, "RST 18" };
+				info[Opcode::RST_20] = { 32_u16, 1_u16, "RST 20" };
+				info[Opcode::RST_28] = { 32_u16, 1_u16, "RST 28" };
+				info[Opcode::RST_30] = { 32_u16, 1_u16, "RST 30" };
+				info[Opcode::RST_38] = { 32_u16, 1_u16, "RST 38" };
 
 				return info;
 			}();
 		}
 
-		constexpr std::optional<uint16_t> GetCycles(Instruction::Enum a_Instruction)
+		constexpr std::optional<uint16_t> GetCycles(Opcode::Enum a_Opcode)
 		{
-			return Internal::g_InstructionInfo[a_Instruction].m_Cycles;
+			return Internal::g_OpcodeInfo[a_Opcode].m_Cycles;
 		}
 
-		constexpr std::optional<uint16_t> GetSize(Instruction::Enum a_Instruction)
+		constexpr std::optional<uint16_t> GetSize(Opcode::Enum a_Opcode)
 		{
-			return Internal::g_InstructionInfo[a_Instruction].m_Size;
+			return Internal::g_OpcodeInfo[a_Opcode].m_Size;
 		}
 
-		constexpr std::optional<std::string_view> ToString(Instruction::Enum a_Instruction)
+		constexpr std::optional<std::string_view> ToString(Opcode::Enum a_Opcode)
 		{
-			return Internal::g_InstructionInfo[a_Instruction].m_Name;
+			return Internal::g_OpcodeInfo[a_Opcode].m_Name;
 		}
 	}
 }

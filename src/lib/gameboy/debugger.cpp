@@ -31,7 +31,7 @@ bool Debugger::IsValidAddress(uint64_t a_Address) const noexcept
 	const uint16_t address = static_cast<uint16_t>(a_Address);
 	auto& memory = m_CPU.GetMemory();
 
-	if (memory.Load8(address - 1) == Instruction::EXT)
+	if (memory.Load8(address - 1) == Opcode::EXT)
 	{
 		return false;
 	}
@@ -43,13 +43,13 @@ uint64_t Debugger::GetInstructionSize(uint64_t a_Address) const
 {
 	const auto instruction = GetInstruction(a_Address);
 
-	if (instruction.m_Instruction != Instruction::EXT)
+	if (instruction.m_Instruction != Opcode::EXT)
 	{
-		return Instruction::GetSize(instruction.m_Instruction).value();
+		return Opcode::GetSize(instruction.m_Instruction).value();
 	}
 	else
 	{
-		return ExtendedInstruction::GetSize(instruction.m_ExtendedInstruction).value() + 1;
+		return ExtendedOpcode::GetSize(instruction.m_ExtendedInstruction).value() + 1;
 	}
 }
 
@@ -57,13 +57,13 @@ std::string Debugger::GetInstructionName(uint64_t a_Address) const
 {
 	const auto instruction = GetInstruction(a_Address);
 
-	if (instruction.m_Instruction != Instruction::EXT)
+	if (instruction.m_Instruction != Opcode::EXT)
 	{
-		return std::string(Instruction::ToString(instruction.m_Instruction).value());
+		return std::string(Opcode::ToString(instruction.m_Instruction).value());
 	}
 	else
 	{
-		return std::string(ExtendedInstruction::ToString(instruction.m_ExtendedInstruction).value());
+		return std::string(ExtendedOpcode::ToString(instruction.m_ExtendedInstruction).value());
 	}
 }
 
@@ -137,19 +137,19 @@ Debugger::InstructionInfo Debugger::GetInstruction(uint64_t a_Address) const
 	const uint16_t address = static_cast<uint16_t>(a_Address);
 
 	// Read the instruction
-	instruction.m_Instruction = static_cast<Instruction::Enum>(memory.Load8(address));
+	instruction.m_Instruction = static_cast<Opcode::Enum>(memory.Load8(address));
 
 	// Check if the instruction was replaced with an interrupt
-	if (instruction.m_Instruction == Instruction::BREAKPOINT_STOP || instruction.m_Instruction == Instruction::BREAKPOINT_CONTINUE)
+	if (instruction.m_Instruction == Opcode::BREAKPOINT_STOP || instruction.m_Instruction == Opcode::BREAKPOINT_CONTINUE)
 	{
-		instruction.m_Instruction = static_cast<Instruction::Enum>(memory.GetReplaced8(address).value_or(instruction.m_Instruction));
+		instruction.m_Instruction = static_cast<Opcode::Enum>(memory.GetReplaced8(address).value_or(instruction.m_Instruction));
 	}
 
 	// Check if it is an extended instruction
-	if (instruction.m_Instruction == Instruction::EXT)
+	if (instruction.m_Instruction == Opcode::EXT)
 	{
 		// Read the extended instruction
-		instruction.m_ExtendedInstruction = static_cast<ExtendedInstruction::Enum>(memory.Load8(address + 1));
+		instruction.m_ExtendedInstruction = static_cast<ExtendedOpcode::Enum>(memory.Load8(address + 1));
 	}
 
 	return instruction;

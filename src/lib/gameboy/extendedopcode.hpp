@@ -1,12 +1,12 @@
-#ifndef H_AMBER_GAMEBOY_EXTENDEDINSTRUCTION
-#define H_AMBER_GAMEBOY_EXTENDEDINSTRUCTION
+#ifndef H_AMBER_GAMEBOY_EXTENDEDOPCODE
+#define H_AMBER_GAMEBOY_EXTENDEDOPCODE
 
 #include <gameboy/api.hpp>
 
 #include <array>
 #include <optional>
 
-// Instruction naming convention:
+// Opcode naming convention:
 // 0 parameters: <name>
 // 1 parameter:  <name>_<param1>
 // 2 parameters: <name>_<param1>_<param2>
@@ -18,7 +18,7 @@
 
 namespace Amber::Gameboy
 {
-	namespace ExtendedInstruction
+	namespace ExtendedOpcode
 	{
 		enum Enum : uint8_t
 		{
@@ -313,322 +313,322 @@ namespace Amber::Gameboy
 
 		namespace Internal
 		{
-			struct InstructionInfo
+			struct OpcodeInfo
 			{
 				std::optional<uint16_t> m_Cycles;
 				std::optional<uint16_t> m_Size;
 				std::optional<std::string_view> m_Name;
 			};
 
-			constexpr std::array<InstructionInfo, 256> g_InstructionInfo = []() constexpr
+			constexpr std::array<OpcodeInfo, 256> g_OpcodeInfo = []() constexpr
 			{
-				std::array<InstructionInfo, 256> info;
+				std::array<OpcodeInfo, 256> info;
 
-				info[ExtendedInstruction::RLC_A]   = {  8_u16, 1_u16, "RLC A" };
-				info[ExtendedInstruction::RLC_B]   = {  8_u16, 1_u16, "RLC B" };
-				info[ExtendedInstruction::RLC_C]   = {  8_u16, 1_u16, "RLC C" };
-				info[ExtendedInstruction::RLC_D]   = {  8_u16, 1_u16, "RLC D" };
-				info[ExtendedInstruction::RLC_E]   = {  8_u16, 1_u16, "RLC E" };
-				info[ExtendedInstruction::RLC_H]   = {  8_u16, 1_u16, "RLC H" };
-				info[ExtendedInstruction::RLC_L]   = {  8_u16, 1_u16, "RLC L" };
-				info[ExtendedInstruction::RLC_aHL] = { 16_u16, 1_u16, "RLC (HL)" };
+				info[ExtendedOpcode::RLC_A]   = {  8_u16, 1_u16, "RLC A" };
+				info[ExtendedOpcode::RLC_B]   = {  8_u16, 1_u16, "RLC B" };
+				info[ExtendedOpcode::RLC_C]   = {  8_u16, 1_u16, "RLC C" };
+				info[ExtendedOpcode::RLC_D]   = {  8_u16, 1_u16, "RLC D" };
+				info[ExtendedOpcode::RLC_E]   = {  8_u16, 1_u16, "RLC E" };
+				info[ExtendedOpcode::RLC_H]   = {  8_u16, 1_u16, "RLC H" };
+				info[ExtendedOpcode::RLC_L]   = {  8_u16, 1_u16, "RLC L" };
+				info[ExtendedOpcode::RLC_aHL] = { 16_u16, 1_u16, "RLC (HL)" };
 
-				info[ExtendedInstruction::RRC_A]   = {  8_u16, 1_u16, "RRC A" };
-				info[ExtendedInstruction::RRC_B]   = {  8_u16, 1_u16, "RRC B" };
-				info[ExtendedInstruction::RRC_C]   = {  8_u16, 1_u16, "RRC C" };
-				info[ExtendedInstruction::RRC_D]   = {  8_u16, 1_u16, "RRC D" };
-				info[ExtendedInstruction::RRC_E]   = {  8_u16, 1_u16, "RRC E" };
-				info[ExtendedInstruction::RRC_H]   = {  8_u16, 1_u16, "RRC H" };
-				info[ExtendedInstruction::RRC_L]   = {  8_u16, 1_u16, "RRC L" };
-				info[ExtendedInstruction::RRC_aHL] = { 16_u16, 1_u16, "RRC (HL)" };
+				info[ExtendedOpcode::RRC_A]   = {  8_u16, 1_u16, "RRC A" };
+				info[ExtendedOpcode::RRC_B]   = {  8_u16, 1_u16, "RRC B" };
+				info[ExtendedOpcode::RRC_C]   = {  8_u16, 1_u16, "RRC C" };
+				info[ExtendedOpcode::RRC_D]   = {  8_u16, 1_u16, "RRC D" };
+				info[ExtendedOpcode::RRC_E]   = {  8_u16, 1_u16, "RRC E" };
+				info[ExtendedOpcode::RRC_H]   = {  8_u16, 1_u16, "RRC H" };
+				info[ExtendedOpcode::RRC_L]   = {  8_u16, 1_u16, "RRC L" };
+				info[ExtendedOpcode::RRC_aHL] = { 16_u16, 1_u16, "RRC (HL)" };
 
-				info[ExtendedInstruction::RL_A]   = {  8_u16, 1_u16, "RL A" };
-				info[ExtendedInstruction::RL_B]   = {  8_u16, 1_u16, "RL B" };
-				info[ExtendedInstruction::RL_C]   = {  8_u16, 1_u16, "RL C" };
-				info[ExtendedInstruction::RL_D]   = {  8_u16, 1_u16, "RL D" };
-				info[ExtendedInstruction::RL_E]   = {  8_u16, 1_u16, "RL E" };
-				info[ExtendedInstruction::RL_H]   = {  8_u16, 1_u16, "RL H" };
-				info[ExtendedInstruction::RL_L]   = {  8_u16, 1_u16, "RL L" };
-				info[ExtendedInstruction::RL_aHL] = { 16_u16, 1_u16, "RL (HL)" };
+				info[ExtendedOpcode::RL_A]   = {  8_u16, 1_u16, "RL A" };
+				info[ExtendedOpcode::RL_B]   = {  8_u16, 1_u16, "RL B" };
+				info[ExtendedOpcode::RL_C]   = {  8_u16, 1_u16, "RL C" };
+				info[ExtendedOpcode::RL_D]   = {  8_u16, 1_u16, "RL D" };
+				info[ExtendedOpcode::RL_E]   = {  8_u16, 1_u16, "RL E" };
+				info[ExtendedOpcode::RL_H]   = {  8_u16, 1_u16, "RL H" };
+				info[ExtendedOpcode::RL_L]   = {  8_u16, 1_u16, "RL L" };
+				info[ExtendedOpcode::RL_aHL] = { 16_u16, 1_u16, "RL (HL)" };
 
-				info[ExtendedInstruction::RR_A]   = {  8_u16, 1_u16, "RR A" };
-				info[ExtendedInstruction::RR_B]   = {  8_u16, 1_u16, "RR B" };
-				info[ExtendedInstruction::RR_C]   = {  8_u16, 1_u16, "RR C" };
-				info[ExtendedInstruction::RR_D]   = {  8_u16, 1_u16, "RR D" };
-				info[ExtendedInstruction::RR_E]   = {  8_u16, 1_u16, "RR E" };
-				info[ExtendedInstruction::RR_H]   = {  8_u16, 1_u16, "RR H" };
-				info[ExtendedInstruction::RR_L]   = {  8_u16, 1_u16, "RR L" };
-				info[ExtendedInstruction::RR_aHL] = { 16_u16, 1_u16, "RR (HL)" };
+				info[ExtendedOpcode::RR_A]   = {  8_u16, 1_u16, "RR A" };
+				info[ExtendedOpcode::RR_B]   = {  8_u16, 1_u16, "RR B" };
+				info[ExtendedOpcode::RR_C]   = {  8_u16, 1_u16, "RR C" };
+				info[ExtendedOpcode::RR_D]   = {  8_u16, 1_u16, "RR D" };
+				info[ExtendedOpcode::RR_E]   = {  8_u16, 1_u16, "RR E" };
+				info[ExtendedOpcode::RR_H]   = {  8_u16, 1_u16, "RR H" };
+				info[ExtendedOpcode::RR_L]   = {  8_u16, 1_u16, "RR L" };
+				info[ExtendedOpcode::RR_aHL] = { 16_u16, 1_u16, "RR (HL)" };
 
-				info[ExtendedInstruction::SLA_A]   = {  8_u16, 1_u16, "SLA A" };
-				info[ExtendedInstruction::SLA_B]   = {  8_u16, 1_u16, "SLA B" };
-				info[ExtendedInstruction::SLA_C]   = {  8_u16, 1_u16, "SLA C" };
-				info[ExtendedInstruction::SLA_D]   = {  8_u16, 1_u16, "SLA D" };
-				info[ExtendedInstruction::SLA_E]   = {  8_u16, 1_u16, "SLA E" };
-				info[ExtendedInstruction::SLA_H]   = {  8_u16, 1_u16, "SLA H" };
-				info[ExtendedInstruction::SLA_L]   = {  8_u16, 1_u16, "SLA L" };
-				info[ExtendedInstruction::SLA_aHL] = { 16_u16, 1_u16, "SLA (HL)" };
+				info[ExtendedOpcode::SLA_A]   = {  8_u16, 1_u16, "SLA A" };
+				info[ExtendedOpcode::SLA_B]   = {  8_u16, 1_u16, "SLA B" };
+				info[ExtendedOpcode::SLA_C]   = {  8_u16, 1_u16, "SLA C" };
+				info[ExtendedOpcode::SLA_D]   = {  8_u16, 1_u16, "SLA D" };
+				info[ExtendedOpcode::SLA_E]   = {  8_u16, 1_u16, "SLA E" };
+				info[ExtendedOpcode::SLA_H]   = {  8_u16, 1_u16, "SLA H" };
+				info[ExtendedOpcode::SLA_L]   = {  8_u16, 1_u16, "SLA L" };
+				info[ExtendedOpcode::SLA_aHL] = { 16_u16, 1_u16, "SLA (HL)" };
 
-				info[ExtendedInstruction::SRA_A]   = {  8_u16, 1_u16, "SRA A" };
-				info[ExtendedInstruction::SRA_B]   = {  8_u16, 1_u16, "SRA B" };
-				info[ExtendedInstruction::SRA_C]   = {  8_u16, 1_u16, "SRA C" };
-				info[ExtendedInstruction::SRA_D]   = {  8_u16, 1_u16, "SRA D" };
-				info[ExtendedInstruction::SRA_E]   = {  8_u16, 1_u16, "SRA E" };
-				info[ExtendedInstruction::SRA_H]   = {  8_u16, 1_u16, "SRA H" };
-				info[ExtendedInstruction::SRA_L]   = {  8_u16, 1_u16, "SRA L" };
-				info[ExtendedInstruction::SRA_aHL] = { 16_u16, 1_u16, "SRA (HL)" };
+				info[ExtendedOpcode::SRA_A]   = {  8_u16, 1_u16, "SRA A" };
+				info[ExtendedOpcode::SRA_B]   = {  8_u16, 1_u16, "SRA B" };
+				info[ExtendedOpcode::SRA_C]   = {  8_u16, 1_u16, "SRA C" };
+				info[ExtendedOpcode::SRA_D]   = {  8_u16, 1_u16, "SRA D" };
+				info[ExtendedOpcode::SRA_E]   = {  8_u16, 1_u16, "SRA E" };
+				info[ExtendedOpcode::SRA_H]   = {  8_u16, 1_u16, "SRA H" };
+				info[ExtendedOpcode::SRA_L]   = {  8_u16, 1_u16, "SRA L" };
+				info[ExtendedOpcode::SRA_aHL] = { 16_u16, 1_u16, "SRA (HL)" };
 
-				info[ExtendedInstruction::SRL_A]   = {  8_u16, 1_u16, "SRL A" };
-				info[ExtendedInstruction::SRL_B]   = {  8_u16, 1_u16, "SRL B" };
-				info[ExtendedInstruction::SRL_C]   = {  8_u16, 1_u16, "SRL C" };
-				info[ExtendedInstruction::SRL_D]   = {  8_u16, 1_u16, "SRL D" };
-				info[ExtendedInstruction::SRL_E]   = {  8_u16, 1_u16, "SRL E" };
-				info[ExtendedInstruction::SRL_H]   = {  8_u16, 1_u16, "SRL H" };
-				info[ExtendedInstruction::SRL_L]   = {  8_u16, 1_u16, "SRL L" };
-				info[ExtendedInstruction::SRL_aHL] = { 16_u16, 1_u16, "SRL (HL)" };
+				info[ExtendedOpcode::SRL_A]   = {  8_u16, 1_u16, "SRL A" };
+				info[ExtendedOpcode::SRL_B]   = {  8_u16, 1_u16, "SRL B" };
+				info[ExtendedOpcode::SRL_C]   = {  8_u16, 1_u16, "SRL C" };
+				info[ExtendedOpcode::SRL_D]   = {  8_u16, 1_u16, "SRL D" };
+				info[ExtendedOpcode::SRL_E]   = {  8_u16, 1_u16, "SRL E" };
+				info[ExtendedOpcode::SRL_H]   = {  8_u16, 1_u16, "SRL H" };
+				info[ExtendedOpcode::SRL_L]   = {  8_u16, 1_u16, "SRL L" };
+				info[ExtendedOpcode::SRL_aHL] = { 16_u16, 1_u16, "SRL (HL)" };
 
-				info[ExtendedInstruction::SWAP_A]   = {  8_u16, 1_u16, "SWAP A" };
-				info[ExtendedInstruction::SWAP_B]   = {  8_u16, 1_u16, "SWAP B" };
-				info[ExtendedInstruction::SWAP_C]   = {  8_u16, 1_u16, "SWAP C" };
-				info[ExtendedInstruction::SWAP_D]   = {  8_u16, 1_u16, "SWAP D" };
-				info[ExtendedInstruction::SWAP_E]   = {  8_u16, 1_u16, "SWAP E" };
-				info[ExtendedInstruction::SWAP_H]   = {  8_u16, 1_u16, "SWAP H" };
-				info[ExtendedInstruction::SWAP_L]   = {  8_u16, 1_u16, "SWAP L" };
-				info[ExtendedInstruction::SWAP_aHL] = { 16_u16, 1_u16, "SWAP (HL)" };
+				info[ExtendedOpcode::SWAP_A]   = {  8_u16, 1_u16, "SWAP A" };
+				info[ExtendedOpcode::SWAP_B]   = {  8_u16, 1_u16, "SWAP B" };
+				info[ExtendedOpcode::SWAP_C]   = {  8_u16, 1_u16, "SWAP C" };
+				info[ExtendedOpcode::SWAP_D]   = {  8_u16, 1_u16, "SWAP D" };
+				info[ExtendedOpcode::SWAP_E]   = {  8_u16, 1_u16, "SWAP E" };
+				info[ExtendedOpcode::SWAP_H]   = {  8_u16, 1_u16, "SWAP H" };
+				info[ExtendedOpcode::SWAP_L]   = {  8_u16, 1_u16, "SWAP L" };
+				info[ExtendedOpcode::SWAP_aHL] = { 16_u16, 1_u16, "SWAP (HL)" };
 
-				info[ExtendedInstruction::BIT_A_0]   = {  8_u16, 1_u16, "BIT A,0" };
-				info[ExtendedInstruction::BIT_B_0]   = {  8_u16, 1_u16, "BIT B,0" };
-				info[ExtendedInstruction::BIT_C_0]   = {  8_u16, 1_u16, "BIT C,0" };
-				info[ExtendedInstruction::BIT_D_0]   = {  8_u16, 1_u16, "BIT D,0" };
-				info[ExtendedInstruction::BIT_E_0]   = {  8_u16, 1_u16, "BIT E,0" };
-				info[ExtendedInstruction::BIT_H_0]   = {  8_u16, 1_u16, "BIT H,0" };
-				info[ExtendedInstruction::BIT_L_0]   = {  8_u16, 1_u16, "BIT L,0" };
-				info[ExtendedInstruction::BIT_aHL_0] = { 16_u16, 1_u16, "BIT (HL),0" };
+				info[ExtendedOpcode::BIT_A_0]   = {  8_u16, 1_u16, "BIT A,0" };
+				info[ExtendedOpcode::BIT_B_0]   = {  8_u16, 1_u16, "BIT B,0" };
+				info[ExtendedOpcode::BIT_C_0]   = {  8_u16, 1_u16, "BIT C,0" };
+				info[ExtendedOpcode::BIT_D_0]   = {  8_u16, 1_u16, "BIT D,0" };
+				info[ExtendedOpcode::BIT_E_0]   = {  8_u16, 1_u16, "BIT E,0" };
+				info[ExtendedOpcode::BIT_H_0]   = {  8_u16, 1_u16, "BIT H,0" };
+				info[ExtendedOpcode::BIT_L_0]   = {  8_u16, 1_u16, "BIT L,0" };
+				info[ExtendedOpcode::BIT_aHL_0] = { 16_u16, 1_u16, "BIT (HL),0" };
 
-				info[ExtendedInstruction::BIT_A_1]   = {  8_u16, 1_u16, "BIT A,1" };
-				info[ExtendedInstruction::BIT_B_1]   = {  8_u16, 1_u16, "BIT B,1" };
-				info[ExtendedInstruction::BIT_C_1]   = {  8_u16, 1_u16, "BIT C,1" };
-				info[ExtendedInstruction::BIT_D_1]   = {  8_u16, 1_u16, "BIT D,1" };
-				info[ExtendedInstruction::BIT_E_1]   = {  8_u16, 1_u16, "BIT E,1" };
-				info[ExtendedInstruction::BIT_H_1]   = {  8_u16, 1_u16, "BIT H,1" };
-				info[ExtendedInstruction::BIT_L_1]   = {  8_u16, 1_u16, "BIT L,1" };
-				info[ExtendedInstruction::BIT_aHL_1] = { 16_u16, 1_u16, "BIT (HL),1" };
+				info[ExtendedOpcode::BIT_A_1]   = {  8_u16, 1_u16, "BIT A,1" };
+				info[ExtendedOpcode::BIT_B_1]   = {  8_u16, 1_u16, "BIT B,1" };
+				info[ExtendedOpcode::BIT_C_1]   = {  8_u16, 1_u16, "BIT C,1" };
+				info[ExtendedOpcode::BIT_D_1]   = {  8_u16, 1_u16, "BIT D,1" };
+				info[ExtendedOpcode::BIT_E_1]   = {  8_u16, 1_u16, "BIT E,1" };
+				info[ExtendedOpcode::BIT_H_1]   = {  8_u16, 1_u16, "BIT H,1" };
+				info[ExtendedOpcode::BIT_L_1]   = {  8_u16, 1_u16, "BIT L,1" };
+				info[ExtendedOpcode::BIT_aHL_1] = { 16_u16, 1_u16, "BIT (HL),1" };
 
-				info[ExtendedInstruction::BIT_A_2]   = {  8_u16, 1_u16, "BIT A,2" };
-				info[ExtendedInstruction::BIT_B_2]   = {  8_u16, 1_u16, "BIT B,2" };
-				info[ExtendedInstruction::BIT_C_2]   = {  8_u16, 1_u16, "BIT C,2" };
-				info[ExtendedInstruction::BIT_D_2]   = {  8_u16, 1_u16, "BIT D,2" };
-				info[ExtendedInstruction::BIT_E_2]   = {  8_u16, 1_u16, "BIT E,2" };
-				info[ExtendedInstruction::BIT_H_2]   = {  8_u16, 1_u16, "BIT H,2" };
-				info[ExtendedInstruction::BIT_L_2]   = {  8_u16, 1_u16, "BIT L,2" };
-				info[ExtendedInstruction::BIT_aHL_2] = { 16_u16, 1_u16, "BIT (HL),2" };
+				info[ExtendedOpcode::BIT_A_2]   = {  8_u16, 1_u16, "BIT A,2" };
+				info[ExtendedOpcode::BIT_B_2]   = {  8_u16, 1_u16, "BIT B,2" };
+				info[ExtendedOpcode::BIT_C_2]   = {  8_u16, 1_u16, "BIT C,2" };
+				info[ExtendedOpcode::BIT_D_2]   = {  8_u16, 1_u16, "BIT D,2" };
+				info[ExtendedOpcode::BIT_E_2]   = {  8_u16, 1_u16, "BIT E,2" };
+				info[ExtendedOpcode::BIT_H_2]   = {  8_u16, 1_u16, "BIT H,2" };
+				info[ExtendedOpcode::BIT_L_2]   = {  8_u16, 1_u16, "BIT L,2" };
+				info[ExtendedOpcode::BIT_aHL_2] = { 16_u16, 1_u16, "BIT (HL),2" };
 
-				info[ExtendedInstruction::BIT_A_3]   = {  8_u16, 1_u16, "BIT A,3" };
-				info[ExtendedInstruction::BIT_B_3]   = {  8_u16, 1_u16, "BIT B,3" };
-				info[ExtendedInstruction::BIT_C_3]   = {  8_u16, 1_u16, "BIT C,3" };
-				info[ExtendedInstruction::BIT_D_3]   = {  8_u16, 1_u16, "BIT D,3" };
-				info[ExtendedInstruction::BIT_E_3]   = {  8_u16, 1_u16, "BIT E,3" };
-				info[ExtendedInstruction::BIT_H_3]   = {  8_u16, 1_u16, "BIT H,3" };
-				info[ExtendedInstruction::BIT_L_3]   = {  8_u16, 1_u16, "BIT L,3" };
-				info[ExtendedInstruction::BIT_aHL_3] = { 16_u16, 1_u16, "BIT (HL),3" };
+				info[ExtendedOpcode::BIT_A_3]   = {  8_u16, 1_u16, "BIT A,3" };
+				info[ExtendedOpcode::BIT_B_3]   = {  8_u16, 1_u16, "BIT B,3" };
+				info[ExtendedOpcode::BIT_C_3]   = {  8_u16, 1_u16, "BIT C,3" };
+				info[ExtendedOpcode::BIT_D_3]   = {  8_u16, 1_u16, "BIT D,3" };
+				info[ExtendedOpcode::BIT_E_3]   = {  8_u16, 1_u16, "BIT E,3" };
+				info[ExtendedOpcode::BIT_H_3]   = {  8_u16, 1_u16, "BIT H,3" };
+				info[ExtendedOpcode::BIT_L_3]   = {  8_u16, 1_u16, "BIT L,3" };
+				info[ExtendedOpcode::BIT_aHL_3] = { 16_u16, 1_u16, "BIT (HL),3" };
 
-				info[ExtendedInstruction::BIT_A_4]   = {  8_u16, 1_u16, "BIT A,4" };
-				info[ExtendedInstruction::BIT_B_4]   = {  8_u16, 1_u16, "BIT B,4" };
-				info[ExtendedInstruction::BIT_C_4]   = {  8_u16, 1_u16, "BIT C,4" };
-				info[ExtendedInstruction::BIT_D_4]   = {  8_u16, 1_u16, "BIT D,4" };
-				info[ExtendedInstruction::BIT_E_4]   = {  8_u16, 1_u16, "BIT E,4" };
-				info[ExtendedInstruction::BIT_H_4]   = {  8_u16, 1_u16, "BIT H,4" };
-				info[ExtendedInstruction::BIT_L_4]   = {  8_u16, 1_u16, "BIT L,4" };
-				info[ExtendedInstruction::BIT_aHL_4] = { 16_u16, 1_u16, "BIT (HL),4" };
+				info[ExtendedOpcode::BIT_A_4]   = {  8_u16, 1_u16, "BIT A,4" };
+				info[ExtendedOpcode::BIT_B_4]   = {  8_u16, 1_u16, "BIT B,4" };
+				info[ExtendedOpcode::BIT_C_4]   = {  8_u16, 1_u16, "BIT C,4" };
+				info[ExtendedOpcode::BIT_D_4]   = {  8_u16, 1_u16, "BIT D,4" };
+				info[ExtendedOpcode::BIT_E_4]   = {  8_u16, 1_u16, "BIT E,4" };
+				info[ExtendedOpcode::BIT_H_4]   = {  8_u16, 1_u16, "BIT H,4" };
+				info[ExtendedOpcode::BIT_L_4]   = {  8_u16, 1_u16, "BIT L,4" };
+				info[ExtendedOpcode::BIT_aHL_4] = { 16_u16, 1_u16, "BIT (HL),4" };
 
-				info[ExtendedInstruction::BIT_A_5]   = {  8_u16, 1_u16, "BIT A,5" };
-				info[ExtendedInstruction::BIT_B_5]   = {  8_u16, 1_u16, "BIT B,5" };
-				info[ExtendedInstruction::BIT_C_5]   = {  8_u16, 1_u16, "BIT C,5" };
-				info[ExtendedInstruction::BIT_D_5]   = {  8_u16, 1_u16, "BIT D,5" };
-				info[ExtendedInstruction::BIT_E_5]   = {  8_u16, 1_u16, "BIT E,5" };
-				info[ExtendedInstruction::BIT_H_5]   = {  8_u16, 1_u16, "BIT H,5" };
-				info[ExtendedInstruction::BIT_L_5]   = {  8_u16, 1_u16, "BIT L,5" };
-				info[ExtendedInstruction::BIT_aHL_5] = { 16_u16, 1_u16, "BIT (HL),5" };
+				info[ExtendedOpcode::BIT_A_5]   = {  8_u16, 1_u16, "BIT A,5" };
+				info[ExtendedOpcode::BIT_B_5]   = {  8_u16, 1_u16, "BIT B,5" };
+				info[ExtendedOpcode::BIT_C_5]   = {  8_u16, 1_u16, "BIT C,5" };
+				info[ExtendedOpcode::BIT_D_5]   = {  8_u16, 1_u16, "BIT D,5" };
+				info[ExtendedOpcode::BIT_E_5]   = {  8_u16, 1_u16, "BIT E,5" };
+				info[ExtendedOpcode::BIT_H_5]   = {  8_u16, 1_u16, "BIT H,5" };
+				info[ExtendedOpcode::BIT_L_5]   = {  8_u16, 1_u16, "BIT L,5" };
+				info[ExtendedOpcode::BIT_aHL_5] = { 16_u16, 1_u16, "BIT (HL),5" };
 
-				info[ExtendedInstruction::BIT_A_6]   = {  8_u16, 1_u16, "BIT A,6" };
-				info[ExtendedInstruction::BIT_B_6]   = {  8_u16, 1_u16, "BIT B,6" };
-				info[ExtendedInstruction::BIT_C_6]   = {  8_u16, 1_u16, "BIT C,6" };
-				info[ExtendedInstruction::BIT_D_6]   = {  8_u16, 1_u16, "BIT D,6" };
-				info[ExtendedInstruction::BIT_E_6]   = {  8_u16, 1_u16, "BIT E,6" };
-				info[ExtendedInstruction::BIT_H_6]   = {  8_u16, 1_u16, "BIT H,6" };
-				info[ExtendedInstruction::BIT_L_6]   = {  8_u16, 1_u16, "BIT L,6" };
-				info[ExtendedInstruction::BIT_aHL_6] = { 16_u16, 1_u16, "BIT (HL),6" };
+				info[ExtendedOpcode::BIT_A_6]   = {  8_u16, 1_u16, "BIT A,6" };
+				info[ExtendedOpcode::BIT_B_6]   = {  8_u16, 1_u16, "BIT B,6" };
+				info[ExtendedOpcode::BIT_C_6]   = {  8_u16, 1_u16, "BIT C,6" };
+				info[ExtendedOpcode::BIT_D_6]   = {  8_u16, 1_u16, "BIT D,6" };
+				info[ExtendedOpcode::BIT_E_6]   = {  8_u16, 1_u16, "BIT E,6" };
+				info[ExtendedOpcode::BIT_H_6]   = {  8_u16, 1_u16, "BIT H,6" };
+				info[ExtendedOpcode::BIT_L_6]   = {  8_u16, 1_u16, "BIT L,6" };
+				info[ExtendedOpcode::BIT_aHL_6] = { 16_u16, 1_u16, "BIT (HL),6" };
 
-				info[ExtendedInstruction::BIT_A_7]   = {  8_u16, 1_u16, "BIT A,7" };
-				info[ExtendedInstruction::BIT_B_7]   = {  8_u16, 1_u16, "BIT B,7" };
-				info[ExtendedInstruction::BIT_C_7]   = {  8_u16, 1_u16, "BIT C,7" };
-				info[ExtendedInstruction::BIT_D_7]   = {  8_u16, 1_u16, "BIT D,7" };
-				info[ExtendedInstruction::BIT_E_7]   = {  8_u16, 1_u16, "BIT E,7" };
-				info[ExtendedInstruction::BIT_H_7]   = {  8_u16, 1_u16, "BIT H,7" };
-				info[ExtendedInstruction::BIT_L_7]   = {  8_u16, 1_u16, "BIT L,7" };
-				info[ExtendedInstruction::BIT_aHL_7] = { 16_u16, 1_u16, "BIT (HL),7" };
+				info[ExtendedOpcode::BIT_A_7]   = {  8_u16, 1_u16, "BIT A,7" };
+				info[ExtendedOpcode::BIT_B_7]   = {  8_u16, 1_u16, "BIT B,7" };
+				info[ExtendedOpcode::BIT_C_7]   = {  8_u16, 1_u16, "BIT C,7" };
+				info[ExtendedOpcode::BIT_D_7]   = {  8_u16, 1_u16, "BIT D,7" };
+				info[ExtendedOpcode::BIT_E_7]   = {  8_u16, 1_u16, "BIT E,7" };
+				info[ExtendedOpcode::BIT_H_7]   = {  8_u16, 1_u16, "BIT H,7" };
+				info[ExtendedOpcode::BIT_L_7]   = {  8_u16, 1_u16, "BIT L,7" };
+				info[ExtendedOpcode::BIT_aHL_7] = { 16_u16, 1_u16, "BIT (HL),7" };
 
-				info[ExtendedInstruction::BIT_A_0]   = {  8_u16, 1_u16, "BIT A,0" };
-				info[ExtendedInstruction::BIT_B_0]   = {  8_u16, 1_u16, "BIT B,0" };
-				info[ExtendedInstruction::BIT_C_0]   = {  8_u16, 1_u16, "BIT C,0" };
-				info[ExtendedInstruction::BIT_D_0]   = {  8_u16, 1_u16, "BIT D,0" };
-				info[ExtendedInstruction::BIT_E_0]   = {  8_u16, 1_u16, "BIT E,0" };
-				info[ExtendedInstruction::BIT_H_0]   = {  8_u16, 1_u16, "BIT H,0" };
-				info[ExtendedInstruction::BIT_L_0]   = {  8_u16, 1_u16, "BIT L,0" };
-				info[ExtendedInstruction::BIT_aHL_0] = { 16_u16, 1_u16, "BIT (HL),0" };
+				info[ExtendedOpcode::BIT_A_0]   = {  8_u16, 1_u16, "BIT A,0" };
+				info[ExtendedOpcode::BIT_B_0]   = {  8_u16, 1_u16, "BIT B,0" };
+				info[ExtendedOpcode::BIT_C_0]   = {  8_u16, 1_u16, "BIT C,0" };
+				info[ExtendedOpcode::BIT_D_0]   = {  8_u16, 1_u16, "BIT D,0" };
+				info[ExtendedOpcode::BIT_E_0]   = {  8_u16, 1_u16, "BIT E,0" };
+				info[ExtendedOpcode::BIT_H_0]   = {  8_u16, 1_u16, "BIT H,0" };
+				info[ExtendedOpcode::BIT_L_0]   = {  8_u16, 1_u16, "BIT L,0" };
+				info[ExtendedOpcode::BIT_aHL_0] = { 16_u16, 1_u16, "BIT (HL),0" };
 
-				info[ExtendedInstruction::RES_A_1]   = {  8_u16, 1_u16, "RES A,1" };
-				info[ExtendedInstruction::RES_B_1]   = {  8_u16, 1_u16, "RES B,1" };
-				info[ExtendedInstruction::RES_C_1]   = {  8_u16, 1_u16, "RES C,1" };
-				info[ExtendedInstruction::RES_D_1]   = {  8_u16, 1_u16, "RES D,1" };
-				info[ExtendedInstruction::RES_E_1]   = {  8_u16, 1_u16, "RES E,1" };
-				info[ExtendedInstruction::RES_H_1]   = {  8_u16, 1_u16, "RES H,1" };
-				info[ExtendedInstruction::RES_L_1]   = {  8_u16, 1_u16, "RES L,1" };
-				info[ExtendedInstruction::RES_aHL_1] = { 16_u16, 1_u16, "RES (HL),1" };
+				info[ExtendedOpcode::RES_A_1]   = {  8_u16, 1_u16, "RES A,1" };
+				info[ExtendedOpcode::RES_B_1]   = {  8_u16, 1_u16, "RES B,1" };
+				info[ExtendedOpcode::RES_C_1]   = {  8_u16, 1_u16, "RES C,1" };
+				info[ExtendedOpcode::RES_D_1]   = {  8_u16, 1_u16, "RES D,1" };
+				info[ExtendedOpcode::RES_E_1]   = {  8_u16, 1_u16, "RES E,1" };
+				info[ExtendedOpcode::RES_H_1]   = {  8_u16, 1_u16, "RES H,1" };
+				info[ExtendedOpcode::RES_L_1]   = {  8_u16, 1_u16, "RES L,1" };
+				info[ExtendedOpcode::RES_aHL_1] = { 16_u16, 1_u16, "RES (HL),1" };
 
-				info[ExtendedInstruction::RES_A_2]   = {  8_u16, 1_u16, "RES A,2" };
-				info[ExtendedInstruction::RES_B_2]   = {  8_u16, 1_u16, "RES B,2" };
-				info[ExtendedInstruction::RES_C_2]   = {  8_u16, 1_u16, "RES C,2" };
-				info[ExtendedInstruction::RES_D_2]   = {  8_u16, 1_u16, "RES D,2" };
-				info[ExtendedInstruction::RES_E_2]   = {  8_u16, 1_u16, "RES E,2" };
-				info[ExtendedInstruction::RES_H_2]   = {  8_u16, 1_u16, "RES H,2" };
-				info[ExtendedInstruction::RES_L_2]   = {  8_u16, 1_u16, "RES L,2" };
-				info[ExtendedInstruction::RES_aHL_2] = { 16_u16, 1_u16, "RES (HL),2" };
+				info[ExtendedOpcode::RES_A_2]   = {  8_u16, 1_u16, "RES A,2" };
+				info[ExtendedOpcode::RES_B_2]   = {  8_u16, 1_u16, "RES B,2" };
+				info[ExtendedOpcode::RES_C_2]   = {  8_u16, 1_u16, "RES C,2" };
+				info[ExtendedOpcode::RES_D_2]   = {  8_u16, 1_u16, "RES D,2" };
+				info[ExtendedOpcode::RES_E_2]   = {  8_u16, 1_u16, "RES E,2" };
+				info[ExtendedOpcode::RES_H_2]   = {  8_u16, 1_u16, "RES H,2" };
+				info[ExtendedOpcode::RES_L_2]   = {  8_u16, 1_u16, "RES L,2" };
+				info[ExtendedOpcode::RES_aHL_2] = { 16_u16, 1_u16, "RES (HL),2" };
 
-				info[ExtendedInstruction::RES_A_3]   = {  8_u16, 1_u16, "RES A,3" };
-				info[ExtendedInstruction::RES_B_3]   = {  8_u16, 1_u16, "RES B,3" };
-				info[ExtendedInstruction::RES_C_3]   = {  8_u16, 1_u16, "RES C,3" };
-				info[ExtendedInstruction::RES_D_3]   = {  8_u16, 1_u16, "RES D,3" };
-				info[ExtendedInstruction::RES_E_3]   = {  8_u16, 1_u16, "RES E,3" };
-				info[ExtendedInstruction::RES_H_3]   = {  8_u16, 1_u16, "RES H,3" };
-				info[ExtendedInstruction::RES_L_3]   = {  8_u16, 1_u16, "RES L,3" };
-				info[ExtendedInstruction::RES_aHL_3] = { 16_u16, 1_u16, "RES (HL),3" };
+				info[ExtendedOpcode::RES_A_3]   = {  8_u16, 1_u16, "RES A,3" };
+				info[ExtendedOpcode::RES_B_3]   = {  8_u16, 1_u16, "RES B,3" };
+				info[ExtendedOpcode::RES_C_3]   = {  8_u16, 1_u16, "RES C,3" };
+				info[ExtendedOpcode::RES_D_3]   = {  8_u16, 1_u16, "RES D,3" };
+				info[ExtendedOpcode::RES_E_3]   = {  8_u16, 1_u16, "RES E,3" };
+				info[ExtendedOpcode::RES_H_3]   = {  8_u16, 1_u16, "RES H,3" };
+				info[ExtendedOpcode::RES_L_3]   = {  8_u16, 1_u16, "RES L,3" };
+				info[ExtendedOpcode::RES_aHL_3] = { 16_u16, 1_u16, "RES (HL),3" };
 
-				info[ExtendedInstruction::RES_A_4]   = {  8_u16, 1_u16, "RES A,4" };
-				info[ExtendedInstruction::RES_B_4]   = {  8_u16, 1_u16, "RES B,4" };
-				info[ExtendedInstruction::RES_C_4]   = {  8_u16, 1_u16, "RES C,4" };
-				info[ExtendedInstruction::RES_D_4]   = {  8_u16, 1_u16, "RES D,4" };
-				info[ExtendedInstruction::RES_E_4]   = {  8_u16, 1_u16, "RES E,4" };
-				info[ExtendedInstruction::RES_H_4]   = {  8_u16, 1_u16, "RES H,4" };
-				info[ExtendedInstruction::RES_L_4]   = {  8_u16, 1_u16, "RES L,4" };
-				info[ExtendedInstruction::RES_aHL_4] = { 16_u16, 1_u16, "RES (HL),4" };
+				info[ExtendedOpcode::RES_A_4]   = {  8_u16, 1_u16, "RES A,4" };
+				info[ExtendedOpcode::RES_B_4]   = {  8_u16, 1_u16, "RES B,4" };
+				info[ExtendedOpcode::RES_C_4]   = {  8_u16, 1_u16, "RES C,4" };
+				info[ExtendedOpcode::RES_D_4]   = {  8_u16, 1_u16, "RES D,4" };
+				info[ExtendedOpcode::RES_E_4]   = {  8_u16, 1_u16, "RES E,4" };
+				info[ExtendedOpcode::RES_H_4]   = {  8_u16, 1_u16, "RES H,4" };
+				info[ExtendedOpcode::RES_L_4]   = {  8_u16, 1_u16, "RES L,4" };
+				info[ExtendedOpcode::RES_aHL_4] = { 16_u16, 1_u16, "RES (HL),4" };
 
-				info[ExtendedInstruction::RES_A_5]   = {  8_u16, 1_u16, "RES A,5" };
-				info[ExtendedInstruction::RES_B_5]   = {  8_u16, 1_u16, "RES B,5" };
-				info[ExtendedInstruction::RES_C_5]   = {  8_u16, 1_u16, "RES C,5" };
-				info[ExtendedInstruction::RES_D_5]   = {  8_u16, 1_u16, "RES D,5" };
-				info[ExtendedInstruction::RES_E_5]   = {  8_u16, 1_u16, "RES E,5" };
-				info[ExtendedInstruction::RES_H_5]   = {  8_u16, 1_u16, "RES H,5" };
-				info[ExtendedInstruction::RES_L_5]   = {  8_u16, 1_u16, "RES L,5" };
-				info[ExtendedInstruction::RES_aHL_5] = { 16_u16, 1_u16, "RES (HL),5" };
+				info[ExtendedOpcode::RES_A_5]   = {  8_u16, 1_u16, "RES A,5" };
+				info[ExtendedOpcode::RES_B_5]   = {  8_u16, 1_u16, "RES B,5" };
+				info[ExtendedOpcode::RES_C_5]   = {  8_u16, 1_u16, "RES C,5" };
+				info[ExtendedOpcode::RES_D_5]   = {  8_u16, 1_u16, "RES D,5" };
+				info[ExtendedOpcode::RES_E_5]   = {  8_u16, 1_u16, "RES E,5" };
+				info[ExtendedOpcode::RES_H_5]   = {  8_u16, 1_u16, "RES H,5" };
+				info[ExtendedOpcode::RES_L_5]   = {  8_u16, 1_u16, "RES L,5" };
+				info[ExtendedOpcode::RES_aHL_5] = { 16_u16, 1_u16, "RES (HL),5" };
 
-				info[ExtendedInstruction::RES_A_6]   = {  8_u16, 1_u16, "RES A,6" };
-				info[ExtendedInstruction::RES_B_6]   = {  8_u16, 1_u16, "RES B,6" };
-				info[ExtendedInstruction::RES_C_6]   = {  8_u16, 1_u16, "RES C,6" };
-				info[ExtendedInstruction::RES_D_6]   = {  8_u16, 1_u16, "RES D,6" };
-				info[ExtendedInstruction::RES_E_6]   = {  8_u16, 1_u16, "RES E,6" };
-				info[ExtendedInstruction::RES_H_6]   = {  8_u16, 1_u16, "RES H,6" };
-				info[ExtendedInstruction::RES_L_6]   = {  8_u16, 1_u16, "RES L,6" };
-				info[ExtendedInstruction::RES_aHL_6] = { 16_u16, 1_u16, "RES (HL),6" };
+				info[ExtendedOpcode::RES_A_6]   = {  8_u16, 1_u16, "RES A,6" };
+				info[ExtendedOpcode::RES_B_6]   = {  8_u16, 1_u16, "RES B,6" };
+				info[ExtendedOpcode::RES_C_6]   = {  8_u16, 1_u16, "RES C,6" };
+				info[ExtendedOpcode::RES_D_6]   = {  8_u16, 1_u16, "RES D,6" };
+				info[ExtendedOpcode::RES_E_6]   = {  8_u16, 1_u16, "RES E,6" };
+				info[ExtendedOpcode::RES_H_6]   = {  8_u16, 1_u16, "RES H,6" };
+				info[ExtendedOpcode::RES_L_6]   = {  8_u16, 1_u16, "RES L,6" };
+				info[ExtendedOpcode::RES_aHL_6] = { 16_u16, 1_u16, "RES (HL),6" };
 
-				info[ExtendedInstruction::RES_A_7]   = {  8_u16, 1_u16, "RES A,7" };
-				info[ExtendedInstruction::RES_B_7]   = {  8_u16, 1_u16, "RES B,7" };
-				info[ExtendedInstruction::RES_C_7]   = {  8_u16, 1_u16, "RES C,7" };
-				info[ExtendedInstruction::RES_D_7]   = {  8_u16, 1_u16, "RES D,7" };
-				info[ExtendedInstruction::RES_E_7]   = {  8_u16, 1_u16, "RES E,7" };
-				info[ExtendedInstruction::RES_H_7]   = {  8_u16, 1_u16, "RES H,7" };
-				info[ExtendedInstruction::RES_L_7]   = {  8_u16, 1_u16, "RES L,7" };
-				info[ExtendedInstruction::RES_aHL_7] = { 16_u16, 1_u16, "RES (HL),7" };
+				info[ExtendedOpcode::RES_A_7]   = {  8_u16, 1_u16, "RES A,7" };
+				info[ExtendedOpcode::RES_B_7]   = {  8_u16, 1_u16, "RES B,7" };
+				info[ExtendedOpcode::RES_C_7]   = {  8_u16, 1_u16, "RES C,7" };
+				info[ExtendedOpcode::RES_D_7]   = {  8_u16, 1_u16, "RES D,7" };
+				info[ExtendedOpcode::RES_E_7]   = {  8_u16, 1_u16, "RES E,7" };
+				info[ExtendedOpcode::RES_H_7]   = {  8_u16, 1_u16, "RES H,7" };
+				info[ExtendedOpcode::RES_L_7]   = {  8_u16, 1_u16, "RES L,7" };
+				info[ExtendedOpcode::RES_aHL_7] = { 16_u16, 1_u16, "RES (HL),7" };
 
-				info[ExtendedInstruction::SET_A_0]   = {  8_u16, 1_u16, "SET A,0" };
-				info[ExtendedInstruction::SET_B_0]   = {  8_u16, 1_u16, "SET B,0" };
-				info[ExtendedInstruction::SET_C_0]   = {  8_u16, 1_u16, "SET C,0" };
-				info[ExtendedInstruction::SET_D_0]   = {  8_u16, 1_u16, "SET D,0" };
-				info[ExtendedInstruction::SET_E_0]   = {  8_u16, 1_u16, "SET E,0" };
-				info[ExtendedInstruction::SET_H_0]   = {  8_u16, 1_u16, "SET H,0" };
-				info[ExtendedInstruction::SET_L_0]   = {  8_u16, 1_u16, "SET L,0" };
-				info[ExtendedInstruction::SET_aHL_0] = { 16_u16, 1_u16, "SET (HL),0" };
+				info[ExtendedOpcode::SET_A_0]   = {  8_u16, 1_u16, "SET A,0" };
+				info[ExtendedOpcode::SET_B_0]   = {  8_u16, 1_u16, "SET B,0" };
+				info[ExtendedOpcode::SET_C_0]   = {  8_u16, 1_u16, "SET C,0" };
+				info[ExtendedOpcode::SET_D_0]   = {  8_u16, 1_u16, "SET D,0" };
+				info[ExtendedOpcode::SET_E_0]   = {  8_u16, 1_u16, "SET E,0" };
+				info[ExtendedOpcode::SET_H_0]   = {  8_u16, 1_u16, "SET H,0" };
+				info[ExtendedOpcode::SET_L_0]   = {  8_u16, 1_u16, "SET L,0" };
+				info[ExtendedOpcode::SET_aHL_0] = { 16_u16, 1_u16, "SET (HL),0" };
 
-				info[ExtendedInstruction::SET_A_1]   = {  8_u16, 1_u16, "SET A,1" };
-				info[ExtendedInstruction::SET_B_1]   = {  8_u16, 1_u16, "SET B,1" };
-				info[ExtendedInstruction::SET_C_1]   = {  8_u16, 1_u16, "SET C,1" };
-				info[ExtendedInstruction::SET_D_1]   = {  8_u16, 1_u16, "SET D,1" };
-				info[ExtendedInstruction::SET_E_1]   = {  8_u16, 1_u16, "SET E,1" };
-				info[ExtendedInstruction::SET_H_1]   = {  8_u16, 1_u16, "SET H,1" };
-				info[ExtendedInstruction::SET_L_1]   = {  8_u16, 1_u16, "SET L,1" };
-				info[ExtendedInstruction::SET_aHL_1] = { 16_u16, 1_u16, "SET (HL),1" };
+				info[ExtendedOpcode::SET_A_1]   = {  8_u16, 1_u16, "SET A,1" };
+				info[ExtendedOpcode::SET_B_1]   = {  8_u16, 1_u16, "SET B,1" };
+				info[ExtendedOpcode::SET_C_1]   = {  8_u16, 1_u16, "SET C,1" };
+				info[ExtendedOpcode::SET_D_1]   = {  8_u16, 1_u16, "SET D,1" };
+				info[ExtendedOpcode::SET_E_1]   = {  8_u16, 1_u16, "SET E,1" };
+				info[ExtendedOpcode::SET_H_1]   = {  8_u16, 1_u16, "SET H,1" };
+				info[ExtendedOpcode::SET_L_1]   = {  8_u16, 1_u16, "SET L,1" };
+				info[ExtendedOpcode::SET_aHL_1] = { 16_u16, 1_u16, "SET (HL),1" };
 
-				info[ExtendedInstruction::SET_A_2]   = {  8_u16, 1_u16, "SET A,2" };
-				info[ExtendedInstruction::SET_B_2]   = {  8_u16, 1_u16, "SET B,2" };
-				info[ExtendedInstruction::SET_C_2]   = {  8_u16, 1_u16, "SET C,2" };
-				info[ExtendedInstruction::SET_D_2]   = {  8_u16, 1_u16, "SET D,2" };
-				info[ExtendedInstruction::SET_E_2]   = {  8_u16, 1_u16, "SET E,2" };
-				info[ExtendedInstruction::SET_H_2]   = {  8_u16, 1_u16, "SET H,2" };
-				info[ExtendedInstruction::SET_L_2]   = {  8_u16, 1_u16, "SET L,2" };
-				info[ExtendedInstruction::SET_aHL_2] = { 16_u16, 1_u16, "SET (HL),2" };
+				info[ExtendedOpcode::SET_A_2]   = {  8_u16, 1_u16, "SET A,2" };
+				info[ExtendedOpcode::SET_B_2]   = {  8_u16, 1_u16, "SET B,2" };
+				info[ExtendedOpcode::SET_C_2]   = {  8_u16, 1_u16, "SET C,2" };
+				info[ExtendedOpcode::SET_D_2]   = {  8_u16, 1_u16, "SET D,2" };
+				info[ExtendedOpcode::SET_E_2]   = {  8_u16, 1_u16, "SET E,2" };
+				info[ExtendedOpcode::SET_H_2]   = {  8_u16, 1_u16, "SET H,2" };
+				info[ExtendedOpcode::SET_L_2]   = {  8_u16, 1_u16, "SET L,2" };
+				info[ExtendedOpcode::SET_aHL_2] = { 16_u16, 1_u16, "SET (HL),2" };
 
-				info[ExtendedInstruction::SET_A_3]   = {  8_u16, 1_u16, "SET A,3" };
-				info[ExtendedInstruction::SET_B_3]   = {  8_u16, 1_u16, "SET B,3" };
-				info[ExtendedInstruction::SET_C_3]   = {  8_u16, 1_u16, "SET C,3" };
-				info[ExtendedInstruction::SET_D_3]   = {  8_u16, 1_u16, "SET D,3" };
-				info[ExtendedInstruction::SET_E_3]   = {  8_u16, 1_u16, "SET E,3" };
-				info[ExtendedInstruction::SET_H_3]   = {  8_u16, 1_u16, "SET H,3" };
-				info[ExtendedInstruction::SET_L_3]   = {  8_u16, 1_u16, "SET L,3" };
-				info[ExtendedInstruction::SET_aHL_3] = { 16_u16, 1_u16, "SET (HL),3" };
+				info[ExtendedOpcode::SET_A_3]   = {  8_u16, 1_u16, "SET A,3" };
+				info[ExtendedOpcode::SET_B_3]   = {  8_u16, 1_u16, "SET B,3" };
+				info[ExtendedOpcode::SET_C_3]   = {  8_u16, 1_u16, "SET C,3" };
+				info[ExtendedOpcode::SET_D_3]   = {  8_u16, 1_u16, "SET D,3" };
+				info[ExtendedOpcode::SET_E_3]   = {  8_u16, 1_u16, "SET E,3" };
+				info[ExtendedOpcode::SET_H_3]   = {  8_u16, 1_u16, "SET H,3" };
+				info[ExtendedOpcode::SET_L_3]   = {  8_u16, 1_u16, "SET L,3" };
+				info[ExtendedOpcode::SET_aHL_3] = { 16_u16, 1_u16, "SET (HL),3" };
 
-				info[ExtendedInstruction::SET_A_4]   = {  8_u16, 1_u16, "SET A,4" };
-				info[ExtendedInstruction::SET_B_4]   = {  8_u16, 1_u16, "SET B,4" };
-				info[ExtendedInstruction::SET_C_4]   = {  8_u16, 1_u16, "SET C,4" };
-				info[ExtendedInstruction::SET_D_4]   = {  8_u16, 1_u16, "SET D,4" };
-				info[ExtendedInstruction::SET_E_4]   = {  8_u16, 1_u16, "SET E,4" };
-				info[ExtendedInstruction::SET_H_4]   = {  8_u16, 1_u16, "SET H,4" };
-				info[ExtendedInstruction::SET_L_4]   = {  8_u16, 1_u16, "SET L,4" };
-				info[ExtendedInstruction::SET_aHL_4] = { 16_u16, 1_u16, "SET (HL),4" };
+				info[ExtendedOpcode::SET_A_4]   = {  8_u16, 1_u16, "SET A,4" };
+				info[ExtendedOpcode::SET_B_4]   = {  8_u16, 1_u16, "SET B,4" };
+				info[ExtendedOpcode::SET_C_4]   = {  8_u16, 1_u16, "SET C,4" };
+				info[ExtendedOpcode::SET_D_4]   = {  8_u16, 1_u16, "SET D,4" };
+				info[ExtendedOpcode::SET_E_4]   = {  8_u16, 1_u16, "SET E,4" };
+				info[ExtendedOpcode::SET_H_4]   = {  8_u16, 1_u16, "SET H,4" };
+				info[ExtendedOpcode::SET_L_4]   = {  8_u16, 1_u16, "SET L,4" };
+				info[ExtendedOpcode::SET_aHL_4] = { 16_u16, 1_u16, "SET (HL),4" };
 
-				info[ExtendedInstruction::SET_A_5]   = {  8_u16, 1_u16, "SET A,5" };
-				info[ExtendedInstruction::SET_B_5]   = {  8_u16, 1_u16, "SET B,5" };
-				info[ExtendedInstruction::SET_C_5]   = {  8_u16, 1_u16, "SET C,5" };
-				info[ExtendedInstruction::SET_D_5]   = {  8_u16, 1_u16, "SET D,5" };
-				info[ExtendedInstruction::SET_E_5]   = {  8_u16, 1_u16, "SET E,5" };
-				info[ExtendedInstruction::SET_H_5]   = {  8_u16, 1_u16, "SET H,5" };
-				info[ExtendedInstruction::SET_L_5]   = {  8_u16, 1_u16, "SET L,5" };
-				info[ExtendedInstruction::SET_aHL_5] = { 16_u16, 1_u16, "SET (HL),5" };
+				info[ExtendedOpcode::SET_A_5]   = {  8_u16, 1_u16, "SET A,5" };
+				info[ExtendedOpcode::SET_B_5]   = {  8_u16, 1_u16, "SET B,5" };
+				info[ExtendedOpcode::SET_C_5]   = {  8_u16, 1_u16, "SET C,5" };
+				info[ExtendedOpcode::SET_D_5]   = {  8_u16, 1_u16, "SET D,5" };
+				info[ExtendedOpcode::SET_E_5]   = {  8_u16, 1_u16, "SET E,5" };
+				info[ExtendedOpcode::SET_H_5]   = {  8_u16, 1_u16, "SET H,5" };
+				info[ExtendedOpcode::SET_L_5]   = {  8_u16, 1_u16, "SET L,5" };
+				info[ExtendedOpcode::SET_aHL_5] = { 16_u16, 1_u16, "SET (HL),5" };
 
-				info[ExtendedInstruction::SET_A_6]   = {  8_u16, 1_u16, "SET A,6" };
-				info[ExtendedInstruction::SET_B_6]   = {  8_u16, 1_u16, "SET B,6" };
-				info[ExtendedInstruction::SET_C_6]   = {  8_u16, 1_u16, "SET C,6" };
-				info[ExtendedInstruction::SET_D_6]   = {  8_u16, 1_u16, "SET D,6" };
-				info[ExtendedInstruction::SET_E_6]   = {  8_u16, 1_u16, "SET E,6" };
-				info[ExtendedInstruction::SET_H_6]   = {  8_u16, 1_u16, "SET H,6" };
-				info[ExtendedInstruction::SET_L_6]   = {  8_u16, 1_u16, "SET L,6" };
-				info[ExtendedInstruction::SET_aHL_6] = { 16_u16, 1_u16, "SET (HL),6" };
+				info[ExtendedOpcode::SET_A_6]   = {  8_u16, 1_u16, "SET A,6" };
+				info[ExtendedOpcode::SET_B_6]   = {  8_u16, 1_u16, "SET B,6" };
+				info[ExtendedOpcode::SET_C_6]   = {  8_u16, 1_u16, "SET C,6" };
+				info[ExtendedOpcode::SET_D_6]   = {  8_u16, 1_u16, "SET D,6" };
+				info[ExtendedOpcode::SET_E_6]   = {  8_u16, 1_u16, "SET E,6" };
+				info[ExtendedOpcode::SET_H_6]   = {  8_u16, 1_u16, "SET H,6" };
+				info[ExtendedOpcode::SET_L_6]   = {  8_u16, 1_u16, "SET L,6" };
+				info[ExtendedOpcode::SET_aHL_6] = { 16_u16, 1_u16, "SET (HL),6" };
 
-				info[ExtendedInstruction::SET_A_7]   = {  8_u16, 1_u16, "SET A,7" };
-				info[ExtendedInstruction::SET_B_7]   = {  8_u16, 1_u16, "SET B,7" };
-				info[ExtendedInstruction::SET_C_7]   = {  8_u16, 1_u16, "SET C,7" };
-				info[ExtendedInstruction::SET_D_7]   = {  8_u16, 1_u16, "SET D,7" };
-				info[ExtendedInstruction::SET_E_7]   = {  8_u16, 1_u16, "SET E,7" };
-				info[ExtendedInstruction::SET_H_7]   = {  8_u16, 1_u16, "SET H,7" };
-				info[ExtendedInstruction::SET_L_7]   = {  8_u16, 1_u16, "SET L,7" };
-				info[ExtendedInstruction::SET_aHL_7] = { 16_u16, 1_u16, "SET (HL),7" };
+				info[ExtendedOpcode::SET_A_7]   = {  8_u16, 1_u16, "SET A,7" };
+				info[ExtendedOpcode::SET_B_7]   = {  8_u16, 1_u16, "SET B,7" };
+				info[ExtendedOpcode::SET_C_7]   = {  8_u16, 1_u16, "SET C,7" };
+				info[ExtendedOpcode::SET_D_7]   = {  8_u16, 1_u16, "SET D,7" };
+				info[ExtendedOpcode::SET_E_7]   = {  8_u16, 1_u16, "SET E,7" };
+				info[ExtendedOpcode::SET_H_7]   = {  8_u16, 1_u16, "SET H,7" };
+				info[ExtendedOpcode::SET_L_7]   = {  8_u16, 1_u16, "SET L,7" };
+				info[ExtendedOpcode::SET_aHL_7] = { 16_u16, 1_u16, "SET (HL),7" };
 
 				return info;
 			}();
 		}
 
-		constexpr std::optional<uint16_t> GetCycles(ExtendedInstruction::Enum a_Instruction)
+		constexpr std::optional<uint16_t> GetCycles(ExtendedOpcode::Enum a_Opcode)
 		{
-			return Internal::g_InstructionInfo[a_Instruction].m_Cycles;
+			return Internal::g_OpcodeInfo[a_Opcode].m_Cycles;
 		}
 
-		constexpr std::optional<uint16_t> GetSize(ExtendedInstruction::Enum a_Instruction)
+		constexpr std::optional<uint16_t> GetSize(ExtendedOpcode::Enum a_Opcode)
 		{
-			return Internal::g_InstructionInfo[a_Instruction].m_Size;
+			return Internal::g_OpcodeInfo[a_Opcode].m_Size;
 		}
 
-		constexpr std::optional<std::string_view> ToString(ExtendedInstruction::Enum a_Instruction)
+		constexpr std::optional<std::string_view> ToString(ExtendedOpcode::Enum a_Opcode)
 		{
-			return Internal::g_InstructionInfo[a_Instruction].m_Name;
+			return Internal::g_OpcodeInfo[a_Opcode].m_Name;
 		}
 	}
 }
