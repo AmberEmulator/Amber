@@ -23,7 +23,7 @@ amber_add_sources(gameboy "gameboytype.hpp" FILTER "Gameboy")
 # CPU
 amber_add_sources(gameboy "cpu.hpp" "cpu.cpp" FILTER "CPU/CPU")
 amber_add_sources(gameboy "registers.hpp" FILTER "CPU/Registers")
-amber_add_sources(gameboy "instruction.hpp" "extendedinstruction.hpp" FILTER "CPU/Instructions")
+amber_add_sources(gameboy "opcode.hpp" "extendedopcode.hpp" FILTER "CPU/Opcodes")
 
 # Debugging
 amber_add_sources(gameboy "debugger.hpp" "debugger.cpp" FILTER "Debugging/Debugger")

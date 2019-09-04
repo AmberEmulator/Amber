@@ -2,8 +2,8 @@
 #define H_AMBER_GAMEBOY_CPU
 
 #include <gameboy/api.hpp>
-#include <gameboy/extendedinstruction.hpp>
-#include <gameboy/instruction.hpp>
+#include <gameboy/extendedopcode.hpp>
+#include <gameboy/opcode.hpp>
 #include <gameboy/registers.hpp>
 
 #include <common/memory.hpp>
