@@ -42,14 +42,14 @@ void Amber::Client::ShowDisassembly(const char* a_Name, DisassemblyState& a_Stat
 	draw_list.AddRectFilled(window_top_left, ImVec2(window_top_left.x + row_height, window_bottom_right.y), breakpoint_bar_color);
 
 	uint64_t address = a_State.m_ViewAddress;
+	while (!debugger.IsValidAddress(address))
+	{
+		++address;
+	}
+
 	for (size_t i = 0; i < 100; ++i)
 	{
 		ImGui::PushID(static_cast<int>(i));
-
-		while (!debugger.IsValidAddress(address))
-		{
-			++address;
-		}
 
 		try
 		{

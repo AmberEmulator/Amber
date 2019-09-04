@@ -5,6 +5,51 @@
 
 namespace Amber::Gameboy
 {
+	class Register
+	{
+		public:
+		template <uint8_t Index>
+		constexpr uint8_t GetByte() const noexcept
+		{
+			return GetByte(Index);
+		}
+
+		constexpr uint8_t GetByte(uint8_t a_Index) const noexcept
+		{
+			const uint8_t shift = (1 - (a_Index & 1)) << 3;
+			const uint16_t mask = 0xFFU << shift;
+
+			return static_cast<uint8_t>((m_Value & mask) >> shift);
+		}
+
+		constexpr uint16_t GetWord() const noexcept
+		{
+			return m_Value;
+		}
+
+		template <uint8_t Index>
+		constexpr void SetByte(uint8_t a_Value) noexcept
+		{
+			SetByte(Index, a_Value);
+		}
+
+		constexpr void SetByte(uint8_t a_Index, uint8_t a_Value) noexcept
+		{
+			const uint8_t other = GetByte(a_Index ^ 1);
+			const uint16_t shift = (1 - (a_Index & 1)) << 3;
+
+			m_Value = (static_cast<uint16_t>(a_Value) << shift) | (static_cast<uint16_t>(other) << (8 - shift));
+		}
+
+		constexpr void SetWord(uint16_t a_Value) noexcept
+		{
+			m_Value = a_Value;
+		}
+
+		private:
+		uint16_t m_Value = 0;
+	};
+
 	class Registers
 	{
 		public:
@@ -34,7 +79,7 @@ namespace Amber::Gameboy
 
 		constexpr uint16_t GetRegister16(uint8_t a_Index) const noexcept
 		{
-			return m_Registers[a_Index];
+			return m_Registers[a_Index].GetWord();
 		}
 
 		constexpr uint16_t GetAF() const noexcept
@@ -69,10 +114,7 @@ namespace Amber::Gameboy
 
 		constexpr uint8_t GetRegister8(uint8_t a_Index) const noexcept
 		{
-			const uint8_t shift = (1 - (a_Index & 1)) << 3;
-			const uint16_t mask = 0xFFU << shift;
-
-			return static_cast<uint8_t>((GetRegister16(a_Index >> 1) & mask) >> shift);
+			return m_Registers[a_Index >> 1].GetByte(a_Index & 1);
 		}
 
 		constexpr uint8_t GetA() const noexcept
@@ -142,7 +184,7 @@ namespace Amber::Gameboy
 
 		constexpr void SetRegister16(uint8_t a_Index, uint16_t a_Value) noexcept
 		{
-			m_Registers[a_Index] = a_Value;
+			m_Registers[a_Index].SetWord(a_Value);
 		}
 
 		constexpr void SetAF(uint16_t a_Value) noexcept
@@ -177,10 +219,7 @@ namespace Amber::Gameboy
 
 		constexpr void SetRegister8(uint8_t a_Index, uint8_t a_Value) noexcept
 		{
-			const uint8_t other = GetRegister8(a_Index ^ 1);
-			const uint16_t shift = (1 - (a_Index & 1)) << 3;
-
-			SetRegister16(a_Index >> 1, (static_cast<uint16_t>(a_Value) << shift) | (static_cast<uint16_t>(other) << (8 - shift)));
+			m_Registers[a_Index >> 1].SetByte(a_Index & 1, a_Value);
 		}
 
 		constexpr void SetA(uint8_t a_Value) noexcept
@@ -258,7 +297,7 @@ namespace Amber::Gameboy
 		}
 
 		private:
-		uint16_t m_Registers[6] = {};
+		Register m_Registers[6] = {};
 	};
 
 	constexpr bool operator == (const Registers& a_Left, const Registers& a_Right) noexcept

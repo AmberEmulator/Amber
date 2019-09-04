@@ -124,7 +124,7 @@ void Debugger::Step()
 
 void Debugger::Reset()
 {
-	//m_CPU.Reset();
+	m_CPU.Reset();
 }
 
 Debugger::InstructionInfo Debugger::GetInstruction(uint64_t a_Address) const
