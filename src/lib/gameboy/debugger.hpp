@@ -28,6 +28,7 @@ namespace Amber::Gameboy
 
 		bool Run() override;
 		void Step() override;
+		bool Microstep() override;
 		void Reset() override;
 
 		private:

@@ -23,5 +23,22 @@
       <Item Name="Carry">((m_Registers[0] &gt;&gt; 4) &amp; 1) != 0</Item>
     </Expand>
 	</Type>
+  
+  <Type Name="Amber::Gameboy::InstructionSet&lt;*,*&gt;">
+    <DisplayString>{{ instructions={m_InstructionCount} ops={m_OpCount} }}</DisplayString>
+    <Expand>
+      <CustomListItems>
+        <Variable Name="instruction_index" InitialValue="0" />
+        <Variable Name="op_offset" InitialValue="0" />
+        <Size>m_InstructionCount</Size>
+        <Loop>
+          <Item Name="{($T1)instruction_index,en} [{m_Instructions[instruction_index].m_Size}]">m_Ops,[m_Instructions[instruction_index].m_Size]na</Item>
+          <Exec>instruction_index++</Exec>
+          <Exec>op_offset += m_Instructions[instruction_index].m_Size</Exec>
+          <Break Condition="instruction_index == m_InstructionCount"></Break>
+        </Loop>
+      </CustomListItems>
+    </Expand>
+  </Type>
 	
 </AutoVisualizer>

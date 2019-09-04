@@ -345,6 +345,7 @@ namespace Amber::Gameboy
 			RESERVED_EB = 0xEB,
 			RESERVED_EC = 0xEC,
 			RESERVED_ED = 0xED,
+			RESERVED_F4 = 0xF4,
 			RESERVED_F5 = 0xF5,
 		};
 

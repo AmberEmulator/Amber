@@ -3,6 +3,7 @@
 
 #include <gameboy/api.hpp>
 #include <gameboy/extendedopcode.hpp>
+#include <gameboy/instructionset.hpp>
 #include <gameboy/opcode.hpp>
 #include <gameboy/registers.hpp>
 
@@ -12,12 +13,14 @@ namespace Amber::Gameboy
 {
 	class GAMEBOY_API CPU : public Registers
 	{
+		template <typename T> friend class InstructionBuilder;
+
 		public:
 		CPU(Common::Memory16& a_Memory);
 
 		Common::Memory16& GetMemory() const noexcept;
 
-		void Tick();
+		bool Tick();
 		void Reset();
 
 		private:
@@ -72,6 +75,7 @@ namespace Amber::Gameboy
 		// Base Ops
 		void DecodeInstruction();
 		void Break();
+		void Done();
 
 		// Load ops
 		template <uint8_t Destination> void LD_r_x(uint8_t a_Value);
@@ -103,8 +107,8 @@ namespace Amber::Gameboy
 		void LD_acc_xx(uint16_t a_Value);
 		template <uint8_t Source> void LD_acc_rr();
 
-		Instruction m_Instructions[256] = {};
-		Instruction m_ExtendedInstructions[256] = {};
+		std::unique_ptr<InstructionSet<Opcode::Enum, MicroOp>> m_Instructions;
+		std::unique_ptr<InstructionSet<ExtendedOpcode::Enum, MicroOp>> m_ExtendedInstructions;
 
 		Common::Memory16& m_Memory;
 
@@ -113,6 +117,7 @@ namespace Amber::Gameboy
 		size_t m_OpCount = 0;
 		Register m_OpCache;
 		bool m_OpBreak;
+		bool m_OpDone;
 	};
 }
 

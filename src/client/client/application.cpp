@@ -150,9 +150,15 @@ void Application::Tick()
 		}
 
 		ImGui::SameLine();
-		if (ImGui::Button("Step forward") && !running)
+		if (ImGui::Button("Step") && !running)
 		{
 			debugger.Step();
+		}
+
+		ImGui::SameLine();
+		if (ImGui::Button("Microstep") && !running)
+		{
+			debugger.Microstep();
 		}
 
 		ImGui::SameLine();

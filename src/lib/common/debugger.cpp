@@ -55,3 +55,9 @@ std::set<uint64_t> Debugger::GetBreakpoints() const
 {
 	return {};
 }
+
+bool Debugger::Microstep()
+{
+	Step();
+	return true;
+}

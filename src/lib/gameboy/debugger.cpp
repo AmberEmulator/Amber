@@ -119,7 +119,14 @@ bool Debugger::Run()
 
 void Debugger::Step()
 {
-	m_CPU.Tick();
+	while (!Microstep())
+	{
+	}
+}
+
+bool Debugger::Microstep()
+{
+	return m_CPU.Tick();
 }
 
 void Debugger::Reset()

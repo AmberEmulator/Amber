@@ -28,6 +28,7 @@ namespace Amber::Common
 
 		virtual bool Run() = 0;
 		virtual void Step() = 0;
+		virtual bool Microstep();
 		virtual void Reset() = 0;
 	};
 }
