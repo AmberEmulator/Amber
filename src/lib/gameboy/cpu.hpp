@@ -62,22 +62,22 @@ namespace Amber::Gameboy
 		uint8_t RotateRightByte(uint8_t a_Value) noexcept;
 		uint8_t RotateRightThroughCarryByte(uint8_t a_Value) noexcept;
 
-		// Composition Ops
+		// Composition ops
 		template <uint8_t Destination, UnaryOp8 Op, bool Store = true> void UnaryOp_r() noexcept;
-		template <uint8_t Destination, UnaryOp8 Op, bool Store = true> void UnaryOp_arr() noexcept;
+		template <uint8_t Destination, UnaryOp8 Op, bool Store = true> void UnaryOp_c() noexcept;
 		template <uint8_t Destination, UnaryOp16 Op, bool Store = true> void UnaryOp_rr() noexcept;
 
 		template <uint8_t Destination, BinaryOp8 Op, bool Store = true> void BinaryOp_r_x(uint8_t a_Value) noexcept;
-		template <uint8_t Destination, BinaryOp8 Op, bool Store = true> void BinaryOp_r_n() noexcept;
 		template <uint8_t Destination, uint8_t Source, BinaryOp8 Op, bool Store = true> void BinaryOp_r_r() noexcept;
+		template <uint8_t Destination, uint8_t Source, BinaryOp8 Op, bool Store = true> void BinaryOp_r_c() noexcept;
 		template <uint8_t Destination, uint8_t Source, BinaryOp8 Op, bool Store = true> void BinaryOp_r_arr() noexcept;
 
-		// Base Ops
+		// Base ops
 		void DecodeInstruction();
 		void Break();
 		void Done();
 
-		// Load ops
+		// 8-bit load ops
 		template <uint8_t Destination> void LD_r_x(uint8_t a_Value);
 		template <uint8_t Destination, uint8_t Source> void LD_r_r();
 		template <uint8_t Destination, uint8_t Source> void LD_r_c();
@@ -95,6 +95,8 @@ namespace Amber::Gameboy
 		template <uint8_t Destination> void LD_c_axx(uint16_t a_Address);
 		template <uint8_t Destination, uint8_t Source> void LD_c_arr();
 		template <uint8_t Destination> void LD_c_acc();
+
+		// 16-bit load ops
 		void LD_cc_xx(uint16_t a_Value);
 		template <uint8_t Source> void LD_cc_rr();
 		void LD_cc_FFx(uint8_t a_Offset);
@@ -107,11 +109,18 @@ namespace Amber::Gameboy
 		void LD_acc_xx(uint16_t a_Value);
 		template <uint8_t Source> void LD_acc_rr();
 
+		// 16-bit add ops
+		template <uint8_t Destination> void ADD_rr_xx(uint16_t a_Value) noexcept;
+		template <uint8_t Destination, uint8_t Source> void ADD_rr_c() noexcept;
+		template <uint8_t Destination, uint8_t Source> void ADD_rr_rr() noexcept;
+
+		// Instructions
 		std::unique_ptr<InstructionSet<Opcode::Enum, MicroOp>> m_Instructions;
 		std::unique_ptr<InstructionSet<ExtendedOpcode::Enum, MicroOp>> m_ExtendedInstructions;
 
 		Common::Memory16& m_Memory;
 
+		// Opcode queue
 		MicroOp m_MicroOps[16];
 		size_t m_CurrentOp = 0;
 		size_t m_OpCount = 0;
