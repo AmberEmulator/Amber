@@ -3,33 +3,63 @@
 
 #include <gameboy/api.hpp>
 #include <gameboy/extendedopcode.hpp>
+#include <gameboy/instructionbuilder.hpp>
 #include <gameboy/instructionset.hpp>
 #include <gameboy/opcode.hpp>
-#include <gameboy/registers.hpp>
+#include <gameboy/register.hpp>
 
 #include <common/memory.hpp>
 
 namespace Amber::Gameboy
 {
-	class GAMEBOY_API CPU : public Registers
+	class GAMEBOY_API CPU
 	{
 		template <typename T> friend class InstructionBuilder;
 
 		public:
+		static constexpr uint8_t RegisterAF = 0;
+		static constexpr uint8_t RegisterBC = 1;
+		static constexpr uint8_t RegisterDE = 2;
+		static constexpr uint8_t RegisterHL = 3;
+		static constexpr uint8_t RegisterSP = 4;
+		static constexpr uint8_t RegisterPC = 5;
+		static constexpr uint8_t RegisterXY = 6;
+		static constexpr uint8_t RegisterZW = 7;
+
+		static constexpr uint8_t RegisterA = (RegisterAF << 1) + 0;
+		static constexpr uint8_t RegisterF = (RegisterAF << 1) + 1;
+		static constexpr uint8_t RegisterB = (RegisterBC << 1) + 0;
+		static constexpr uint8_t RegisterC = (RegisterBC << 1) + 1;
+		static constexpr uint8_t RegisterD = (RegisterDE << 1) + 0;
+		static constexpr uint8_t RegisterE = (RegisterDE << 1) + 1;
+		static constexpr uint8_t RegisterH = (RegisterHL << 1) + 0;
+		static constexpr uint8_t RegisterL = (RegisterHL << 1) + 1;
+		static constexpr uint8_t RegisterX = (RegisterXY << 1) + 0;
+		static constexpr uint8_t RegisterY = (RegisterXY << 1) + 1;
+		static constexpr uint8_t RegisterZ = (RegisterZW << 1) + 0;
+		static constexpr uint8_t RegisterW = (RegisterZW << 1) + 1;
+
+		static constexpr uint8_t FlagZero = 7;
+		static constexpr uint8_t FlagSubtract = 6;
+		static constexpr uint8_t FlagHalfCarry = 5;
+		static constexpr uint8_t FlagCarry = 4;
+
 		CPU(Common::Memory16& a_Memory);
 
 		Common::Memory16& GetMemory() const noexcept;
+
+		uint8_t LoadRegister8(uint8_t a_Register) const noexcept;
+		uint16_t LoadRegister16(uint8_t a_Register) const noexcept;
+		bool LoadFlag(uint8_t a_Flag) const noexcept;
+
+		void StoreRegister8(uint8_t a_Register, uint8_t a_Value) noexcept;
+		void StoreRegister16(uint8_t a_Register, uint16_t a_Value) noexcept;
+		void StoreFlag(uint8_t a_Flag, bool a_Value) noexcept;
 
 		bool Tick();
 		void Reset();
 
 		private:
-		using MicroOp = void (CPU::*)();
-		struct Instruction
-		{
-			MicroOp m_MicroOps[8];
-		};
-
 		// Reading bytes
 		uint8_t PeekNextByte() const noexcept;
 		uint16_t PeekNextWord() const noexcept;
@@ -149,11 +179,15 @@ namespace Amber::Gameboy
 		template <uint8_t Source, uint8_t Bit> void BIT_r_b() noexcept;
 		template <uint8_t Source, uint8_t Bit> void BIT_arr_b() noexcept;
 
+		// Memory
+		Common::Memory16& m_Memory;
+
+		// Registers
+		Register m_Registers[8]; // AF, BC, DE, HL, SP, PC, Cache1, Cache2
+
 		// Instructions
 		std::unique_ptr<InstructionSet<Opcode::Enum, MicroOp>> m_Instructions;
 		std::unique_ptr<InstructionSet<ExtendedOpcode::Enum, MicroOp>> m_ExtendedInstructions;
-
-		Common::Memory16& m_Memory;
 
 		// Opcode queue
 		MicroOp m_MicroOps[16] = {};

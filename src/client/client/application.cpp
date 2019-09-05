@@ -7,7 +7,6 @@
 
 #include <gameboy/cpu.hpp>
 #include <gameboy/debugger.hpp>
-#include <gameboy/registers.hpp>
 #include <gameboy/videoviewer.hpp>
 
 #include <common/ram.hpp>
@@ -179,7 +178,7 @@ void Application::Tick()
 	// Show disassembly
 	static DisassemblyState disassembly_state;
 	disassembly_state.m_Debugger = &debugger;
-	disassembly_state.m_ViewAddress = cpu.GetPC();
+	disassembly_state.m_ViewAddress = cpu.LoadRegister16(Gameboy::CPU::RegisterPC);
 
 	ImGui::SetNextWindowDockID(dock_id, ImGuiSetCond_FirstUseEver);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));

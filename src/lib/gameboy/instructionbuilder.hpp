@@ -10,6 +10,7 @@
 
 namespace Amber::Gameboy
 {
+	class CPU;
 	using MicroOp = void (CPU::*)();
 
 	template <typename Opcode>
