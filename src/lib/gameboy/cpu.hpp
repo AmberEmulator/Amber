@@ -34,6 +34,10 @@ namespace Amber::Gameboy
 		static constexpr uint8_t RegisterE = (RegisterDE << 1) + 1;
 		static constexpr uint8_t RegisterH = (RegisterHL << 1) + 0;
 		static constexpr uint8_t RegisterL = (RegisterHL << 1) + 1;
+		static constexpr uint8_t RegisterSP_S = (RegisterSP << 1) + 0;
+		static constexpr uint8_t RegisterSP_P = (RegisterSP << 1) + 1;
+		static constexpr uint8_t RegisterPC_P = (RegisterPC << 1) + 0;
+		static constexpr uint8_t RegisterPC_C = (RegisterPC << 1) + 1;
 		static constexpr uint8_t RegisterX = (RegisterXY << 1) + 0;
 		static constexpr uint8_t RegisterY = (RegisterXY << 1) + 1;
 		static constexpr uint8_t RegisterZ = (RegisterZW << 1) + 0;
@@ -92,15 +96,14 @@ namespace Amber::Gameboy
 		uint8_t RotateLeftThroughCarryByte(uint8_t a_Value) noexcept;
 		uint8_t RotateRightByte(uint8_t a_Value) noexcept;
 		uint8_t RotateRightThroughCarryByte(uint8_t a_Value) noexcept;
+		uint16_t SignedAdd(uint16_t a_Left, uint8_t a_Right) noexcept;
 
 		// Composition ops
 		template <uint8_t Destination, UnaryOp8 Op, bool Store = true> void UnaryOp_r() noexcept;
-		template <uint8_t Destination, UnaryOp8 Op, bool Store = true> void UnaryOp_c() noexcept;
 		template <uint8_t Destination, UnaryOp16 Op, bool Store = true> void UnaryOp_rr() noexcept;
 
 		template <uint8_t Destination, BinaryOp8 Op, bool Store = true> void BinaryOp_r_x(uint8_t a_Value) noexcept;
 		template <uint8_t Destination, uint8_t Source, BinaryOp8 Op, bool Store = true> void BinaryOp_r_r() noexcept;
-		template <uint8_t Destination, uint8_t Source, BinaryOp8 Op, bool Store = true> void BinaryOp_r_c() noexcept;
 		template <uint8_t Destination, uint8_t Source, BinaryOp8 Op, bool Store = true> void BinaryOp_r_arr() noexcept;
 
 		// Base ops
@@ -112,30 +115,30 @@ namespace Amber::Gameboy
 
 		// 8-bit load ops
 		template <uint8_t Destination> void LD_r_x(uint8_t a_Value);
+		template <uint8_t Destination> void LD_r_n();
 		template <uint8_t Destination, uint8_t Source> void LD_r_r();
-		template <uint8_t Destination, uint8_t Source> void LD_r_c();
+		template <uint8_t Destination> void LD_r_axx(uint16_t a_Address);
+		template <uint8_t Destination, uint8_t Source> void LD_r_arr();
+
+
+
+
+
 		void LD_axx_x(uint16_t a_Address, uint8_t a_Value);
 		template <uint8_t Destination> void LD_arr_x(uint8_t a_Value);
 		template <uint8_t Destination, uint8_t Source> void LD_arr_r();
-		template <uint8_t Destination, uint8_t Source> void LD_arr_c();
-		template <uint8_t Destination> void LD_rr_xx(uint16_t a_Value);
-		template <uint8_t Destination> void LD_rr_cc();
-		template <uint8_t Destination, uint8_t Source> void LD_rr_rr();
 
-		template <uint8_t Destination> void LD_c_x(uint8_t a_Value);
-		template <uint8_t Destination, uint8_t Source> void LD_c_r();
-		template <uint8_t Destination> void LD_c_n();
-		template <uint8_t Destination> void LD_c_axx(uint16_t a_Address);
-		template <uint8_t Destination, uint8_t Source> void LD_c_arr();
-		template <uint8_t Destination> void LD_c_acc();
+
+		template <uint8_t Destination> void LD_rr_xx(uint16_t a_Value);
+		template <uint8_t Destination, uint8_t Source> void LD_rr_rr();
+		template <uint8_t Destination, uint8_t Source> void LD_rr_xxr(uint16_t a_Base);
+		template <uint8_t Destination, uint8_t Source> void LD_rr_FFr();
+		template <uint8_t Destination, uint8_t BaseSource, uint8_t OffsetSource> void LD_rr_rrr();
+
+
+
 
 		// 16-bit load ops
-		void LD_cc_xx(uint16_t a_Value);
-		template <uint8_t Source> void LD_cc_rr();
-		void LD_cc_FFx(uint8_t a_Offset);
-		template <uint8_t Source> void LD_cc_FFc();
-		template <uint8_t Source> void LD_cc_rrx(uint8_t a_Offset);
-		template <uint8_t SourceRegister, uint8_t SourceCache> void LD_cc_rrc();
 		void LD_acc_x(uint8_t a_Value);
 		template <uint8_t Source> void LD_acc_r();
 		void LD_axx_xx(uint16_t a_Address, uint16_t a_Value);
@@ -144,17 +147,15 @@ namespace Amber::Gameboy
 
 		// 16-bit add ops
 		template <uint8_t Destination> void ADD_rr_xx(uint16_t a_Value) noexcept;
-		template <uint8_t Destination, uint8_t Source> void ADD_rr_c() noexcept;
+		template <uint8_t Destination, uint8_t Source> void ADD_rr_r() noexcept;
 		template <uint8_t Destination, uint8_t Source> void ADD_rr_rr() noexcept;
 
 		// Absolute jump ops
 		void JP_xx(uint16_t a_Address) noexcept;
-		void JP_cc() noexcept;
 		template <uint8_t Source> void JP_rr() noexcept;
 
 		// Relative jump ops
-		void JR_x(uint8_t a_Offset) noexcept;
-		template <uint8_t Source> void JR_c() noexcept;
+		template <uint8_t Base, uint8_t Offset> void JR_rr_r() noexcept;
 
 		// Push ops
 		void PUSH_xx(uint16_t a_Value) noexcept;
@@ -183,7 +184,7 @@ namespace Amber::Gameboy
 		Common::Memory16& m_Memory;
 
 		// Registers
-		Register m_Registers[8]; // AF, BC, DE, HL, SP, PC, Cache1, Cache2
+		Register m_Registers[8]; // AF, BC, DE, HL, SP, PC, XY, ZW
 
 		// Instructions
 		std::unique_ptr<InstructionSet<Opcode::Enum, MicroOp>> m_Instructions;
@@ -194,7 +195,6 @@ namespace Amber::Gameboy
 		size_t m_OpFront = 0;
 		size_t m_OpBack = 0;
 		size_t m_OpDone = 0;
-		Register m_OpCache;
 		bool m_OpBreak;
 	};
 }
