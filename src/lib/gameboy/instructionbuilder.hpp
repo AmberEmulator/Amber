@@ -40,35 +40,33 @@ namespace Amber::Gameboy
 		{
 			// Count the total amount of ops
 			const size_t instruction_count = m_Instructions.size();
-			size_t op_count = 0;
+			size_t total_op_count = 0;
 			for (size_t instruction_index = 0; instruction_index < instruction_count; ++instruction_index)
 			{
 				auto& instruction = m_Instructions[instruction_index];
-				instruction.back() = &CPU::Done;
-				instruction.push_back(&CPU::Break);
-
-				op_count += instruction.size();
+				total_op_count += instruction.size();
 			}
 
 			// Allocate the instruction set
-			auto instruction_set = std::make_unique<InstructionSet<Opcode, MicroOp>>(instruction_count, op_count);
+			auto instruction_set = std::make_unique<InstructionSet<Opcode, MicroOp>>(instruction_count, total_op_count);
 
 			// Fill the instruction set
-			op_count = 0;
+			total_op_count = 0;
 			for (size_t instruction_index = 0; instruction_index < instruction_count; ++instruction_index)
 			{
 				auto& instruction = m_Instructions[instruction_index];
 				const auto opcode = static_cast<Opcode>(instruction_index);
+				const size_t op_count = instruction.size();
 
-				instruction_set->SetInstructionOffset(opcode, op_count);
-				instruction_set->SetInstructionSize(opcode, instruction.size());
+				instruction_set->SetInstructionOffset(opcode, total_op_count);
+				instruction_set->SetInstructionSize(opcode, op_count);
 				
-				for (size_t op_index = 0; op_index < instruction.size(); ++op_index)
+				for (size_t op_index = 0; op_index < op_count; ++op_index)
 				{
-					instruction_set->SetOp(op_count + op_index, instruction[op_index]);
+					instruction_set->SetOp(total_op_count + op_index, instruction[op_index]);
 				}
 
-				op_count += instruction.size();
+				total_op_count += instruction.size();
 			}
 
 			// Return result

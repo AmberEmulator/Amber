@@ -275,8 +275,8 @@ namespace Amber::Gameboy
 			CPL_A = 0x2F,
 
 			// Modify flags
-			CCF   = 0x3F,
-			SCF   = 0x37,
+			CCF = 0x3F,
+			SCF = 0x37,
 
 			// Absolute jump
 			JP_nn    = 0xC3,

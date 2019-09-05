@@ -39,6 +39,7 @@ namespace Amber::Gameboy
 		// Managing Ops
 		void PushOp(MicroOp a_Op);
 		MicroOp PopOp();
+		void InsertOP(MicroOp a_Op, size_t a_Index);
 		void CallOp(MicroOp a_Op);
 
 		// Math ops
@@ -74,8 +75,10 @@ namespace Amber::Gameboy
 
 		// Base ops
 		void DecodeInstruction();
+		void DecodeExtendedInstruction();
 		void Break();
-		void Done();
+		void Skip();
+		template <uint8_t Flag, bool Set> void FlagCondition();
 
 		// 8-bit load ops
 		template <uint8_t Destination> void LD_r_x(uint8_t a_Value);
@@ -114,6 +117,38 @@ namespace Amber::Gameboy
 		template <uint8_t Destination, uint8_t Source> void ADD_rr_c() noexcept;
 		template <uint8_t Destination, uint8_t Source> void ADD_rr_rr() noexcept;
 
+		// Absolute jump ops
+		void JP_xx(uint16_t a_Address) noexcept;
+		void JP_cc() noexcept;
+		template <uint8_t Source> void JP_rr() noexcept;
+
+		// Relative jump ops
+		void JR_x(uint8_t a_Offset) noexcept;
+		template <uint8_t Source> void JR_c() noexcept;
+
+		// Push ops
+		void PUSH_xx(uint16_t a_Value) noexcept;
+		template <uint8_t Source> void PUSH_rr() noexcept;
+
+		// Pop ops
+		uint16_t POP_xx() noexcept;
+		template <uint8_t Destination> void POP_rr() noexcept;
+
+		// Call ops
+		void CALL_xx(uint16_t a_Address) noexcept;
+		void CALL_nn() noexcept;
+
+		// Return ops
+		template <uint8_t Flag, bool Set> void RET() noexcept;
+
+		// Restart ops
+		template <uint16_t Address> void RST() noexcept;
+
+		// 8-bit test bit ops
+		template <uint8_t Bit> void BIT_x_b(uint8_t a_Value) noexcept;
+		template <uint8_t Source, uint8_t Bit> void BIT_r_b() noexcept;
+		template <uint8_t Source, uint8_t Bit> void BIT_arr_b() noexcept;
+
 		// Instructions
 		std::unique_ptr<InstructionSet<Opcode::Enum, MicroOp>> m_Instructions;
 		std::unique_ptr<InstructionSet<ExtendedOpcode::Enum, MicroOp>> m_ExtendedInstructions;
@@ -121,12 +156,12 @@ namespace Amber::Gameboy
 		Common::Memory16& m_Memory;
 
 		// Opcode queue
-		MicroOp m_MicroOps[16];
-		size_t m_CurrentOp = 0;
-		size_t m_OpCount = 0;
+		MicroOp m_MicroOps[16] = {};
+		size_t m_OpFront = 0;
+		size_t m_OpBack = 0;
+		size_t m_OpDone = 0;
 		Register m_OpCache;
 		bool m_OpBreak;
-		bool m_OpDone;
 	};
 }
 
