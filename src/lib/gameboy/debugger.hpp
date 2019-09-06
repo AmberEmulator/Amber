@@ -28,13 +28,14 @@ namespace Amber::Gameboy
 
 		bool Run() override;
 		void Step() override;
+		bool Microstep() override;
 		void Reset() override;
 
 		private:
 		struct InstructionInfo
 		{
-			Instruction::Enum m_Instruction;
-			ExtendedInstruction::Enum m_ExtendedInstruction;
+			Opcode::Enum m_Instruction;
+			ExtendedOpcode::Enum m_ExtendedInstruction;
 		};
 
 		InstructionInfo GetInstruction(uint64_t a_Address) const;

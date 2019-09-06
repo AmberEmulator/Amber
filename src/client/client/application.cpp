@@ -7,7 +7,6 @@
 
 #include <gameboy/cpu.hpp>
 #include <gameboy/debugger.hpp>
-#include <gameboy/registers.hpp>
 #include <gameboy/videoviewer.hpp>
 
 #include <common/ram.hpp>
@@ -87,9 +86,9 @@ void Application::Tick()
 	// Initialize cpu
 	static auto cpu = []
 	{
-		Gameboy::CPU cpu(mmu, Gameboy::GameboyType::Classic);
-		cpu.Reset();
-		cpu.GetRegisters().SetPC(0);
+		Gameboy::CPU cpu(mmu/*, Gameboy::GameboyType::Classic*/);
+		//cpu.Reset();
+		//cpu.GetRegisters().SetPC(0);
 		return cpu;
 	}();
 
@@ -150,16 +149,27 @@ void Application::Tick()
 		}
 
 		ImGui::SameLine();
-		if (ImGui::Button("Step forward") && !running)
+		if (ImGui::Button("Step") && !running)
 		{
-			debugger.Step();
+			const uint16_t pc = cpu.LoadRegister16(Gameboy::CPU::RegisterPC);
+			do
+			{
+				debugger.Step();
+			}
+			while (pc == cpu.LoadRegister16(Gameboy::CPU::RegisterPC));
 		}
 
 		ImGui::SameLine();
-		if (ImGui::Button("Reset") && !running)
+		if (ImGui::Button("Microstep") && !running)
+		{
+			debugger.Microstep();
+		}
+
+		ImGui::SameLine();
+		if (ImGui::Button("Reset"))
 		{
 			debugger.Reset();
-			cpu.GetRegisters().SetPC(0);
+			//cpu.GetRegisters().SetPC(0);
 		}
 
 		ImGui::Image(reinterpret_cast<ImTextureID>(tile_texture.GetNativeHandle()), ImVec2(tile_texture_width * 2, tile_texture_height * 2));
@@ -168,12 +178,12 @@ void Application::Tick()
 
 	// Show registers
 	ImGui::SetNextWindowDockID(dock_id, ImGuiSetCond_FirstUseEver);
-	DrawRegisterWindow("Registers", cpu.GetRegisters());
+	DrawRegisterWindow("Registers", cpu);
 
 	// Show disassembly
 	static DisassemblyState disassembly_state;
 	disassembly_state.m_Debugger = &debugger;
-	disassembly_state.m_ViewAddress = cpu.GetRegisters().GetPC();
+	disassembly_state.m_ViewAddress = cpu.LoadRegister16(Gameboy::CPU::RegisterPC);
 
 	ImGui::SetNextWindowDockID(dock_id, ImGuiSetCond_FirstUseEver);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));

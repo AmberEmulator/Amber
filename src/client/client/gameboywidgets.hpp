@@ -7,13 +7,13 @@
 
 namespace Amber::Gameboy
 {
-	class Registers;
+	class CPU;
 }
 
 namespace Amber::Client
 {
-	void DrawRegisterWindow(const char* a_Name, Gameboy::Registers& a_Registers, bool* a_Open = nullptr, ImGuiWindowFlags a_Flags = ImGuiWindowFlags_None);
-	void DrawRegisterWindowContent(Gameboy::Registers& a_Registers);
+	void DrawRegisterWindow(const char* a_Name, Gameboy::CPU& a_CPU, bool* a_Open = nullptr, ImGuiWindowFlags a_Flags = ImGuiWindowFlags_None);
+	void DrawRegisterWindowContent(Gameboy::CPU& a_CPU);
 }
 
 #endif

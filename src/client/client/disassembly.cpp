@@ -10,6 +10,16 @@ void Amber::Client::ShowDisassembly(const char* a_Name, DisassemblyState& a_Stat
 	auto& debugger = *(a_State.m_Debugger);
 
 	//ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+
+	ImGui::Checkbox("Fixed", &(a_State.m_Fixed));
+	ImGui::SameLine();
+	const ImGuiInputTextFlags flags = ImGuiInputTextFlags_NoHorizontalScroll | ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CharsHexadecimal;
+	uint32_t value = a_State.m_FixedAddress;
+	if (ImGui::InputScalar("Address", ImGuiDataType_U32, &value, nullptr, nullptr, "%04X", flags))
+	{
+		a_State.m_FixedAddress = value;
+	}
+
 	ImGui::BeginChild(a_Name, ImGui::GetContentRegionAvail(), false, ImGuiWindowFlags_AlwaysVerticalScrollbar);
 
 	const auto& style = ImGui::GetStyle();
@@ -41,15 +51,15 @@ void Amber::Client::ShowDisassembly(const char* a_Name, DisassemblyState& a_Stat
 	draw_list.AddRectFilled(window_top_left, window_bottom_right, background_color);
 	draw_list.AddRectFilled(window_top_left, ImVec2(window_top_left.x + row_height, window_bottom_right.y), breakpoint_bar_color);
 
-	uint64_t address = a_State.m_ViewAddress;
+	uint64_t address = a_State.m_Fixed ? a_State.m_FixedAddress : a_State.m_ViewAddress;
+	while (!debugger.IsValidAddress(address))
+	{
+		++address;
+	}
+
 	for (size_t i = 0; i < 100; ++i)
 	{
 		ImGui::PushID(static_cast<int>(i));
-
-		while (!debugger.IsValidAddress(address))
-		{
-			++address;
-		}
 
 		try
 		{

@@ -53,15 +53,15 @@ struct CPUTestFixture
 
 		uint16_t instruction_cycles;
 		uint16_t instruction_size;
-		if (executed_instruction.m_Instruction != Instruction::EXT)
+		if (executed_instruction.m_Instruction != Opcode::EXT)
 		{
-			instruction_cycles = Instruction::GetCycles(executed_instruction.m_Instruction).value();
-			instruction_size = Instruction::GetSize(executed_instruction.m_Instruction).value();
+			instruction_cycles = Opcode::GetCycles(executed_instruction.m_Instruction).value();
+			instruction_size = Opcode::GetSize(executed_instruction.m_Instruction).value();
 		}
 		else
 		{
-			instruction_cycles = ExtendedInstruction::GetCycles(executed_instruction.m_ExtendedInstruction).value();
-			instruction_size = ExtendedInstruction::GetSize(executed_instruction.m_ExtendedInstruction).value();
+			instruction_cycles = ExtendedOpcode::GetCycles(executed_instruction.m_ExtendedInstruction).value();
+			instruction_size = ExtendedOpcode::GetSize(executed_instruction.m_ExtendedInstruction).value();
 		}
 
 		m_ExpectedRegisters.SetPC(m_ExpectedRegisters.GetPC() + instruction_size);
@@ -98,7 +98,7 @@ TEST_CASE_METHOD(CPUTestFixture, "ADD A,r", "[CPU][ADD]")
 {
 	struct InstructionInfo
 	{
-		Instruction::Enum m_Instruction;
+		Opcode::Enum m_Instruction;
 		uint8_t m_Register;
 	};
 
@@ -134,7 +134,7 @@ TEST_CASE_METHOD(CPUTestFixture, "ADD A,n", "[CPU][ADD]")
 	const uint8_t left = GENERATE_CPU_BYTE;
 	const uint8_t right = GENERATE_CPU_BYTE;
 
-	m_ROM.GetData()[0] = Instruction::ADD_A_n;
+	m_ROM.GetData()[0] = Opcode::ADD_A_n;
 	m_ROM.GetData()[1] = right;
 
 	auto& registers = m_CPU.GetRegisters();
@@ -153,7 +153,7 @@ TEST_CASE_METHOD(CPUTestFixture, "ADD A,aHL", "[CPU][ADD]")
 	const uint8_t left = GENERATE_CPU_BYTE;
 	const uint8_t right = GENERATE_CPU_BYTE;
 
-	m_ROM.GetData()[0] = Instruction::ADD_A_aHL;
+	m_ROM.GetData()[0] = Opcode::ADD_A_aHL;
 	m_ROM.GetData()[ROMSize - 1] = right;
 
 	auto& registers = m_CPU.GetRegisters();
