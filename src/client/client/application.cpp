@@ -151,7 +151,12 @@ void Application::Tick()
 		ImGui::SameLine();
 		if (ImGui::Button("Step") && !running)
 		{
-			debugger.Step();
+			const uint16_t pc = cpu.LoadRegister16(Gameboy::CPU::RegisterPC);
+			do
+			{
+				debugger.Step();
+			}
+			while (pc == cpu.LoadRegister16(Gameboy::CPU::RegisterPC));
 		}
 
 		ImGui::SameLine();
@@ -161,7 +166,7 @@ void Application::Tick()
 		}
 
 		ImGui::SameLine();
-		if (ImGui::Button("Reset") && !running)
+		if (ImGui::Button("Reset"))
 		{
 			debugger.Reset();
 			//cpu.GetRegisters().SetPC(0);
