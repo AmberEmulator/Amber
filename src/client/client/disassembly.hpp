@@ -12,6 +12,8 @@ namespace Amber::Client
 		Common::Debugger* m_Debugger = nullptr;
 		uint64_t m_ViewAddress = 0;
 		uint64_t m_SelectedAddress = 0;
+		bool m_Fixed = false;
+		uint16_t m_FixedAddress = 0;
 	};
 
 	CLIENT_API void ShowDisassembly(const char* a_Name, DisassemblyState& a_State);

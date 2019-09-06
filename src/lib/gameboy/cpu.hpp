@@ -10,6 +10,8 @@
 
 #include <common/memory.hpp>
 
+#include <functional>
+
 namespace Amber::Gameboy
 {
 	class GAMEBOY_API CPU
@@ -48,10 +50,13 @@ namespace Amber::Gameboy
 		static constexpr uint8_t FlagHalfCarry = 5;
 		static constexpr uint8_t FlagCarry = 4;
 
+		// Constructors
 		CPU(Common::Memory16& a_Memory);
 
+		// Memory
 		Common::Memory16& GetMemory() const noexcept;
 
+		// Registers
 		uint8_t LoadRegister8(uint8_t a_Register) const noexcept;
 		uint16_t LoadRegister16(uint8_t a_Register) const noexcept;
 		bool LoadFlag(uint8_t a_Flag) const noexcept;
@@ -60,6 +65,12 @@ namespace Amber::Gameboy
 		void StoreRegister16(uint8_t a_Register, uint16_t a_Value) noexcept;
 		void StoreFlag(uint8_t a_Flag, bool a_Value) noexcept;
 
+		// Breakpoints
+		bool HasBreakpoint(uint16_t a_Address) const;
+		void SetBreakpoint(uint16_t a_Address, bool a_Enabled);
+		void SetBreakpointCallback(std::function<void()>&& a_Callback);
+
+		// Execution
 		bool Tick();
 		void Reset();
 
@@ -77,11 +88,6 @@ namespace Amber::Gameboy
 		void CallOp(MicroOp a_Op);
 
 		// Math ops
-		using UnaryOp8 = uint8_t(CPU::*)(uint8_t a_Value);
-		using UnaryOp16 = uint16_t(CPU::*)(uint16_t a_Value);
-		using BinaryOp8 = uint8_t(CPU::*)(uint8_t a_Left, uint8_t a_Right);
-		using BinaryOp16 = uint16_t(CPU::*)(uint16_t a_Left, uint16_t a_Right);
-
 		template <bool Carry> uint8_t AddByte(uint8_t a_Left, uint8_t a_Right) noexcept;
 		template <bool Carry> uint8_t SubtractByte(uint8_t a_Left, uint8_t a_Right) noexcept;
 		uint8_t IncrementByte(uint8_t a_Value) noexcept;
@@ -99,7 +105,13 @@ namespace Amber::Gameboy
 		uint16_t SignedAdd(uint16_t a_Left, uint8_t a_Right) noexcept;
 
 		// Composition ops
+		using UnaryOp8 = uint8_t(CPU::*)(uint8_t a_Value);
+		using UnaryOp16 = uint16_t(CPU::*)(uint16_t a_Value);
+		using BinaryOp8 = uint8_t(CPU::*)(uint8_t a_Left, uint8_t a_Right);
+		using BinaryOp16 = uint16_t(CPU::*)(uint16_t a_Left, uint16_t a_Right);
+
 		template <uint8_t Destination, UnaryOp8 Op, bool Store = true> void UnaryOp_r() noexcept;
+		template <uint8_t Destination, UnaryOp8 Op, bool Store = true> void UnaryOp_arr() noexcept;
 		template <uint8_t Destination, UnaryOp16 Op, bool Store = true> void UnaryOp_rr() noexcept;
 
 		template <uint8_t Destination, BinaryOp8 Op, bool Store = true> void BinaryOp_r_x(uint8_t a_Value) noexcept;
@@ -107,8 +119,11 @@ namespace Amber::Gameboy
 		template <uint8_t Destination, uint8_t Source, BinaryOp8 Op, bool Store = true> void BinaryOp_r_arr() noexcept;
 
 		// Base ops
+		void NotImplemented();
 		void DecodeInstruction();
 		void DecodeExtendedInstruction();
+		void BreakpointStop();
+		void BreakpointContinue();
 		void Break();
 		void Skip();
 		template <uint8_t Flag, bool Set> void FlagCondition();
@@ -120,30 +135,16 @@ namespace Amber::Gameboy
 		template <uint8_t Destination> void LD_r_axx(uint16_t a_Address);
 		template <uint8_t Destination, uint8_t Source> void LD_r_arr();
 
-
-
-
-
 		void LD_axx_x(uint16_t a_Address, uint8_t a_Value);
 		template <uint8_t Destination> void LD_arr_x(uint8_t a_Value);
 		template <uint8_t Destination, uint8_t Source> void LD_arr_r();
 
-
+		// 16-bit load ops
 		template <uint8_t Destination> void LD_rr_xx(uint16_t a_Value);
 		template <uint8_t Destination, uint8_t Source> void LD_rr_rr();
 		template <uint8_t Destination, uint8_t Source> void LD_rr_xxr(uint16_t a_Base);
 		template <uint8_t Destination, uint8_t Source> void LD_rr_FFr();
 		template <uint8_t Destination, uint8_t BaseSource, uint8_t OffsetSource> void LD_rr_rrr();
-
-
-
-
-		// 16-bit load ops
-		void LD_acc_x(uint8_t a_Value);
-		template <uint8_t Source> void LD_acc_r();
-		void LD_axx_xx(uint16_t a_Address, uint16_t a_Value);
-		void LD_acc_xx(uint16_t a_Value);
-		template <uint8_t Source> void LD_acc_rr();
 
 		// 16-bit add ops
 		template <uint8_t Destination> void ADD_rr_xx(uint16_t a_Value) noexcept;
@@ -153,6 +154,7 @@ namespace Amber::Gameboy
 		// Absolute jump ops
 		void JP_xx(uint16_t a_Address) noexcept;
 		template <uint8_t Source> void JP_rr() noexcept;
+		template <uint16_t Address> void JP() noexcept;
 
 		// Relative jump ops
 		template <uint8_t Base, uint8_t Offset> void JR_rr_r() noexcept;
@@ -196,6 +198,9 @@ namespace Amber::Gameboy
 		size_t m_OpBack = 0;
 		size_t m_OpDone = 0;
 		bool m_OpBreak;
+
+		// Breakpoints
+		std::function<void()> m_BreakpointCallback;
 	};
 }
 
