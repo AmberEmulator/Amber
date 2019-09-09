@@ -10,7 +10,7 @@ PPU::PPU()
 
 uint8_t PPU::GetLY() const noexcept
 {
-	return m_Counter / LineCycles;
+	return static_cast<uint8_t>(m_Counter / LineCycles);
 }
 
 void PPU::Tick()

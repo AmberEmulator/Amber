@@ -30,6 +30,13 @@ amber_add_sources(gameboy "register.hpp" "register.cpp" FILTER "CPU/Register")
 # PPU
 amber_add_sources(gameboy "ppu.hpp" "ppu.cpp" FILTER "PPU/PPU")
 
+# Memory
+amber_add_sources(gameboy "mmu.hpp" "mmu.cpp" FILTER "Memory/MMU")
+
+# Device
+amber_add_sources(gameboy "device.hpp" "device.cpp" FILTER "Device/Device")
+amber_add_sources(gameboy "devicedescription.hpp" "devicedescription.cpp" FILTER "Device/Device Description")
+
 # Debugging
 amber_add_sources(gameboy "debugger.hpp" "debugger.cpp" FILTER "Debugging/Debugger")
 amber_add_sources(gameboy "videoviewer.hpp" "videoviewer.cpp" FILTER "Debugging/Video Viewer")

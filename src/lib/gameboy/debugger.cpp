@@ -1,14 +1,18 @@
 #include <gameboy/debugger.hpp>
 
+#include <gameboy/cpu.hpp>
+#include <gameboy/device.hpp>
+#include <gameboy/mmu.hpp>
+
 #include <limits>
 
 using namespace Amber;
 using namespace Gameboy;
 
-Debugger::Debugger(CPU& a_CPU):
-	m_CPU(a_CPU)
+Debugger::Debugger(Device& a_Device):
+	m_Device(a_Device)
 {
-	m_CPU.SetBreakpointCallback([&] { m_Break = true; });
+	m_Device.GetCPU().SetBreakpointCallback([&] { m_Break = true; });
 }
 
 uint64_t Debugger::GetMaximumAddress() const noexcept
@@ -29,7 +33,7 @@ bool Debugger::IsValidAddress(uint64_t a_Address) const noexcept
 	}
 
 	const uint16_t address = static_cast<uint16_t>(a_Address);
-	auto& memory = m_CPU.GetMemory();
+	auto& memory = m_Device.GetCPU().GetMemory();
 
 	if (memory.Load8(address - 1) == Opcode::EXT)
 	{
@@ -70,19 +74,19 @@ std::string Debugger::GetInstructionName(uint64_t a_Address) const
 uint8_t Debugger::Load8(uint64_t a_Address) const
 {
 	const uint16_t address = static_cast<uint16_t>(a_Address);
-	return m_CPU.GetMemory().Load8(address);
+	return m_Device.GetMMU().Load8(address);
 }
 
 bool Debugger::HasBreakpoint(uint64_t a_Address) const noexcept
 {
 	const uint16_t address = static_cast<uint16_t>(a_Address);
-	return m_CPU.HasBreakpoint(address);
+	return m_Device.GetCPU().HasBreakpoint(address);
 }
 
 void Debugger::SetBreakpoint(uint64_t a_Address, bool a_Enabled)
 {
 	const uint16_t address = static_cast<uint16_t>(a_Address);
-	m_CPU.SetBreakpoint(address, a_Enabled);
+	m_Device.GetCPU().SetBreakpoint(address, a_Enabled);
 	
 	if (a_Enabled)
 	{
@@ -125,17 +129,17 @@ void Debugger::Step()
 
 bool Debugger::Microstep()
 {
-	return m_CPU.Tick();
+	return m_Device.Tick();
 }
 
 void Debugger::Reset()
 {
-	m_CPU.Reset();
+	m_Device.Reset();
 }
 
 Debugger::InstructionInfo Debugger::GetInstruction(uint64_t a_Address) const
 {
-	auto& memory = m_CPU.GetMemory();
+	auto& memory = m_Device.GetMMU();
 
 	InstructionInfo instruction;
 

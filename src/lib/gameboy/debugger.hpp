@@ -2,16 +2,20 @@
 #define H_AMBER_GAMEBOY_DEBUGGER
 
 #include <gameboy/api.hpp>
-#include <gameboy/cpu.hpp>
+
+#include <gameboy/opcode.hpp>
+#include <gameboy/extendedopcode.hpp>
 
 #include <common/debugger.hpp>
 
 namespace Amber::Gameboy
 {
+	class Device;
+
 	class GAMEBOY_API Debugger : public Common::Debugger
 	{
 		public:
-		Debugger(CPU& a_CPU);
+		Debugger(Device& a_Device);
 		~Debugger() noexcept override = default;
 
 		uint64_t GetMaximumAddress() const noexcept override;
@@ -40,7 +44,7 @@ namespace Amber::Gameboy
 
 		InstructionInfo GetInstruction(uint64_t a_Address) const;
 
-		CPU& m_CPU;
+		Device& m_Device;
 		bool m_Break = false;
 		std::set<uint64_t> m_Breakpoints;
 	};

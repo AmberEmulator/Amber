@@ -7,10 +7,11 @@
 
 #include <gameboy/cpu.hpp>
 #include <gameboy/debugger.hpp>
+#include <gameboy/device.hpp>
+#include <gameboy/mmu.hpp>
 #include <gameboy/videoviewer.hpp>
 
 #include <common/ram.hpp>
-#include <common/mmu.hpp>
 
 #include <imgui/imgui.h>
 
@@ -46,50 +47,16 @@ void Application::Tick()
 	static Common::RAM<uint16_t, false> wram(0x2000, 1);
 	static Common::RAM<uint16_t, false> pad(0x1000, 1);
 
-	static auto mmu = []
+	// Initialize device
+	static auto device = []
 	{
-		Common::MMU<uint16_t, false> mmu(0x1000, 16);
+		auto device = std::make_unique<Gameboy::Device>(Gameboy::DeviceDescription::DMG);
 
-		Common::MemoryMapping16 rom_mapping;
-		rom_mapping.SetStart(0);
-		rom_mapping.SetSize(0x8000);
-		mmu.Map(&rom, rom_mapping);
+		auto& mmu = device->GetMMU();
+		mmu.SetROM(&rom);
+		mmu.SetVRAM(&vram);
 
-		Common::MemoryMapping16 vram_mapping;
-		vram_mapping.SetStart(0x8000);
-		vram_mapping.SetSize(0x2000);
-		mmu.Map(&vram, vram_mapping);
-
-		Common::MemoryMapping16 eram_mapping;
-		eram_mapping.SetStart(0xA000);
-		eram_mapping.SetSize(0x2000);
-		mmu.Map(&eram, eram_mapping);
-
-		Common::MemoryMapping16 wram_mapping;
-		wram_mapping.SetStart(0xC000);
-		wram_mapping.SetSize(0x2000);
-		mmu.Map(&wram, wram_mapping);
-
-		Common::MemoryMapping16 wram_echo_mapping;
-		wram_echo_mapping.SetStart(0xE000);
-		wram_echo_mapping.SetSize(0x1E00);
-		mmu.Map(&wram, wram_echo_mapping);
-
-		Common::MemoryMapping16 pad_mapping;
-		pad_mapping.SetStart(0xF000);
-		pad_mapping.SetSize(0x1000);
-		mmu.Map(&pad, pad_mapping);
-
-		return mmu;
-	}();
-
-	// Initialize cpu
-	static auto cpu = []
-	{
-		Gameboy::CPU cpu(mmu/*, Gameboy::GameboyType::Classic*/);
-		//cpu.Reset();
-		//cpu.GetRegisters().SetPC(0);
-		return cpu;
+		return device;
 	}();
 
 	static Gameboy::VideoViewer video_viewer(vram);
@@ -120,7 +87,7 @@ void Application::Tick()
 	tile_texture.Blit(0, 0, tile_texture_width, tile_texture_height, tile_buffer.get());
 
 	// Create debugger
-	static Gameboy::Debugger debugger(cpu);
+	static Gameboy::Debugger debugger(*device);
 
 	ImGui::ShowDemoWindow();
 
@@ -151,12 +118,12 @@ void Application::Tick()
 		ImGui::SameLine();
 		if (ImGui::Button("Step") && !running)
 		{
-			const uint16_t pc = cpu.LoadRegister16(Gameboy::CPU::RegisterPC);
+			const uint16_t pc = device->GetCPU().LoadRegister16(Gameboy::CPU::RegisterPC);
 			do
 			{
 				debugger.Step();
 			}
-			while (pc == cpu.LoadRegister16(Gameboy::CPU::RegisterPC));
+			while (pc == device->GetCPU().LoadRegister16(Gameboy::CPU::RegisterPC));
 		}
 
 		ImGui::SameLine();
@@ -178,12 +145,12 @@ void Application::Tick()
 
 	// Show registers
 	ImGui::SetNextWindowDockID(dock_id, ImGuiSetCond_FirstUseEver);
-	DrawRegisterWindow("Registers", cpu);
+	DrawRegisterWindow("Registers", device->GetCPU());
 
 	// Show disassembly
 	static DisassemblyState disassembly_state;
 	disassembly_state.m_Debugger = &debugger;
-	disassembly_state.m_ViewAddress = cpu.LoadRegister16(Gameboy::CPU::RegisterPC);
+	disassembly_state.m_ViewAddress = device->GetCPU().LoadRegister16(Gameboy::CPU::RegisterPC);
 
 	ImGui::SetNextWindowDockID(dock_id, ImGuiSetCond_FirstUseEver);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
