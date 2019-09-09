@@ -1,5 +1,7 @@
 #include <gameboy/mmu.hpp>
 
+#include <gameboy/ppu.hpp>
+
 using namespace Amber;
 using namespace Common;
 using namespace Gameboy;
@@ -55,6 +57,10 @@ uint8_t MMU::Load8(Address a_Address) const
 		if (a_Address >= 0xFF80 && a_Address <= 0xFFFE)
 		{
 			return m_HRAM[a_Address - 0xFF80];
+		}
+		else if (a_Address == 0xFF44 && m_PPU != nullptr)
+		{
+			return m_PPU->GetLY();
 		}
 		break;
 	}

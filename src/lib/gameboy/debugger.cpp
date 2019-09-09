@@ -3,6 +3,7 @@
 #include <gameboy/cpu.hpp>
 #include <gameboy/device.hpp>
 #include <gameboy/mmu.hpp>
+#include <gameboy/ppu.hpp>
 
 #include <limits>
 
@@ -108,7 +109,7 @@ bool Debugger::Run()
 	m_Break = false;
 
 	// TODO: timing cycles
-	for (size_t i = 0; i < 100; ++i)
+	for (size_t i = 0; i < PPU::FrameCycles; ++i)
 	{
 		Step();
 		if (m_Break)
