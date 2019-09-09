@@ -25,19 +25,26 @@ void Application::Tick()
 	const auto dock_id = ImGui::DockSpaceOverViewport();
 
 	// Load cartridge
-	static auto rom = []
+	static auto bootrom = []
 	{
 		std::ifstream boot("C:\\ROMs\\boot.gb", std::ios::binary | std::ios::ate);
 		std::streamsize boot_size = boot.tellg();
 		boot.seekg(0, std::ios::beg);
 
+		Common::RAM<uint16_t, false> ram(0x100, 1);
+		boot.read(reinterpret_cast<char*>(ram.GetData()), std::min<size_t>(boot_size, ram.GetSize()));
+
+		return ram;
+	}();
+
+	static auto rom = []
+	{
 		std::ifstream cartidge("C:\\ROMs\\test.gb", std::ios::binary | std::ios::ate);
 		std::streamsize cartidge_size = cartidge.tellg();
 		cartidge.seekg(0, std::ios::beg);
 
 		Common::RAM<uint16_t, false> ram(0x8000, 1);
 		cartidge.read(reinterpret_cast<char*>(ram.GetData()), std::min<size_t>(cartidge_size, ram.GetSize()));
-		boot.read(reinterpret_cast<char*>(ram.GetData()), std::min<size_t>(boot_size, ram.GetSize()));
 
 		return ram;
 	}();
@@ -53,8 +60,10 @@ void Application::Tick()
 		auto device = std::make_unique<Gameboy::Device>(Gameboy::DeviceDescription::DMG);
 
 		auto& mmu = device->GetMMU();
+		mmu.SetBootROM(&bootrom);
 		mmu.SetROM(&rom);
 		mmu.SetVRAM(&vram);
+		mmu.SetWRAM(&wram);
 
 		return device;
 	}();

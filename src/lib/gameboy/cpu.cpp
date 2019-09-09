@@ -25,6 +25,8 @@ CPU::CPU(Memory16& a_Memory):
 
 	// Misc instructions
 	instruction_builder.Begin(Opcode::NOP);
+	instruction_builder.Begin(Opcode::DI, &CPU::Delay<&CPU::DisableInterrupts, 1>);
+	instruction_builder.Begin(Opcode::EI, &CPU::Delay<&CPU::EnableInterrupts, 1>);
 	instruction_builder.Begin(Opcode::EXT, &CPU::DecodeExtendedInstruction);
 	instruction_builder.Begin(Opcode::BREAKPOINT_STOP, &CPU::BreakpointStop);
 	instruction_builder.Begin(Opcode::BREAKPOINT_CONTINUE, &CPU::BreakpointContinue);
@@ -143,7 +145,7 @@ CPU::CPU(Memory16& a_Memory):
 	instruction_builder.Begin(Opcode::LD_HL_SPn).Cycle(&CPU::LD_r_n<RegisterX>).Cycle(&CPU::LD_rr_rrr<RegisterHL, RegisterSP, RegisterX>);
 	instruction_builder.Begin(Opcode::LD_SP_nn).Cycle(&CPU::LD_r_n<RegisterSP_P>).Cycle(&CPU::LD_r_n<RegisterSP_S>);
 	instruction_builder.Begin(Opcode::LD_SP_HL).Cycle(&CPU::LD_rr_rr< RegisterSP, RegisterHL>);
-	//instruction_builder.Begin(Opcode::LD_ann_SP).Cycle(&CPU::LD_r_n<RegisterX>).Cycle(&CPU::LD_r_n<RegisterY>).Cycle(&CPU::LD_arr_r<RegisterSP, RegisterX>);
+	instruction_builder.Begin(Opcode::LD_ann_SP).Cycle(&CPU::LD_r_n<RegisterY>).Cycle(&CPU::LD_r_n<RegisterX>).Cycle(&CPU::LD_arr_r<RegisterXY, RegisterSP_P>, &CPU::LD_arr_r<RegisterXY, RegisterSP_S>);
 
 	// 8-bit add instructions
 	instruction_builder.Begin(Opcode::ADD_A_A, &CPU::BinaryOp_r_r<RegisterA, RegisterA, &CPU::AddByte<false>>);
@@ -937,6 +939,19 @@ void CPU::BinaryOp_r_arr() noexcept
 	BinaryOp_r_x<Destination, Op, Store>(value);
 }
 
+template <MicroOp Op, uint8_t Counter>
+void CPU::Delay()
+{
+	if constexpr (Counter == 0)
+	{
+		CallOp(Op);
+	}
+	else
+	{
+		InsertOP(&CPU::Delay<Op, Counter - 1>, m_OpDone);
+	}
+}
+
 void CPU::NotImplemented()
 {
 	const uint16_t pc = LoadRegister16(RegisterPC);
@@ -1056,6 +1071,16 @@ void CPU::FlagCondition()
 	{
 		Skip();
 	}
+}
+
+void CPU::DisableInterrupts()
+{
+	// TODO
+}
+
+void CPU::EnableInterrupts()
+{
+	// TODO
 }
 
 template <uint8_t Destination>

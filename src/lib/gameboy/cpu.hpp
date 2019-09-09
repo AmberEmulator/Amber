@@ -118,6 +118,8 @@ namespace Amber::Gameboy
 		template <uint8_t Destination, uint8_t Source, BinaryOp8 Op, bool Store = true> void BinaryOp_r_r() noexcept;
 		template <uint8_t Destination, uint8_t Source, BinaryOp8 Op, bool Store = true> void BinaryOp_r_arr() noexcept;
 
+		template <MicroOp Op, uint8_t Counter> void Delay();
+
 		// Base ops
 		void NotImplemented();
 		void DecodeInstruction();
@@ -127,6 +129,8 @@ namespace Amber::Gameboy
 		void Break();
 		void Skip();
 		template <uint8_t Flag, bool Set> void FlagCondition();
+		void DisableInterrupts();
+		void EnableInterrupts();
 
 		// 8-bit load ops
 		template <uint8_t Destination> void LD_r_x(uint8_t a_Value);
