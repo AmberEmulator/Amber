@@ -120,6 +120,8 @@ namespace Amber::Gameboy
 		uint8_t RotateLeftThroughCarry8(uint8_t a_Value) noexcept;
 		uint8_t RotateRight8(uint8_t a_Value) noexcept;
 		uint8_t RotateRightThroughCarry8(uint8_t a_Value) noexcept;
+		template <bool FillWithZero> uint8_t ShiftLeft8(uint8_t a_Value);
+		template <bool FillWithZero> uint8_t ShiftRight8(uint8_t a_Value);
 		template <uint8_t Bit> uint8_t SetBit8(uint8_t a_Value);
 		template <uint8_t Bit> uint8_t ResetBit8(uint8_t a_Value);
 		uint16_t SignedAdd16(uint16_t a_Left, uint8_t a_Right) noexcept;
@@ -187,7 +189,6 @@ namespace Amber::Gameboy
 		// 8-bit test bit ops
 		template <uint8_t Bit> void BIT_x_b(uint8_t a_Value) noexcept;
 		template <uint8_t Source, uint8_t Bit> void BIT_r_b() noexcept;
-		template <uint8_t Source, uint8_t Bit> void BIT_arr_b() noexcept;
 
 		// Memory
 		Common::Memory16& m_Memory;
