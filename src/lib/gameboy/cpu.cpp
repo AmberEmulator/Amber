@@ -785,6 +785,11 @@ void CPU::SetInterruptRequests(uint8_t a_Interrupts) noexcept
 	}
 }
 
+void CPU::RequestInterrupts(uint8_t a_Interrupts) noexcept
+{
+	SetInterruptRequests(GetInterruptRequests() | a_Interrupts);
+}
+
 bool CPU::HasBreakpoint(uint16_t a_Address) const
 {
 	return m_Memory.GetReplaced8(a_Address).has_value();

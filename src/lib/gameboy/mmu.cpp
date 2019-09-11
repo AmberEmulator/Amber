@@ -1,6 +1,7 @@
 #include <gameboy/mmu.hpp>
 
 #include <gameboy/cpu.hpp>
+#include <gameboy/joypad.hpp>
 #include <gameboy/ppu.hpp>
 
 #include <iostream>
@@ -37,6 +38,11 @@ void MMU::SetCPU(CPU* a_CPU)
 void MMU::SetPPU(PPU* a_PPU)
 {
 	m_PPU = a_PPU;
+}
+
+void MMU::SetJoypad(Joypad* a_Joypad)
+{
+	m_Joypad = a_Joypad;
 }
 
 uint8_t MMU::Load8(Address a_Address) const
@@ -95,6 +101,10 @@ uint8_t MMU::Load8(Address a_Address) const
 		else if (a_Address == 0xFFFF && m_CPU != nullptr)
 		{
 			return m_CPU->GetInterruptEnable();
+		}
+		else if (a_Address == 0xFF00 && m_Joypad != nullptr)
+		{
+			return m_Joypad->GetRegister();
 		}
 		break;
 	}
@@ -162,6 +172,10 @@ void MMU::Store8(Address a_Address, uint8_t a_Value)
 		else if (a_Address == 0xFF02 && a_Value == 0x81)
 		{
 			std::cout << m_TestCharacter;
+		}
+		else if (a_Address == 0xFF00 && m_Joypad != nullptr)
+		{
+			m_Joypad->SetRegister(a_Value);
 		}
 		break;
 	}

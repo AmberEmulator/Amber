@@ -9,6 +9,7 @@
 namespace Amber::Gameboy
 {
 	class CPU;
+	class Joypad;
 	class PPU;
 	class MMU;
 
@@ -21,6 +22,7 @@ namespace Amber::Gameboy
 		const DeviceDescription& GetDescription() const noexcept;
 
 		CPU& GetCPU() noexcept;
+		Joypad& GetJoypad() noexcept;
 		PPU& GetPPU() noexcept;
 		MMU& GetMMU() noexcept;
 
@@ -31,6 +33,7 @@ namespace Amber::Gameboy
 		const DeviceDescription m_Description;
 
 		std::unique_ptr<CPU> m_CPU;
+		std::unique_ptr<Joypad> m_Joypad;
 		std::unique_ptr<PPU> m_PPU;
 		std::unique_ptr<MMU> m_MMU;
 	};

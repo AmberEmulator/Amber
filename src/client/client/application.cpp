@@ -8,6 +8,7 @@
 #include <gameboy/cpu.hpp>
 #include <gameboy/debugger.hpp>
 #include <gameboy/device.hpp>
+#include <gameboy/joypad.hpp>
 #include <gameboy/mmu.hpp>
 #include <gameboy/ppu.hpp>
 #include <gameboy/videoviewer.hpp>
@@ -166,6 +167,68 @@ void Application::Tick()
 	// Show registers
 	ImGui::SetNextWindowDockID(dock_id, ImGuiSetCond_FirstUseEver);
 	DrawRegisterWindow("Registers", device->GetCPU());
+
+	// Show joypad
+	if (ImGui::Begin("Joypad"))
+	{
+		auto& joypad = device->GetJoypad();
+		uint8_t state = joypad.GetRegister();
+
+		const ImGuiInputTextFlags flags = ImGuiInputTextFlags_NoHorizontalScroll | ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CharsHexadecimal;
+		uint32_t value = state;
+		if (ImGui::InputScalar("Register", ImGuiDataType_U32, &value, nullptr, nullptr, "%02X", flags))
+		{
+			state = static_cast<uint8_t>(value);
+		}
+		bool buttons_selected = (state & Gameboy::Joypad::ButtonSelectMask) == 0;
+		if (ImGui::Checkbox("Buttons", &buttons_selected))
+		{
+			if (buttons_selected)
+			{
+				state &= ~Gameboy::Joypad::ButtonSelectMask;
+			}
+			else
+			{
+				state |= Gameboy::Joypad::ButtonSelectMask;
+			}
+		}
+
+		ImGui::SameLine(100.0f);
+		bool direction_selected = (state & Gameboy::Joypad::DirectionSelectMask) == 0;
+		if (ImGui::Checkbox("Directions", &direction_selected))
+		{
+			if (direction_selected)
+			{
+				state &= ~Gameboy::Joypad::DirectionSelectMask;
+			}
+			else
+			{
+				state |= Gameboy::Joypad::DirectionSelectMask;
+			}
+		}
+
+		for (uint8_t i = 0; i < 8; ++i)
+		{
+			const char* names[] = { "Right", "Left", "Up", "Down", "A", "B", "Select", "Start" };
+			const char* name = names[i];
+
+			if (i % 2 == 1)
+			{
+				ImGui::SameLine(100.0f);
+			}
+			
+			const uint8_t button = 1 << i;
+			bool set = joypad.GetButtonState(button) != 0;
+
+			if (ImGui::Checkbox(name, &set))
+			{
+				joypad.SetButtonState(button, set);
+			}
+		}
+
+		joypad.SetRegister(state);
+	}
+	ImGui::End();
 
 	// Show disassembly
 	static DisassemblyState disassembly_state;

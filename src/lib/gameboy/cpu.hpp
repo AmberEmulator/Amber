@@ -78,6 +78,8 @@ namespace Amber::Gameboy
 		void SetInterruptEnable(uint8_t a_Interrupts) noexcept;
 		void SetInterruptRequests(uint8_t a_Interrupts) noexcept;
 
+		void RequestInterrupts(uint8_t a_Interrupts) noexcept;
+
 		// Breakpoints
 		bool HasBreakpoint(uint16_t a_Address) const;
 		void SetBreakpoint(uint16_t a_Address, bool a_Enabled);
