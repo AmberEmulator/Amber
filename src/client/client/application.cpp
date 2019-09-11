@@ -106,6 +106,68 @@ void Application::Tick()
 
 	tile_texture.Blit(0, 0, tile_texture_width, tile_texture_height, tile_buffer.get());
 
+	// Show memory
+	static MemoryEditor memory_editor = []
+	{
+		MemoryEditor memory_editor;
+		memory_editor.ReadOnly = true;
+		memory_editor.ReadFn = [](const uint8_t* a_Data, size_t a_Offset)
+		{
+			auto& mmu = *reinterpret_cast<const Gameboy::MMU*>(a_Data);
+
+			return mmu.Load8(static_cast<uint16_t>(a_Offset));
+		};
+
+		return memory_editor;
+	}();
+	if (ImGui::Begin("Memory"))
+	{
+		if (ImGui::Button("ROM"))
+		{
+			memory_editor.GotoAddrAndHighlight(0, 0x8000);
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("VRAM"))
+		{
+			memory_editor.GotoAddrAndHighlight(0x8000, 0xC000);
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("WRAM"))
+		{
+			memory_editor.GotoAddrAndHighlight(0xC000, 0xE000);
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("OAM"))
+		{
+			memory_editor.GotoAddrAndHighlight(0xFE00, 0xFEA0);
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("I/O"))
+		{
+			memory_editor.GotoAddrAndHighlight(0xFF00, 0xFF80);
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("HRAM"))
+		{
+			memory_editor.GotoAddrAndHighlight(0xFF80, 0xFFFF);
+		}
+
+		if (ImGui::Button("PC"))
+		{
+			const uint16_t pc = device->GetCPU().LoadRegister16(Gameboy::CPU::RegisterPC);
+			memory_editor.GotoAddrAndHighlight(pc, pc + 1);
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("SP"))
+		{
+			const uint16_t sp = device->GetCPU().LoadRegister16(Gameboy::CPU::RegisterSP);
+			memory_editor.GotoAddrAndHighlight(sp, sp + 1);
+		}
+
+		memory_editor.DrawContents(&(device->GetMMU()), 0x10000);
+	}
+	ImGui::End();
+
 	// Create debugger
 	static Gameboy::Debugger debugger(*device);
 
@@ -116,6 +178,8 @@ void Application::Tick()
 	if (running)
 	{
 		running = debugger.Run();
+		memory_editor.HighlightMin = device->GetCPU().LoadRegister16(Gameboy::CPU::RegisterPC);
+		memory_editor.HighlightMax = memory_editor.HighlightMin + 1;
 	}
 
 	if (ImGui::Begin("Debugger"))
@@ -144,12 +208,18 @@ void Application::Tick()
 				debugger.Step();
 			}
 			while (pc == device->GetCPU().LoadRegister16(Gameboy::CPU::RegisterPC));
+
+			memory_editor.HighlightMin = device->GetCPU().LoadRegister16(Gameboy::CPU::RegisterPC);
+			memory_editor.HighlightMax = memory_editor.HighlightMin + 1;
 		}
 
 		ImGui::SameLine();
 		if (ImGui::ButtonEx("Microstep", ImVec2(0, 0), ImGuiButtonFlags_Repeat) && !running)
 		{
 			debugger.Microstep();
+
+			memory_editor.HighlightMin = device->GetCPU().LoadRegister16(Gameboy::CPU::RegisterPC);
+			memory_editor.HighlightMax = memory_editor.HighlightMin + 1;
 		}
 
 		ImGui::SameLine();
@@ -244,23 +314,6 @@ void Application::Tick()
 	}
 	ImGui::PopStyleVar();
 	ImGui::End();
-
-
-	// Show memory
-	static MemoryEditor memory_editor = []
-	{
-		MemoryEditor memory_editor;
-		memory_editor.ReadOnly = true;
-		memory_editor.ReadFn = [] (const uint8_t* a_Data, size_t a_Offset)
-		{
-			auto& mmu = *reinterpret_cast<const Gameboy::MMU*>(a_Data);
-
-			return mmu.Load8(static_cast<uint16_t>(a_Offset));
-		};
-
-		return memory_editor;
-	}();
-	memory_editor.DrawWindow("Memory", &(device->GetMMU()), 0x10000);
 
 	// Show breakpoints
 	static BreakpointsState breakpoints_state;
