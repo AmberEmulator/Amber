@@ -89,10 +89,10 @@ namespace Amber::Gameboy
 
 		private:
 		// Reading bytes
-		uint8_t PeekNextByte() const noexcept;
-		uint16_t PeekNextWord() const noexcept;
-		uint8_t ReadNextByte() noexcept;
-		uint16_t ReadNextWord() noexcept;
+		uint8_t PeekNext8() const noexcept;
+		uint16_t PeekNext16() const noexcept;
+		uint8_t ReadNext8() noexcept;
+		uint16_t ReadNext16() noexcept;
 
 		// Managing Ops
 		void PushOp(MicroOp a_Op);
@@ -102,25 +102,25 @@ namespace Amber::Gameboy
 		void CallOp(MicroOp a_Op);
 
 		// Math ops
-		template <bool Carry> uint8_t AddByte(uint8_t a_Left, uint8_t a_Right) noexcept;
-		template <bool Carry> uint8_t SubtractByte(uint8_t a_Left, uint8_t a_Right) noexcept;
-		uint16_t AddWord(uint16_t a_Left, uint16_t a_Right) noexcept;
-		uint8_t IncrementByte(uint8_t a_Value) noexcept;
-		uint8_t DecrementByte(uint8_t a_Value) noexcept;
-		uint16_t IncrementWord(uint16_t a_Value) noexcept;
-		uint16_t DecrementWord(uint16_t a_Value) noexcept;
-		uint8_t ANDByte(uint8_t a_Left, uint8_t a_Right) noexcept;
-		uint8_t ORByte(uint8_t a_Left, uint8_t a_Right) noexcept;
-		uint8_t XORByte(uint8_t a_Left, uint8_t a_Right) noexcept;
-		uint8_t SwapByte(uint8_t a_Value) noexcept;
-		uint8_t ComplementByte(uint8_t a_Value) noexcept;
-		uint8_t RotateLeftByte(uint8_t a_Value) noexcept;
-		uint8_t RotateLeftThroughCarryByte(uint8_t a_Value) noexcept;
-		uint8_t RotateRightByte(uint8_t a_Value) noexcept;
-		uint8_t RotateRightThroughCarryByte(uint8_t a_Value) noexcept;
-		template <uint8_t Bit> uint8_t SetBit(uint8_t a_Value);
-		template <uint8_t Bit> uint8_t ResetBit(uint8_t a_Value);
-		uint16_t SignedAdd(uint16_t a_Left, uint8_t a_Right) noexcept;
+		template <bool Carry> uint8_t Add8(uint8_t a_Left, uint8_t a_Right) noexcept;
+		template <bool Carry> uint8_t Subtract8(uint8_t a_Left, uint8_t a_Right) noexcept;
+		uint16_t Add16(uint16_t a_Left, uint16_t a_Right) noexcept;
+		uint8_t Increment8(uint8_t a_Value) noexcept;
+		uint8_t Decrement8(uint8_t a_Value) noexcept;
+		uint16_t Increment16(uint16_t a_Value) noexcept;
+		uint16_t Decrement16(uint16_t a_Value) noexcept;
+		uint8_t AND8(uint8_t a_Left, uint8_t a_Right) noexcept;
+		uint8_t OR8(uint8_t a_Left, uint8_t a_Right) noexcept;
+		uint8_t XOR8(uint8_t a_Left, uint8_t a_Right) noexcept;
+		uint8_t Swap8(uint8_t a_Value) noexcept;
+		uint8_t Complement8(uint8_t a_Value) noexcept;
+		uint8_t RotateLeft8(uint8_t a_Value) noexcept;
+		uint8_t RotateLeftThroughCarry8(uint8_t a_Value) noexcept;
+		uint8_t RotateRight8(uint8_t a_Value) noexcept;
+		uint8_t RotateRightThroughCarry8(uint8_t a_Value) noexcept;
+		template <uint8_t Bit> uint8_t SetBit8(uint8_t a_Value);
+		template <uint8_t Bit> uint8_t ResetBit8(uint8_t a_Value);
+		uint16_t SignedAdd16(uint16_t a_Left, uint8_t a_Right) noexcept;
 
 		// Composition ops
 		using UnaryOp8 = uint8_t(CPU::*)(uint8_t a_Value);
@@ -172,9 +172,7 @@ namespace Amber::Gameboy
 		template <uint8_t Destination, uint8_t BaseSource, uint8_t OffsetSource> void LD_rr_rrr();
 
 		// 16-bit add ops
-		template <uint8_t Destination> void ADD_rr_xx(uint16_t a_Value) noexcept;
 		template <uint8_t Destination, uint8_t Source> void ADD_rr_r() noexcept;
-		template <uint8_t Destination, uint8_t Source> void ADD_rr_rr() noexcept;
 
 		// Absolute jump ops
 		void JP_xx(uint16_t a_Address) noexcept;
