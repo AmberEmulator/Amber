@@ -17,6 +17,7 @@
 
 #include <imgui/imgui.h>
 #include <imgui/imgui_internal.h>
+#include <imgui/imgui_memory_editor.h>
 
 #include <fstream>
 #include <iostream>
@@ -108,7 +109,7 @@ void Application::Tick()
 	// Create debugger
 	static Gameboy::Debugger debugger(*device);
 
-	ImGui::ShowDemoWindow();
+	//ImGui::ShowDemoWindow();
 
 	// Show debugger
 	static bool running = false;
@@ -216,7 +217,7 @@ void Application::Tick()
 			{
 				ImGui::SameLine(100.0f);
 			}
-			
+
 			const uint8_t button = 1 << i;
 			bool set = joypad.GetButtonState(button) != 0;
 
@@ -244,6 +245,22 @@ void Application::Tick()
 	ImGui::PopStyleVar();
 	ImGui::End();
 
+
+	// Show memory
+	static MemoryEditor memory_editor = []
+	{
+		MemoryEditor memory_editor;
+		memory_editor.ReadOnly = true;
+		memory_editor.ReadFn = [] (const uint8_t* a_Data, size_t a_Offset)
+		{
+			auto& mmu = *reinterpret_cast<const Gameboy::MMU*>(a_Data);
+
+			return mmu.Load8(static_cast<uint16_t>(a_Offset));
+		};
+
+		return memory_editor;
+	}();
+	memory_editor.DrawWindow("Memory", &(device->GetMMU()), 0x10000);
 
 	// Show breakpoints
 	static BreakpointsState breakpoints_state;
