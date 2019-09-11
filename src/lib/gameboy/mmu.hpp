@@ -39,6 +39,7 @@ namespace Amber::Gameboy
 		CPU* m_CPU = nullptr;
 		PPU* m_PPU = nullptr;
 		Joypad* m_Joypad = nullptr;
+		uint8_t m_OAM[160] = {};
 		uint8_t m_HRAM[127] = {};
 		bool m_BootROMEnabled = true;
 

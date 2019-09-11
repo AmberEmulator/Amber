@@ -76,17 +76,32 @@ uint8_t MMU::Load8(Address a_Address) const
 			return m_VRAM->Load8(a_Address - 0x8000);
 		}
 		break;
-
+		
 		case 0xC:
-		case 0xB:
+		case 0xD:
 		if (m_WRAM != nullptr)
 		{
 			return m_WRAM->Load8(a_Address - 0xC000);
 		}
 		break;
 
+		case 0xE:
+		if (m_WRAM != nullptr)
+		{
+			return m_WRAM->Load8(a_Address - 0xE000);
+		}
+		break;
+
 		case 0xF:
-		if (a_Address >= 0xFF80 && a_Address <= 0xFFFE)
+		if (a_Address <= 0xFDFF)
+		{
+			return m_WRAM->Load8(a_Address - 0xE000);
+		}
+		else if (a_Address >= 0xFE00 && a_Address <= 0xFE9F)
+		{
+			return m_OAM[a_Address - 0xFE00];
+		}
+		else if (a_Address >= 0xFF80 && a_Address <= 0xFFFE)
 		{
 			return m_HRAM[a_Address - 0xFF80];
 		}
@@ -141,15 +156,30 @@ void MMU::Store8(Address a_Address, uint8_t a_Value)
 		break;
 
 		case 0xC:
-		case 0xB:
+		case 0xD:
 		if (m_WRAM != nullptr)
 		{
 			m_WRAM->Store8(a_Address - 0xC000, a_Value);
 		}
 		break;
 
+		case 0xE:
+		if (m_WRAM != nullptr)
+		{
+			m_WRAM->Load8(a_Address - 0xE000);
+		}
+		break;
+
 		case 0xF:
-		if (a_Address >= 0xFF80 && a_Address <= 0xFFFE)
+		if (a_Address <= 0xFDFF)
+		{
+			m_WRAM->Store8(a_Address - 0xE000, a_Value);
+		}
+		else if (a_Address >= 0xFE00 && a_Address <= 0xFE9F)
+		{
+			m_OAM[a_Address - 0xFE00] = a_Value;
+		}
+		else if (a_Address >= 0xFF80 && a_Address <= 0xFFFE)
 		{
 			m_HRAM[a_Address - 0xFF80] = a_Value;
 		}
