@@ -9,16 +9,25 @@
 #include <gameboy/debugger.hpp>
 #include <gameboy/device.hpp>
 #include <gameboy/mmu.hpp>
+#include <gameboy/ppu.hpp>
 #include <gameboy/videoviewer.hpp>
 
 #include <common/ram.hpp>
 
 #include <imgui/imgui.h>
+#include <imgui/imgui_internal.h>
 
 #include <fstream>
+#include <iostream>
 
 using namespace Amber;
 using namespace Client;
+
+Application::Application()
+{
+	static std::ofstream out("tracelog.txt");
+	std::cout.rdbuf(out.rdbuf());
+}
 
 void Application::Tick()
 {
@@ -125,7 +134,7 @@ void Application::Tick()
 		}
 
 		ImGui::SameLine();
-		if (ImGui::Button("Step") && !running)
+		if (ImGui::ButtonEx("Step", ImVec2(0, 0), ImGuiButtonFlags_Repeat) && !running)
 		{
 			const uint16_t pc = device->GetCPU().LoadRegister16(Gameboy::CPU::RegisterPC);
 			do
@@ -136,7 +145,7 @@ void Application::Tick()
 		}
 
 		ImGui::SameLine();
-		if (ImGui::Button("Microstep") && !running)
+		if (ImGui::ButtonEx("Microstep", ImVec2(0, 0), ImGuiButtonFlags_Repeat) && !running)
 		{
 			debugger.Microstep();
 		}
@@ -149,6 +158,8 @@ void Application::Tick()
 		}
 
 		ImGui::Image(reinterpret_cast<ImTextureID>(tile_texture.GetNativeHandle()), ImVec2(tile_texture_width * 2, tile_texture_height * 2));
+		ImGui::SameLine();
+		ImGui::Text("LY: %i", static_cast<int>(device->GetPPU().GetLY()));
 	}
 	ImGui::End();
 

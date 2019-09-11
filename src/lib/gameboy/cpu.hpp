@@ -50,6 +50,12 @@ namespace Amber::Gameboy
 		static constexpr uint8_t FlagHalfCarry = 5;
 		static constexpr uint8_t FlagCarry = 4;
 
+		static constexpr uint8_t InterruptVBlank  = 0x01;
+		static constexpr uint8_t InterruptLCDSTAT = 0x02;
+		static constexpr uint8_t InterruptTimer   = 0x04;
+		static constexpr uint8_t InterruptSerial  = 0x08;
+		static constexpr uint8_t InterruptJoypad  = 0x10;
+
 		// Constructors
 		CPU(Common::Memory16& a_Memory);
 
@@ -64,6 +70,13 @@ namespace Amber::Gameboy
 		void StoreRegister8(uint8_t a_Register, uint8_t a_Value) noexcept;
 		void StoreRegister16(uint8_t a_Register, uint16_t a_Value) noexcept;
 		void StoreFlag(uint8_t a_Flag, bool a_Value) noexcept;
+
+		// Interrupts
+		uint8_t GetInterruptEnable() const noexcept;
+		uint8_t GetInterruptRequests() const noexcept;
+
+		void SetInterruptEnable(uint8_t a_Interrupts) noexcept;
+		void SetInterruptRequests(uint8_t a_Interrupts) noexcept;
 
 		// Breakpoints
 		bool HasBreakpoint(uint16_t a_Address) const;
@@ -84,12 +97,14 @@ namespace Amber::Gameboy
 		// Managing Ops
 		void PushOp(MicroOp a_Op);
 		MicroOp PopOp();
-		void InsertOP(MicroOp a_Op, size_t a_Index);
+		void InsertOp(MicroOp a_Op, size_t a_Index);
+		void InsertOpAndIncrementDone(MicroOp a_Op);
 		void CallOp(MicroOp a_Op);
 
 		// Math ops
 		template <bool Carry> uint8_t AddByte(uint8_t a_Left, uint8_t a_Right) noexcept;
 		template <bool Carry> uint8_t SubtractByte(uint8_t a_Left, uint8_t a_Right) noexcept;
+		uint16_t AddWord(uint16_t a_Left, uint16_t a_Right) noexcept;
 		uint8_t IncrementByte(uint8_t a_Value) noexcept;
 		uint8_t DecrementByte(uint8_t a_Value) noexcept;
 		uint16_t IncrementWord(uint16_t a_Value) noexcept;
@@ -98,10 +113,13 @@ namespace Amber::Gameboy
 		uint8_t ORByte(uint8_t a_Left, uint8_t a_Right) noexcept;
 		uint8_t XORByte(uint8_t a_Left, uint8_t a_Right) noexcept;
 		uint8_t SwapByte(uint8_t a_Value) noexcept;
+		uint8_t ComplementByte(uint8_t a_Value) noexcept;
 		uint8_t RotateLeftByte(uint8_t a_Value) noexcept;
 		uint8_t RotateLeftThroughCarryByte(uint8_t a_Value) noexcept;
 		uint8_t RotateRightByte(uint8_t a_Value) noexcept;
 		uint8_t RotateRightThroughCarryByte(uint8_t a_Value) noexcept;
+		template <uint8_t Bit> uint8_t SetBit(uint8_t a_Value);
+		template <uint8_t Bit> uint8_t ResetBit(uint8_t a_Value);
 		uint16_t SignedAdd(uint16_t a_Left, uint8_t a_Right) noexcept;
 
 		// Composition ops
@@ -117,6 +135,8 @@ namespace Amber::Gameboy
 		template <uint8_t Destination, BinaryOp8 Op, bool Store = true> void BinaryOp_r_x(uint8_t a_Value) noexcept;
 		template <uint8_t Destination, uint8_t Source, BinaryOp8 Op, bool Store = true> void BinaryOp_r_r() noexcept;
 		template <uint8_t Destination, uint8_t Source, BinaryOp8 Op, bool Store = true> void BinaryOp_r_arr() noexcept;
+		template <uint8_t Destination, BinaryOp16 Op, bool Store = true> void BinaryOp_rr_xx(uint16_t a_Value) noexcept;
+		template <uint8_t Destination, uint8_t Source, BinaryOp16 Op, bool Store = true> void BinaryOp_rr_rr() noexcept;
 
 		template <MicroOp Op, uint8_t Counter> void Delay();
 
@@ -131,6 +151,7 @@ namespace Amber::Gameboy
 		template <uint8_t Flag, bool Set> void FlagCondition();
 		void DisableInterrupts();
 		void EnableInterrupts();
+		void ProcessInterrupts();
 
 		// 8-bit load ops
 		template <uint8_t Destination> void LD_r_x(uint8_t a_Value);
@@ -163,24 +184,6 @@ namespace Amber::Gameboy
 		// Relative jump ops
 		template <uint8_t Base, uint8_t Offset> void JR_rr_r() noexcept;
 
-		// Push ops
-		void PUSH_xx(uint16_t a_Value) noexcept;
-		template <uint8_t Source> void PUSH_rr() noexcept;
-
-		// Pop ops
-		uint16_t POP_xx() noexcept;
-		template <uint8_t Destination> void POP_rr() noexcept;
-
-		// Call ops
-		void CALL_xx(uint16_t a_Address) noexcept;
-		void CALL_nn() noexcept;
-
-		// Return ops
-		template <uint8_t Flag, bool Set> void RET() noexcept;
-
-		// Restart ops
-		template <uint16_t Address> void RST() noexcept;
-
 		// 8-bit test bit ops
 		template <uint8_t Bit> void BIT_x_b(uint8_t a_Value) noexcept;
 		template <uint8_t Source, uint8_t Bit> void BIT_r_b() noexcept;
@@ -202,6 +205,11 @@ namespace Amber::Gameboy
 		size_t m_OpBack = 0;
 		size_t m_OpDone = 0;
 		bool m_OpBreak;
+
+		// Interrupts
+		bool m_InterruptMasterEnable = false;
+		uint8_t m_InterruptEnable = 0;
+		uint8_t m_InterruptRequests = 0;
 
 		// Breakpoints
 		std::function<void()> m_BreakpointCallback;

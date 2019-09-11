@@ -477,6 +477,15 @@ namespace Amber::Gameboy
 				info[ExtendedOpcode::BIT_L_0]   = {  8_u16, 1_u16, "BIT L,0" };
 				info[ExtendedOpcode::BIT_aHL_0] = { 16_u16, 1_u16, "BIT (HL),0" };
 
+				info[ExtendedOpcode::RES_A_0]   = { 8_u16, 1_u16, "RES A,0" };
+				info[ExtendedOpcode::RES_B_0]   = { 8_u16, 1_u16, "RES B,0" };
+				info[ExtendedOpcode::RES_C_0]   = { 8_u16, 1_u16, "RES C,0" };
+				info[ExtendedOpcode::RES_D_0]   = { 8_u16, 1_u16, "RES D,0" };
+				info[ExtendedOpcode::RES_E_0]   = { 8_u16, 1_u16, "RES E,0" };
+				info[ExtendedOpcode::RES_H_0]   = { 8_u16, 1_u16, "RES H,0" };
+				info[ExtendedOpcode::RES_L_0]   = { 8_u16, 1_u16, "RES L,0" };
+				info[ExtendedOpcode::RES_aHL_0] = { 16_u16, 1_u16, "RES (HL),0" };
+
 				info[ExtendedOpcode::RES_A_1]   = {  8_u16, 1_u16, "RES A,1" };
 				info[ExtendedOpcode::RES_B_1]   = {  8_u16, 1_u16, "RES B,1" };
 				info[ExtendedOpcode::RES_C_1]   = {  8_u16, 1_u16, "RES C,1" };

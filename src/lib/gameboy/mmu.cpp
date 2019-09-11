@@ -1,14 +1,13 @@
 #include <gameboy/mmu.hpp>
 
+#include <gameboy/cpu.hpp>
 #include <gameboy/ppu.hpp>
+
+#include <iostream>
 
 using namespace Amber;
 using namespace Common;
 using namespace Gameboy;
-
-MMU::MMU()
-{
-}
 
 void MMU::SetBootROM(ROM* a_BootROM)
 {
@@ -28,6 +27,11 @@ void MMU::SetVRAM(RAM* a_VRAM)
 void MMU::SetWRAM(RAM* a_WRAM)
 {
 	m_WRAM = a_WRAM;
+}
+
+void MMU::SetCPU(CPU* a_CPU)
+{
+	m_CPU = a_CPU;
 }
 
 void MMU::SetPPU(PPU* a_PPU)
@@ -84,6 +88,14 @@ uint8_t MMU::Load8(Address a_Address) const
 		{
 			return m_PPU->GetLY();
 		}
+		else if (a_Address == 0xFF0F && m_CPU != nullptr)
+		{
+			return m_CPU->GetInterruptRequests();
+		}
+		else if (a_Address == 0xFFFF && m_CPU != nullptr)
+		{
+			return m_CPU->GetInterruptEnable();
+		}
 		break;
 	}
 
@@ -118,6 +130,14 @@ void MMU::Store8(Address a_Address, uint8_t a_Value)
 		}
 		break;
 
+		case 0xC:
+		case 0xB:
+		if (m_WRAM != nullptr)
+		{
+			m_WRAM->Store8(a_Address - 0xC000, a_Value);
+		}
+		break;
+
 		case 0xF:
 		if (a_Address >= 0xFF80 && a_Address <= 0xFFFE)
 		{
@@ -127,6 +147,27 @@ void MMU::Store8(Address a_Address, uint8_t a_Value)
 		{
 			m_BootROMEnabled = false;
 		}
+		else if (a_Address == 0xFF0F && m_CPU != nullptr)
+		{
+			m_CPU->SetInterruptRequests(a_Value);
+		}
+		else if (a_Address == 0xFFFF && m_CPU != nullptr)
+		{
+			m_CPU->SetInterruptEnable(a_Value);
+		}
+		else if (a_Address == 0xFF01)
+		{
+			m_TestCharacter = a_Value;
+		}
+		else if (a_Address == 0xFF02 && a_Value == 0x81)
+		{
+			std::cout << m_TestCharacter;
+		}
 		break;
 	}
+}
+
+void MMU::Reset()
+{
+	m_BootROMEnabled = true;
 }

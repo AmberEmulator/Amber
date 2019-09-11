@@ -20,7 +20,7 @@ size_t VideoViewer::GetTileWidth() const noexcept
 
 void VideoViewer::BlitTile(size_t a_Tile, void* a_Destination, size_t a_Pitch) const
 {
-	static constexpr uint8_t colors[] = { 0x00, 0xCC, 0x77, 0xFF };
+	static constexpr uint8_t colors[] = { 0xFF, 0x77, 0xCC, 0x00 };
 
 	uint8_t tile_data[16];
 	for (size_t i = 0; i < 16; ++i)

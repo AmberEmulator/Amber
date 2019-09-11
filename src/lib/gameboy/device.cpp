@@ -11,11 +11,13 @@ Device::Device(const DeviceDescription& a_Description):
 	m_Description(a_Description)
 {
 	m_PPU = std::make_unique<PPU>();
-
 	m_MMU = std::make_unique<MMU>();
-	m_MMU->SetPPU(m_PPU.get());
-
 	m_CPU = std::make_unique<CPU>(*m_MMU);
+
+	m_PPU->SetCPU(m_CPU.get());
+
+	m_MMU->SetCPU(m_CPU.get());
+	m_MMU->SetPPU(m_PPU.get());
 }
 
 Device::~Device() = default;
@@ -42,8 +44,8 @@ MMU& Device::GetMMU() noexcept
 
 bool Device::Tick()
 {
-	const bool done = m_CPU->Tick();
 	m_PPU->Tick();
+	const bool done = m_CPU->Tick();
 
 	return done;
 }
@@ -52,4 +54,5 @@ void Device::Reset()
 {
 	m_CPU->Reset();
 	m_PPU->Reset();
+	m_MMU->Reset();
 }

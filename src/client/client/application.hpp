@@ -8,6 +8,8 @@ namespace Amber::Client
 	class CLIENT_API Application
 	{
 		public:
+		Application();
+
 		void Tick();
 	};
 }
