@@ -30,9 +30,11 @@ amber_add_sources(gameboy "register.hpp" "register.cpp" FILTER "CPU/Register")
 # PPU
 amber_add_sources(gameboy "ppu.hpp" "ppu.cpp" FILTER "PPU/PPU")
 
-# Memory
-amber_add_sources(gameboy "mmu.hpp" "mmu.cpp" FILTER "Memory/MMU")
+# MMU
+amber_add_sources(gameboy "mmu.hpp" "mmu.cpp" FILTER "MMU/MMU")
 
+# Cartridges
+amber_add_sources(gameboy "cartridgetype.hpp" FILTER "Cartridge/Cartridge Type")
 # Input
 amber_add_sources(gameboy "joypad.hpp" "joypad.cpp" FILTER "Input/Joypad")
 amber_add_sources(gameboy "joypadbutton.hpp" FILTER "Input/Joypad Button")
