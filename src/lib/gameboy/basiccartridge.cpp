@@ -4,8 +4,8 @@ using namespace Amber;
 using namespace Gameboy;
 
 BasicCartridge::BasicCartridge(size_t a_ROMSize, size_t a_RAMSize):
-	m_ROM(ROMBankSize, a_ROMSize / ROMBankSize),
-	m_RAM(RAMBankSize, a_RAMSize / RAMBankSize)
+	m_ROM(a_ROMSize),
+	m_RAM(a_RAMSize)
 {
 }
 
@@ -53,7 +53,7 @@ void BasicCartridge::Store8(Address a_Address, uint8_t a_Value)
 	{
 		case 0xA000:
 		case 0xB000:
-		m_ROM.Store8(a_Address - 0xA000, a_Value);
+		m_RAM.Store8(a_Address - 0xA000, a_Value);
 		break;
 	}
 }

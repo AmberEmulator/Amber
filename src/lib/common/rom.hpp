@@ -11,32 +11,16 @@ namespace Amber::Common
 	class ROM : public MemoryHelper<T, BE>
 	{
 		public:
-		explicit ROM(size_t a_BankSize, size_t a_BankCount):
-			m_BankSize(a_BankSize),
-			m_BankCount(a_BankCount),
-			m_Data(std::make_unique<uint8_t[]>(m_BankSize* m_BankCount))
+		explicit ROM(size_t a_Size):
+			m_Size(a_Size),
+			m_Data(std::make_unique<uint8_t[]>(m_Size))
 		{
-			std::memset(m_Data.get(), 0, m_BankSize * m_BankCount);
-		}
-
-		size_t GetBankSize() const noexcept
-		{
-			return m_BankSize;
-		}
-
-		size_t GetBankCount() const noexcept
-		{
-			return m_BankCount;
+			std::memset(m_Data.get(), 0, m_Size);
 		}
 
 		size_t GetSize() const noexcept
 		{
-			return GetBankSize() * GetBankCount();
-		}
-
-		size_t GetActiveBank() const noexcept
-		{
-			return m_ActiveBank;
+			return m_Size;
 		}
 
 		uint8_t* GetData() noexcept
@@ -49,34 +33,9 @@ namespace Amber::Common
 			return m_Data.get();
 		}
 
-		uint8_t* GetBankData(size_t a_Bank) noexcept
-		{
-			return const_cast<uint8_t*>(static_cast<const ROM*>(this)->GetBankData(a_Bank));
-		}
-
-		const uint8_t* GetBankData(size_t a_Bank) const noexcept
-		{
-			return GetData() + m_BankSize * a_Bank;
-		}
-
-		uint8_t* GetActiveBankData() noexcept
-		{
-			return const_cast<uint8_t*>(static_cast<const ROM*>(this)->GetActiveBankData());
-		}
-
-		const uint8_t* GetActiveBankData() const noexcept
-		{
-			return GetBankData(GetActiveBank());
-		}
-
-		void SetActiveBank(size_t a_Bank)
-		{
-			m_ActiveBank = a_Bank;
-		}
-
 		uint8_t Load8(Address a_Address) const override
 		{
-			return GetActiveBankData()[a_Address];
+			return GetData()[a_Address];
 		}
 
 		void Store8(Address a_Address, uint8_t a_Value) override
@@ -84,9 +43,7 @@ namespace Amber::Common
 		}
 
 		private:
-		const size_t m_BankSize;
-		const size_t m_BankCount;
-		size_t m_ActiveBank = 0;
+		const size_t m_Size;
 		std::unique_ptr<uint8_t[]> m_Data;
 	};
 

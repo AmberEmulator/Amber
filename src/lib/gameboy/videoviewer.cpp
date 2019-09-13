@@ -10,7 +10,7 @@ VideoViewer::VideoViewer(const Common::RAM16<false>& a_VRAM):
 
 size_t VideoViewer::GetTileCount() const noexcept
 {
-	return m_VRAM.GetBankCount() * 192;
+	return (m_VRAM.GetSize() / 0x2000) * 192;
 }
 
 size_t VideoViewer::GetTileWidth() const noexcept

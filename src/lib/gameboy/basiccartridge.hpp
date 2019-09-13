@@ -19,7 +19,6 @@ namespace Amber::Gameboy
 		Common::ROM16<false>& GetROM() noexcept;
 		Common::RAM16<false>& GetRAM() noexcept;
 
-
 		uint8_t Load8(Address a_Address) const override;
 		void Store8(Address a_Address, uint8_t a_Value) override;
 

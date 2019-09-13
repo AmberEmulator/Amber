@@ -43,7 +43,7 @@ void Application::Tick()
 		std::streamsize boot_size = boot.tellg();
 		boot.seekg(0, std::ios::beg);
 
-		Common::RAM<uint16_t, false> ram(0x100, 1);
+		Common::RAM<uint16_t, false> ram(0x100);
 		boot.read(reinterpret_cast<char*>(ram.GetData()), std::min<size_t>(boot_size, ram.GetSize()));
 
 		return ram;
@@ -60,13 +60,16 @@ void Application::Tick()
 		//Common::RAM<uint16_t, false> ram(0x8000, 1);
 		//cartidge.read(reinterpret_cast<char*>(ram.GetData()), std::min<size_t>(cartidge_size, ram.GetSize()));
 
-		return loader.LoadCartridge(file);
+		auto cartridge = loader.LoadCartridge(file);
+		std::cout << cartridge->GetHeader().GetTitle() << std::endl;
+		return cartridge;
 	}();
 
-	static Common::RAM<uint16_t, false> vram(0x2000, 1);
-	static Common::RAM<uint16_t, false> eram(0x2000, 1);
-	static Common::RAM<uint16_t, false> wram(0x2000, 1);
-	static Common::RAM<uint16_t, false> pad(0x1000, 1);
+
+	static Common::RAM<uint16_t, false> vram(0x2000);
+	static Common::RAM<uint16_t, false> eram(0x2000);
+	static Common::RAM<uint16_t, false> wram(0x2000);
+	static Common::RAM<uint16_t, false> pad(0x1000);
 
 	// Initialize device
 	static auto device = []

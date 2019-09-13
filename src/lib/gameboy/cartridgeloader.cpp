@@ -35,14 +35,18 @@ std::unique_ptr<BasicCartridge> CartridgeLoader::CreateCartridge(const Cartridge
 {
 	auto name = a_Header.GetTitle();
 
+	const CartridgeType::Enum cartridge_type = a_Header.GetCartridgeType();
 	const size_t rom_size = a_Header.GetROMSize();
 	const size_t ram_size = a_Header.GetRAMSize();
-	const CartridgeType::Enum cartridge_type = a_Header.GetCartridgeType();
 
 	switch (cartridge_type)
 	{
 		case CartridgeType::ROM:
 		return std::make_unique<BasicCartridge>(rom_size, ram_size);
+		break;
+
+		case CartridgeType::MBC1:
+		return std::make_unique<MBC1Cartridge>(rom_size, ram_size);
 		break;
 
 		default:
