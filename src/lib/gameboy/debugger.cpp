@@ -80,15 +80,11 @@ uint8_t Debugger::Load8(uint64_t a_Address) const
 
 bool Debugger::HasBreakpoint(uint64_t a_Address) const noexcept
 {
-	const uint16_t address = static_cast<uint16_t>(a_Address);
-	return m_Device.GetCPU().HasBreakpoint(address);
+	return m_Breakpoints.count(a_Address) > 0;
 }
 
 void Debugger::SetBreakpoint(uint64_t a_Address, bool a_Enabled)
 {
-	const uint16_t address = static_cast<uint16_t>(a_Address);
-	m_Device.GetCPU().SetBreakpoint(address, a_Enabled);
-	
 	if (a_Enabled)
 	{
 		m_Breakpoints.emplace(a_Address);
@@ -99,7 +95,7 @@ void Debugger::SetBreakpoint(uint64_t a_Address, bool a_Enabled)
 	}
 }
 
-std::set<uint64_t> Debugger::GetBreakpoints() const
+std::unordered_set<uint64_t> Debugger::GetBreakpoints() const
 {
 	return m_Breakpoints;
 }
@@ -112,6 +108,16 @@ bool Debugger::Run()
 	for (size_t i = 0; i < PPU::FrameCycles; ++i)
 	{
 		Step();
+
+		if (m_Breakpoints.size() > 0)
+		{
+			const uint16_t pc = m_Device.GetCPU().LoadRegister16(CPU::RegisterPC);
+			if (m_Breakpoints.count(pc) > 0)
+			{
+				m_Break = true;
+			}
+		}
+
 		if (m_Break)
 		{
 			return false;

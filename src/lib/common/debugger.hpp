@@ -3,7 +3,7 @@
 
 #include <common/api.hpp>
 
-#include <set>
+#include <unordered_set>
 
 namespace Amber::Common
 {
@@ -24,7 +24,7 @@ namespace Amber::Common
 
 		virtual bool HasBreakpoint(uint64_t a_Address) const noexcept;
 		virtual void SetBreakpoint(uint64_t a_Address, bool a_Enabled);
-		virtual std::set<uint64_t> GetBreakpoints() const;
+		virtual std::unordered_set<uint64_t> GetBreakpoints() const;
 
 		virtual bool Run() = 0;
 		virtual void Step() = 0;

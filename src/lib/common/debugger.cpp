@@ -51,7 +51,7 @@ void Debugger::SetBreakpoint(uint64_t a_Address, bool a_Enabled)
 {
 }
 
-std::set<uint64_t> Debugger::GetBreakpoints() const
+std::unordered_set<uint64_t> Debugger::GetBreakpoints() const
 {
 	return {};
 }
