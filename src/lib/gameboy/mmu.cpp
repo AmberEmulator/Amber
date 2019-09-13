@@ -187,6 +187,10 @@ void MMU::Store8(Address a_Address, uint8_t a_Value)
 		{
 			m_HRAM[a_Address - 0xFF80] = a_Value;
 		}
+		else if (a_Address == 0xFF46 && m_CPU != nullptr)
+		{
+			m_CPU->StartDMA(a_Value);
+		}
 		else if (a_Address == 0xFF50)
 		{
 			m_BootROMEnabled = false;

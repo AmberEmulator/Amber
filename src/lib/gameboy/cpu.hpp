@@ -80,6 +80,9 @@ namespace Amber::Gameboy
 
 		void RequestInterrupts(uint8_t a_Interrupts) noexcept;
 
+		// DMA
+		void StartDMA(uint8_t a_Address);
+
 		// Breakpoints
 		bool HasBreakpoint(uint16_t a_Address) const;
 		void SetBreakpoint(uint16_t a_Address, bool a_Enabled);
@@ -156,6 +159,7 @@ namespace Amber::Gameboy
 		void EnableInterrupts();
 		void ProcessInterrupts();
 		template <uint8_t Destination, uint8_t Mask> void MASK_r();
+		void DMA();
 
 		// 8-bit load ops
 		template <uint8_t Destination> void LD_r_x(uint8_t a_Value);
@@ -209,12 +213,16 @@ namespace Amber::Gameboy
 		size_t m_OpFront = 0;
 		size_t m_OpBack = 0;
 		size_t m_OpDone = 0;
-		bool m_OpBreak;
+		bool m_OpBreak = false;
 
 		// Interrupts
 		bool m_InterruptMasterEnable = false;
 		uint8_t m_InterruptEnable = 0;
 		uint8_t m_InterruptRequests = 0;
+
+		// DMA
+		uint8_t m_DMAAddress = 0;
+		uint8_t m_DMACounter = 0;
 
 		// Breakpoints
 		std::function<void()> m_BreakpointCallback;

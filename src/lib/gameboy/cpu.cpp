@@ -821,6 +821,13 @@ void CPU::RequestInterrupts(uint8_t a_Interrupts) noexcept
 	SetInterruptRequests(GetInterruptRequests() | a_Interrupts);
 }
 
+void CPU::StartDMA(uint8_t a_Address)
+{
+	m_DMAAddress = a_Address;
+	m_DMACounter = 0;
+	PushOp(&CPU::DMA);
+}
+
 bool CPU::HasBreakpoint(uint16_t a_Address) const
 {
 	return m_Memory.GetReplaced8(a_Address).has_value();
@@ -1531,6 +1538,20 @@ template <uint8_t Destination, uint8_t Mask>
 void CPU::MASK_r()
 {
 	StoreRegister8(Destination, LoadRegister8(Destination) & Mask);
+}
+
+void CPU::DMA()
+{
+	const uint16_t source_address = (static_cast<uint16_t>(m_DMAAddress) << 8) | m_DMACounter;
+	const uint16_t destination_address = 0xFE00 | m_DMACounter;
+
+	m_Memory.Store8(destination_address, m_Memory.Load8(source_address));
+
+	++m_DMACounter;
+	if (m_DMACounter != 0xA0)
+	{
+		PushOp(&CPU::DMA);
+	}
 }
 
 template <uint8_t Destination>
