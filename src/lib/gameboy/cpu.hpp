@@ -124,7 +124,7 @@ namespace Amber::Gameboy
 		template <bool FillWithZero> uint8_t ShiftRight8(uint8_t a_Value);
 		template <uint8_t Bit> uint8_t SetBit8(uint8_t a_Value);
 		template <uint8_t Bit> uint8_t ResetBit8(uint8_t a_Value);
-		uint16_t SignedAdd16(uint16_t a_Left, uint8_t a_Right) noexcept;
+		template <bool Flags = true> uint16_t SignedAdd16(uint16_t a_Left, uint8_t a_Right) noexcept;
 		uint8_t DecimalAdjust8(uint8_t a_Value) noexcept;
 
 		// Composition ops
@@ -134,12 +134,10 @@ namespace Amber::Gameboy
 		using BinaryOp16 = uint16_t(CPU::*)(uint16_t a_Left, uint16_t a_Right);
 
 		template <uint8_t Destination, UnaryOp8 Op, bool Store = true> void UnaryOp_r() noexcept;
-		template <uint8_t Destination, UnaryOp8 Op, bool Store = true> void UnaryOp_arr() noexcept;
 		template <uint8_t Destination, UnaryOp16 Op, bool Store = true> void UnaryOp_rr() noexcept;
 
 		template <uint8_t Destination, BinaryOp8 Op, bool Store = true> void BinaryOp_r_x(uint8_t a_Value) noexcept;
 		template <uint8_t Destination, uint8_t Source, BinaryOp8 Op, bool Store = true> void BinaryOp_r_r() noexcept;
-		template <uint8_t Destination, uint8_t Source, BinaryOp8 Op, bool Store = true> void BinaryOp_r_arr() noexcept;
 		template <uint8_t Destination, BinaryOp16 Op, bool Store = true> void BinaryOp_rr_xx(uint16_t a_Value) noexcept;
 		template <uint8_t Destination, uint8_t Source, BinaryOp16 Op, bool Store = true> void BinaryOp_rr_rr() noexcept;
 

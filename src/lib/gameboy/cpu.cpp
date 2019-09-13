@@ -160,7 +160,7 @@ CPU::CPU(Memory16& a_Memory):
 	instruction_builder.Begin(Opcode::ADD_A_H, &CPU::BinaryOp_r_r<RegisterA, RegisterH, &CPU::Add8<false>>);
 	instruction_builder.Begin(Opcode::ADD_A_L, &CPU::BinaryOp_r_r<RegisterA, RegisterL, &CPU::Add8<false>>);
 	instruction_builder.Begin(Opcode::ADD_A_n).Cycle(&CPU::LD_r_n<RegisterX>, &CPU::BinaryOp_r_r<RegisterA, RegisterX, &CPU::Add8<false>>);
-	instruction_builder.Begin(Opcode::ADD_A_aHL).Cycle(&CPU::BinaryOp_r_arr<RegisterA, RegisterHL, &CPU::Add8<false>>);
+	instruction_builder.Begin(Opcode::ADD_A_aHL).Cycle(&CPU::LD_r_arr<RegisterX, RegisterHL>, &CPU::BinaryOp_r_r<RegisterA, RegisterX, &CPU::Add8<false>>);
 
 	// 16-bit add instructions
 	instruction_builder.Begin(Opcode::ADD_HL_BC).Cycle(&CPU::BinaryOp_rr_rr<RegisterHL, RegisterBC, &CPU::Add16>);
@@ -178,7 +178,7 @@ CPU::CPU(Memory16& a_Memory):
 	instruction_builder.Begin(Opcode::SUB_A_H, &CPU::BinaryOp_r_r<RegisterA, RegisterH, &CPU::Subtract8<false>>);
 	instruction_builder.Begin(Opcode::SUB_A_L, &CPU::BinaryOp_r_r<RegisterA, RegisterL, &CPU::Subtract8<false>>);
 	instruction_builder.Begin(Opcode::SUB_A_n).Cycle(&CPU::LD_r_n<RegisterX>, &CPU::BinaryOp_r_r<RegisterA, RegisterX, &CPU::Subtract8<false>>);
-	instruction_builder.Begin(Opcode::SUB_A_aHL).Cycle(&CPU::BinaryOp_r_arr<RegisterA, RegisterHL, &CPU::Subtract8<false>>);
+	instruction_builder.Begin(Opcode::SUB_A_aHL).Cycle(&CPU::LD_r_arr<RegisterX, RegisterHL>, &CPU::BinaryOp_r_r<RegisterA, RegisterX, &CPU::Subtract8<false>>);
 
 	// 8-bit add + carry instructions
 	instruction_builder.Begin(Opcode::ADC_A_A, &CPU::BinaryOp_r_r<RegisterA, RegisterA, &CPU::Add8<true>>);
@@ -189,7 +189,7 @@ CPU::CPU(Memory16& a_Memory):
 	instruction_builder.Begin(Opcode::ADC_A_H, &CPU::BinaryOp_r_r<RegisterA, RegisterH, &CPU::Add8<true>>);
 	instruction_builder.Begin(Opcode::ADC_A_L, &CPU::BinaryOp_r_r<RegisterA, RegisterL, &CPU::Add8<true>>);
 	instruction_builder.Begin(Opcode::ADC_A_n).Cycle(&CPU::LD_r_n<RegisterX>, &CPU::BinaryOp_r_r<RegisterA, RegisterX, &CPU::Add8<true>>);
-	instruction_builder.Begin(Opcode::ADC_A_aHL).Cycle(&CPU::BinaryOp_r_arr<RegisterA, RegisterHL, &CPU::Add8<true>>);
+	instruction_builder.Begin(Opcode::ADC_A_aHL).Cycle(&CPU::LD_r_arr<RegisterX, RegisterHL>, &CPU::BinaryOp_r_r<RegisterA, RegisterX, &CPU::Add8<true>>);
 
 	// 8-bit subtract + carry instructions
 	instruction_builder.Begin(Opcode::SBC_A_A, &CPU::BinaryOp_r_r<RegisterA, RegisterA, &CPU::Subtract8<true>>);
@@ -200,7 +200,7 @@ CPU::CPU(Memory16& a_Memory):
 	instruction_builder.Begin(Opcode::SBC_A_H, &CPU::BinaryOp_r_r<RegisterA, RegisterH, &CPU::Subtract8<true>>);
 	instruction_builder.Begin(Opcode::SBC_A_L, &CPU::BinaryOp_r_r<RegisterA, RegisterL, &CPU::Subtract8<true>>);
 	instruction_builder.Begin(Opcode::SBC_A_n).Cycle(&CPU::LD_r_n<RegisterX>, &CPU::BinaryOp_r_r<RegisterA, RegisterX, &CPU::Subtract8<true>>);
-	instruction_builder.Begin(Opcode::SBC_A_aHL).Cycle(&CPU::BinaryOp_r_arr<RegisterA, RegisterHL, &CPU::Subtract8<true>>);
+	instruction_builder.Begin(Opcode::SBC_A_aHL).Cycle(&CPU::LD_r_arr<RegisterX, RegisterHL>, &CPU::BinaryOp_r_r<RegisterA, RegisterX, &CPU::Subtract8<true>>);
 
 	// 8-bit AND instructions
 	instruction_builder.Begin(Opcode::AND_A_A, &CPU::BinaryOp_r_r<RegisterA, RegisterA, &CPU::AND8>);
@@ -211,7 +211,7 @@ CPU::CPU(Memory16& a_Memory):
 	instruction_builder.Begin(Opcode::AND_A_H, &CPU::BinaryOp_r_r<RegisterA, RegisterH, &CPU::AND8>);
 	instruction_builder.Begin(Opcode::AND_A_L, &CPU::BinaryOp_r_r<RegisterA, RegisterL, &CPU::AND8>);
 	instruction_builder.Begin(Opcode::AND_A_n).Cycle(&CPU::LD_r_n<RegisterX>, &CPU::BinaryOp_r_r<RegisterA, RegisterX, &CPU::AND8>);
-	instruction_builder.Begin(Opcode::AND_A_aHL).Cycle(&CPU::BinaryOp_r_arr<RegisterA, RegisterHL, &CPU::AND8>);
+	instruction_builder.Begin(Opcode::AND_A_aHL).Cycle(&CPU::LD_r_arr<RegisterX, RegisterHL>, &CPU::BinaryOp_r_r<RegisterA, RegisterX, &CPU::AND8>);
 
 	// 8-bit OR instructions
 	instruction_builder.Begin(Opcode::OR_A_A, &CPU::BinaryOp_r_r<RegisterA, RegisterA, &CPU::OR8>);
@@ -222,7 +222,7 @@ CPU::CPU(Memory16& a_Memory):
 	instruction_builder.Begin(Opcode::OR_A_H, &CPU::BinaryOp_r_r<RegisterA, RegisterH, &CPU::OR8>);
 	instruction_builder.Begin(Opcode::OR_A_L, &CPU::BinaryOp_r_r<RegisterA, RegisterL, &CPU::OR8>);
 	instruction_builder.Begin(Opcode::OR_A_n).Cycle(&CPU::LD_r_n<RegisterX>, &CPU::BinaryOp_r_r<RegisterA, RegisterX, &CPU::OR8>);
-	instruction_builder.Begin(Opcode::OR_A_aHL).Cycle(&CPU::BinaryOp_r_arr<RegisterA, RegisterHL, &CPU::OR8>);
+	instruction_builder.Begin(Opcode::OR_A_aHL).Cycle(&CPU::LD_r_arr<RegisterX, RegisterHL>, &CPU::BinaryOp_r_r<RegisterA, RegisterX, &CPU::OR8>);
 
 	// 8-bit XOR instructions
 	instruction_builder.Begin(Opcode::XOR_A_A, &CPU::BinaryOp_r_r<RegisterA, RegisterA, &CPU::XOR8>);
@@ -233,7 +233,7 @@ CPU::CPU(Memory16& a_Memory):
 	instruction_builder.Begin(Opcode::XOR_A_H, &CPU::BinaryOp_r_r<RegisterA, RegisterH, &CPU::XOR8>);
 	instruction_builder.Begin(Opcode::XOR_A_L, &CPU::BinaryOp_r_r<RegisterA, RegisterL, &CPU::XOR8>);
 	instruction_builder.Begin(Opcode::XOR_A_n).Cycle(&CPU::LD_r_n<RegisterX>, &CPU::BinaryOp_r_r<RegisterA, RegisterX, &CPU::XOR8>);
-	instruction_builder.Begin(Opcode::XOR_A_aHL).Cycle(&CPU::BinaryOp_r_arr<RegisterA, RegisterHL, &CPU::XOR8>);
+	instruction_builder.Begin(Opcode::XOR_A_aHL).Cycle(&CPU::LD_r_arr<RegisterX, RegisterHL>, &CPU::BinaryOp_r_r<RegisterA, RegisterX, &CPU::XOR8>);
 
 	// 8-bit compare instructions
 	instruction_builder.Begin(Opcode::CP_A_A, &CPU::BinaryOp_r_r<RegisterA, RegisterA, &CPU::Subtract8<false>, false>);
@@ -244,7 +244,7 @@ CPU::CPU(Memory16& a_Memory):
 	instruction_builder.Begin(Opcode::CP_A_H, &CPU::BinaryOp_r_r<RegisterA, RegisterH, &CPU::Subtract8<false>, false>);
 	instruction_builder.Begin(Opcode::CP_A_L, &CPU::BinaryOp_r_r<RegisterA, RegisterL, &CPU::Subtract8<false>, false>);
 	instruction_builder.Begin(Opcode::CP_A_n).Cycle(&CPU::LD_r_n<RegisterX>, &CPU::BinaryOp_r_r<RegisterA, RegisterX, &CPU::Subtract8<false>, false>);
-	instruction_builder.Begin(Opcode::CP_A_aHL).Cycle(&CPU::BinaryOp_r_arr<RegisterA, RegisterHL, &CPU::Subtract8<false>, false>);
+	instruction_builder.Begin(Opcode::CP_A_aHL).Cycle(&CPU::LD_r_arr<RegisterX, RegisterHL>, &CPU::BinaryOp_r_r<RegisterA, RegisterX, &CPU::Subtract8<false>, false>);
 
 	// 8-bit increment instructions
 	instruction_builder.Begin(Opcode::INC_A, &CPU::UnaryOp_r<RegisterA, &CPU::Increment8>);
@@ -1187,16 +1187,28 @@ uint8_t CPU::ResetBit8(uint8_t a_Value)
 	return result;
 }
 
+template <bool Flags>
 uint16_t CPU::SignedAdd16(uint16_t a_Left, uint8_t a_Right) noexcept
 {
+	uint16_t result;
 	if ((a_Right & 0x80) == 0)
 	{
-		return a_Left + a_Right;
+		result = a_Left + a_Right;
 	}
 	else
 	{
-		return a_Left - (static_cast<uint16_t>(static_cast<uint8_t>(~a_Right)) + 1);
+		result = a_Left - (static_cast<uint16_t>(static_cast<uint8_t>(~a_Right)) + 1);
 	}
+
+	if constexpr (Flags)
+	{
+		StoreFlag(FlagZero, false);
+		StoreFlag(FlagSubtract, false);
+		StoreFlag(FlagHalfCarry, (((a_Left & 0x0f) + (a_Right & 0x0f)) & 0x10) != 0);
+		StoreFlag(FlagCarry, (((a_Left & 0xff) + (a_Right & 0xff)) & 0x100) != 0);
+	}
+
+	return result;
 }
 
 uint8_t CPU::DecimalAdjust8(uint8_t a_Value) noexcept
@@ -1244,17 +1256,6 @@ void CPU::UnaryOp_r() noexcept
 	}
 }
 
-template <uint8_t Destination, CPU::UnaryOp8 Op, bool Store>
-void CPU::UnaryOp_arr() noexcept
-{
-	const uint8_t destination_value = m_Memory.Load8(Destination);
-	const uint8_t result = (this->*Op)(destination_value);
-	if constexpr (Store)
-	{
-		StoreRegister8(Destination, result);
-	}
-}
-
 template <uint8_t Destination, CPU::UnaryOp16 Op, bool Store>
 void CPU::UnaryOp_rr() noexcept
 {
@@ -1281,14 +1282,6 @@ template <uint8_t Destination, uint8_t Source, CPU::BinaryOp8 Op, bool Store>
 void CPU::BinaryOp_r_r() noexcept
 {
 	const uint8_t value = LoadRegister8(Source);
-	BinaryOp_r_x<Destination, Op, Store>(value);
-}
-
-template <uint8_t Destination, uint8_t Source, CPU::BinaryOp8 Op, bool Store>
-void CPU::BinaryOp_r_arr() noexcept
-{
-	const uint16_t address = LoadRegister16(Source);
-	const uint8_t value = m_Memory.Load8(address);
 	BinaryOp_r_x<Destination, Op, Store>(value);
 }
 
@@ -1625,7 +1618,9 @@ template <uint8_t Destination, uint8_t BaseSource, uint8_t OffsetSource>
 void CPU::LD_rr_rrr()
 {
 	const uint16_t base = LoadRegister16(BaseSource);
-	LD_rr_xxr<Destination, OffsetSource>(base);
+	const uint8_t offset = LoadRegister8(OffsetSource);
+	const uint16_t result = SignedAdd16(base, offset);
+	LD_rr_xx<Destination>(result);
 }
 
 template <uint8_t Destination, uint8_t Source>
@@ -1660,7 +1655,7 @@ void CPU::JR_rr_r() noexcept
 {
 	const uint16_t base = LoadRegister16(Base);
 	const uint8_t offset = LoadRegister8(Offset);
-	const uint16_t address = SignedAdd16(base, offset);
+	const uint16_t address = SignedAdd16<false>(base, offset);
 
 	JP_xx(address);
 }
