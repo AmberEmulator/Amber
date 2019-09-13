@@ -991,7 +991,7 @@ uint16_t CPU::Add16(uint16_t a_Left, uint16_t a_Right) noexcept
 	const uint32_t result = static_cast<uint32_t>(a_Left) + static_cast<uint32_t>(a_Right);
 
 	StoreFlag(FlagSubtract, false);
-	StoreFlag(FlagHalfCarry, (((a_Left & 0xF00) + (a_Right & 0xF00)) & 0xF000) != 0);
+	StoreFlag(FlagHalfCarry, (((a_Left & 0xFFF) + (a_Right & 0xFFF)) & 0xF000) != 0);
 	StoreFlag(FlagCarry, (result & 0xFFFF0000) != 0);
 
 	return static_cast<uint16_t>(result);
