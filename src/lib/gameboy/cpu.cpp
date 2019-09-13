@@ -279,10 +279,10 @@ CPU::CPU(Memory16& a_Memory):
 	instruction_builder.Begin(Opcode::DEC_SP).Cycle(&CPU::UnaryOp_rr<RegisterSP, &CPU::Decrement16>);
 
 	// 8-bit rotate instructions
-	instruction_builder.Begin(Opcode::RLC_A, &CPU::UnaryOp_r<RegisterA, &CPU::RotateLeft8>);
-	instruction_builder.Begin(Opcode::RL_A, &CPU::UnaryOp_r<RegisterA, &CPU::RotateLeftThroughCarry8>);
-	instruction_builder.Begin(Opcode::RRC_A, &CPU::UnaryOp_r<RegisterA, &CPU::RotateRight8>);
-	instruction_builder.Begin(Opcode::RR_A, &CPU::UnaryOp_r<RegisterA, &CPU::RotateRightThroughCarry8>);
+	instruction_builder.Begin(Opcode::RLC_A, &CPU::UnaryOp_r<RegisterA, &CPU::RotateLeft8<true>>);
+	instruction_builder.Begin(Opcode::RL_A, &CPU::UnaryOp_r<RegisterA, &CPU::RotateLeftThroughCarry8<true>>);
+	instruction_builder.Begin(Opcode::RRC_A, &CPU::UnaryOp_r<RegisterA, &CPU::RotateRight8<true>>);
+	instruction_builder.Begin(Opcode::RR_A, &CPU::UnaryOp_r<RegisterA, &CPU::RotateRightThroughCarry8<true>>);
 
 	// Absolute jump instructions
 	instruction_builder.Begin(Opcode::JP_nn).Cycle(&CPU::LD_r_n<RegisterY>).Cycle(&CPU::LD_r_n<RegisterX>).Cycle(&CPU::JP_rr<RegisterXY>);
@@ -947,19 +947,19 @@ void CPU::CallOp(MicroOp a_Op)
 template <bool Carry>
 uint8_t CPU::Add8(uint8_t a_Left, uint8_t a_Right) noexcept
 {
+	uint8_t carry = 0;
 	if constexpr (Carry)
 	{
 		if (LoadFlag(FlagCarry))
 		{
-			++a_Right;
+			carry = 1;
 		}
 	}
-
-	const uint16_t result = static_cast<uint16_t>(a_Left) + static_cast<uint16_t>(a_Right);
+	uint16_t result = static_cast<uint16_t>(a_Left) + static_cast<uint16_t>(a_Right) + static_cast<uint16_t>(carry);
 
 	StoreFlag(FlagZero, (result & 0xFF) == 0);
 	StoreFlag(FlagSubtract, false);
-	StoreFlag(FlagHalfCarry, (((a_Left & 0xF) + (a_Right & 0xF)) & 0xF0) != 0);
+	StoreFlag(FlagHalfCarry, (((a_Left & 0x0F) + (a_Right & 0x0F) + carry) & 0xF0) != 0);
 	StoreFlag(FlagCarry, (result & 0xFF00) != 0);
 
 	return static_cast<uint8_t>(result);
@@ -968,21 +968,22 @@ uint8_t CPU::Add8(uint8_t a_Left, uint8_t a_Right) noexcept
 template <bool Carry>
 uint8_t CPU::Subtract8(uint8_t a_Left, uint8_t a_Right) noexcept
 {
+	uint8_t carry = 0;
 	if constexpr (Carry)
 	{
 		if (LoadFlag(FlagCarry))
 		{
-			++a_Right;
+			carry = 1;
 		}
 	}
+	uint16_t result = (static_cast<uint16_t>(a_Left) - static_cast<uint16_t>(a_Right)) - static_cast<uint16_t>(carry);
 
-	const uint8_t value = Add8<false>(a_Left, (~a_Right) + 1);
-
+	StoreFlag(FlagZero, (result & 0xFF) == 0);
 	StoreFlag(FlagSubtract, true);
-	StoreFlag(FlagHalfCarry, !LoadFlag(FlagHalfCarry));
-	StoreFlag(FlagCarry, !LoadFlag(FlagCarry));
+	StoreFlag(FlagHalfCarry, ((a_Left ^ a_Right ^ (result & 0xFF)) & 0b1000) != 0);
+	StoreFlag(FlagCarry, (result & 0xFF00) != 0);
 
-	return value;
+	return static_cast<uint8_t>(result);
 }
 
 uint16_t CPU::Add16(uint16_t a_Left, uint16_t a_Right) noexcept
@@ -1084,11 +1085,12 @@ uint8_t CPU::Complement8(uint8_t a_Value) noexcept
 	return result;
 }
 
+template <bool ResetZero>
 uint8_t CPU::RotateLeft8(uint8_t a_Value) noexcept
 {
 	const uint8_t result = (a_Value << 1) | (a_Value >> 7);
 
-	StoreFlag(FlagZero, result == 0);
+	StoreFlag(FlagZero, result == 0 && !ResetZero);
 	StoreFlag(FlagSubtract, false);
 	StoreFlag(FlagHalfCarry, false);
 	StoreFlag(FlagCarry, (a_Value & 0x80) != 0);
@@ -1096,11 +1098,12 @@ uint8_t CPU::RotateLeft8(uint8_t a_Value) noexcept
 	return result;
 }
 
+template <bool ResetZero>
 uint8_t CPU::RotateLeftThroughCarry8(uint8_t a_Value) noexcept
 {
 	const uint8_t result = (a_Value << 1) | (LoadFlag(FlagCarry) ? 0x01 : 0x00);
 
-	StoreFlag(FlagZero, result == 0);
+	StoreFlag(FlagZero, result == 0 && !ResetZero);
 	StoreFlag(FlagSubtract, false);
 	StoreFlag(FlagHalfCarry, false);
 	StoreFlag(FlagCarry, (a_Value & 0x80) != 0);
@@ -1108,11 +1111,12 @@ uint8_t CPU::RotateLeftThroughCarry8(uint8_t a_Value) noexcept
 	return result;
 }
 
+template <bool ResetZero>
 uint8_t CPU::RotateRight8(uint8_t a_Value) noexcept
 {
 	const uint8_t result = (a_Value >> 1) | (a_Value << 7);
 
-	StoreFlag(FlagZero, result == 0);
+	StoreFlag(FlagZero, result == 0 && !ResetZero);
 	StoreFlag(FlagSubtract, false);
 	StoreFlag(FlagHalfCarry, false);
 	StoreFlag(FlagCarry, (a_Value & 0x01) != 0);
@@ -1120,11 +1124,12 @@ uint8_t CPU::RotateRight8(uint8_t a_Value) noexcept
 	return result;
 }
 
+template <bool ResetZero>
 uint8_t CPU::RotateRightThroughCarry8(uint8_t a_Value) noexcept
 {
 	const uint8_t result = (a_Value >> 1) | (LoadFlag(FlagCarry) ? 0x80 : 0x00);
 
-	StoreFlag(FlagZero, result == 0);
+	StoreFlag(FlagZero, result == 0 && !ResetZero);
 	StoreFlag(FlagSubtract, false);
 	StoreFlag(FlagHalfCarry, false);
 	StoreFlag(FlagCarry, (a_Value & 0x01) != 0);

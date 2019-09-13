@@ -116,10 +116,10 @@ namespace Amber::Gameboy
 		uint8_t XOR8(uint8_t a_Left, uint8_t a_Right) noexcept;
 		uint8_t Swap8(uint8_t a_Value) noexcept;
 		uint8_t Complement8(uint8_t a_Value) noexcept;
-		uint8_t RotateLeft8(uint8_t a_Value) noexcept;
-		uint8_t RotateLeftThroughCarry8(uint8_t a_Value) noexcept;
-		uint8_t RotateRight8(uint8_t a_Value) noexcept;
-		uint8_t RotateRightThroughCarry8(uint8_t a_Value) noexcept;
+		template <bool ResetZero = false> uint8_t RotateLeft8(uint8_t a_Value) noexcept;
+		template <bool ResetZero = false> uint8_t RotateLeftThroughCarry8(uint8_t a_Value) noexcept;
+		template <bool ResetZero = false> uint8_t RotateRight8(uint8_t a_Value) noexcept;
+		template <bool ResetZero = false> uint8_t RotateRightThroughCarry8(uint8_t a_Value) noexcept;
 		template <bool FillWithZero> uint8_t ShiftLeft8(uint8_t a_Value);
 		template <bool FillWithZero> uint8_t ShiftRight8(uint8_t a_Value);
 		template <uint8_t Bit> uint8_t SetBit8(uint8_t a_Value);
