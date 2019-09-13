@@ -208,13 +208,7 @@ void Application::Tick()
 		ImGui::SameLine();
 		if (ImGui::ButtonEx("Step", ImVec2(0, 0), ImGuiButtonFlags_Repeat) && !running)
 		{
-			const uint16_t pc = device->GetCPU().LoadRegister16(Gameboy::CPU::RegisterPC);
-			do
-			{
-				debugger.Step();
-			}
-			while (pc == device->GetCPU().LoadRegister16(Gameboy::CPU::RegisterPC));
-
+			debugger.Step();
 			memory_editor.HighlightMin = device->GetCPU().LoadRegister16(Gameboy::CPU::RegisterPC);
 			memory_editor.HighlightMax = memory_editor.HighlightMin + 1;
 		}

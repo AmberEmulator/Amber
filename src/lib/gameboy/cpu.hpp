@@ -192,6 +192,10 @@ namespace Amber::Gameboy
 		template <uint8_t Bit> void BIT_x_b(uint8_t a_Value) noexcept;
 		template <uint8_t Source, uint8_t Bit> void BIT_r_b() noexcept;
 
+		// Flag ops
+		void CCF() noexcept;
+		void SCF() noexcept;
+
 		// Memory
 		Common::Memory16& m_Memory;
 
