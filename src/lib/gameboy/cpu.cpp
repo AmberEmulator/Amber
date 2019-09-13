@@ -149,7 +149,7 @@ CPU::CPU(Memory16& a_Memory):
 	instruction_builder.Begin(Opcode::LD_HL_SPn).Cycle(&CPU::LD_r_n<RegisterX>).Cycle(&CPU::LD_rr_rrr<RegisterHL, RegisterSP, RegisterX>);
 	instruction_builder.Begin(Opcode::LD_SP_nn).Cycle(&CPU::LD_r_n<RegisterSP_P>).Cycle(&CPU::LD_r_n<RegisterSP_S>);
 	instruction_builder.Begin(Opcode::LD_SP_HL).Cycle(&CPU::LD_rr_rr< RegisterSP, RegisterHL>);
-	instruction_builder.Begin(Opcode::LD_ann_SP).Cycle(&CPU::LD_r_n<RegisterY>).Cycle(&CPU::LD_r_n<RegisterX>).Cycle(&CPU::LD_arr_r<RegisterXY, RegisterSP_P>, &CPU::LD_arr_r<RegisterXY, RegisterSP_S>);
+	instruction_builder.Begin(Opcode::LD_ann_SP).Cycle(&CPU::LD_r_n<RegisterY>).Cycle(&CPU::LD_r_n<RegisterX>).Cycle(&CPU::LD_arr_r<RegisterXY, RegisterSP_P>, &CPU::UnaryOp_rr<RegisterXY, &CPU::Increment16>, &CPU::LD_arr_r<RegisterXY, RegisterSP_S>);
 
 	// 8-bit add instructions
 	instruction_builder.Begin(Opcode::ADD_A_A, &CPU::BinaryOp_r_r<RegisterA, RegisterA, &CPU::Add8<false>>);
