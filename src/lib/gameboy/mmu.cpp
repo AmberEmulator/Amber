@@ -15,9 +15,9 @@ void MMU::SetBootROM(ROM* a_BootROM)
 	m_BootROM = a_BootROM;
 }
 
-void MMU::SetROM(ROM* a_Rom)
+void MMU::SetCartridge(Memory* a_Cartridge)
 {
-	m_ROM = a_Rom;
+	m_Cartridge = a_Cartridge;
 }
 
 void MMU::SetVRAM(RAM* a_VRAM)
@@ -63,9 +63,11 @@ uint8_t MMU::Load8(Address a_Address) const
 		case 0x5:
 		case 0x6:
 		case 0x7:
-		if (m_ROM != nullptr)
+		case 0xA:
+		case 0xB:
+		if (m_Cartridge != nullptr)
 		{
-			return m_ROM->Load8(a_Address);
+			return m_Cartridge->Load8(a_Address);
 		}
 		break;
 
@@ -141,9 +143,11 @@ void MMU::Store8(Address a_Address, uint8_t a_Value)
 		case 0x5:
 		case 0x6:
 		case 0x7:
-		if (m_ROM != nullptr)
+		case 0xA:
+		case 0xB:
+		if (m_Cartridge != nullptr)
 		{
-			m_ROM->Store8(a_Address, a_Value);
+			m_Cartridge->Store8(a_Address, a_Value);
 		}
 		break;
 

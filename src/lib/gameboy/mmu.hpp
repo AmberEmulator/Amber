@@ -14,12 +14,11 @@ namespace Amber::Gameboy
 	class GAMEBOY_API MMU : public Common::MemoryHelper<uint16_t, false>
 	{
 		public:
-		using Memory = Common::Memory16;
 		using ROM = Common::ROM16<false>;
 		using RAM = Common::RAM16<false>;
 
 		void SetBootROM(ROM* a_BootROM);
-		void SetROM(ROM* a_Rom);
+		void SetCartridge(Memory* a_Cartridge);
 		void SetVRAM(RAM* a_VRAM);
 		void SetWRAM(RAM* a_WRAM);
 		void SetCPU(CPU* a_CPU);
@@ -33,7 +32,7 @@ namespace Amber::Gameboy
 
 		private:
 		ROM* m_BootROM = nullptr;
-		ROM* m_ROM = nullptr;
+		Memory* m_Cartridge = nullptr;
 		RAM* m_VRAM = nullptr;
 		RAM* m_WRAM = nullptr;
 		CPU* m_CPU = nullptr;

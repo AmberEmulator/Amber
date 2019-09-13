@@ -5,6 +5,7 @@
 #include <client/gameboywidgets.hpp>
 #include <client/texture.hpp>
 
+#include <gameboy/cartridgeloader.hpp>
 #include <gameboy/cpu.hpp>
 #include <gameboy/debugger.hpp>
 #include <gameboy/device.hpp>
@@ -27,8 +28,8 @@ using namespace Client;
 
 Application::Application()
 {
-	static std::ofstream out("tracelog.txt");
-	std::cout.rdbuf(out.rdbuf());
+	//static std::ofstream out("tracelog.txt");
+	//std::cout.rdbuf(out.rdbuf());
 }
 
 void Application::Tick()
@@ -48,16 +49,18 @@ void Application::Tick()
 		return ram;
 	}();
 
-	static auto rom = []
+	static auto cartridge = []
 	{
-		std::ifstream cartidge("C:\\ROMs\\test.gb", std::ios::binary | std::ios::ate);
-		std::streamsize cartidge_size = cartidge.tellg();
-		cartidge.seekg(0, std::ios::beg);
+		Gameboy::CartridgeLoader loader;
 
-		Common::RAM<uint16_t, false> ram(0x8000, 1);
-		cartidge.read(reinterpret_cast<char*>(ram.GetData()), std::min<size_t>(cartidge_size, ram.GetSize()));
+		std::ifstream file("C:\\ROMs\\test.gb", std::ios::binary | std::ios::ate);
+		//std::streamsize cartidge_size = cartidge.tellg();
+		//cartidge.seekg(0, std::ios::beg);
+		//
+		//Common::RAM<uint16_t, false> ram(0x8000, 1);
+		//cartidge.read(reinterpret_cast<char*>(ram.GetData()), std::min<size_t>(cartidge_size, ram.GetSize()));
 
-		return ram;
+		return loader.LoadCartridge(file);
 	}();
 
 	static Common::RAM<uint16_t, false> vram(0x2000, 1);
@@ -72,7 +75,7 @@ void Application::Tick()
 
 		auto& mmu = device->GetMMU();
 		mmu.SetBootROM(&bootrom);
-		mmu.SetROM(&rom);
+		mmu.SetCartridge(cartridge.get());
 		mmu.SetVRAM(&vram);
 		mmu.SetWRAM(&wram);
 
