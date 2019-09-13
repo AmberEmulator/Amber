@@ -286,6 +286,7 @@ CPU::CPU(Memory16& a_Memory):
 
 	// Other 8-bit instructions
 	instruction_builder.Begin(Opcode::CPL_A, &CPU::UnaryOp_r<RegisterA, &CPU::Complement8>);
+	instruction_builder.Begin(Opcode::DA_A, &CPU::UnaryOp_r<RegisterA, &CPU::DecimalAdjust8>);
 
 	// Absolute jump instructions
 	instruction_builder.Begin(Opcode::JP_nn).Cycle(&CPU::LD_r_n<RegisterY>).Cycle(&CPU::LD_r_n<RegisterX>).Cycle(&CPU::JP_rr<RegisterXY>);
@@ -322,7 +323,7 @@ CPU::CPU(Memory16& a_Memory):
 
 	// Pop instructions
 	instruction_builder.Begin(Opcode::POP_AF)
-		.Cycle(&CPU::LD_r_arr<RegisterF, RegisterSP>, &CPU::UnaryOp_rr<RegisterSP, &CPU::Increment16>)
+		.Cycle(&CPU::LD_r_arr<RegisterF, RegisterSP>, &CPU::UnaryOp_rr<RegisterSP, &CPU::Increment16>, &CPU::MASK_r<RegisterF, 0b1111'0000>)
 		.Cycle(&CPU::LD_r_arr<RegisterA, RegisterSP>, &CPU::UnaryOp_rr<RegisterSP, &CPU::Increment16>);
 	instruction_builder.Begin(Opcode::POP_BC)
 		.Cycle(&CPU::LD_r_arr<RegisterC, RegisterSP>, &CPU::UnaryOp_rr<RegisterSP, &CPU::Increment16>)
@@ -1191,6 +1192,40 @@ uint16_t CPU::SignedAdd16(uint16_t a_Left, uint8_t a_Right) noexcept
 	}
 }
 
+uint8_t CPU::DecimalAdjust8(uint8_t a_Value) noexcept
+{
+	uint8_t result = a_Value;
+
+	if (LoadFlag(FlagSubtract))
+	{
+		if (LoadFlag(FlagCarry))
+		{
+			result -= 0x60;
+		}
+		if (LoadFlag(FlagHalfCarry))
+		{
+			result -= 0x06;
+		}
+	}
+	else
+	{
+		if (LoadFlag(FlagCarry) || result > 0x99)
+		{
+			result += 0x60;
+			StoreFlag(FlagCarry, true);
+		}
+		if (LoadFlag(FlagHalfCarry) || (result & 0x0F) > 0x09)
+		{
+			result += 0x06;
+		}
+	}
+
+	StoreFlag(FlagZero, result == 0);
+	StoreFlag(FlagHalfCarry, false);
+
+	return result;
+}
+
 template <uint8_t Destination, CPU::UnaryOp8 Op, bool Store>
 void CPU::UnaryOp_r() noexcept
 {
@@ -1490,6 +1525,12 @@ void CPU::ProcessInterrupts()
 		InsertOpAndIncrementDone(&CPU::JP_rr<RegisterXY>);
 		InsertOpAndIncrementDone(&CPU::Break);
 	}
+}
+
+template <uint8_t Destination, uint8_t Mask>
+void CPU::MASK_r()
+{
+	StoreRegister8(Destination, LoadRegister8(Destination) & Mask);
 }
 
 template <uint8_t Destination>

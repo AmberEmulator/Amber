@@ -125,6 +125,7 @@ namespace Amber::Gameboy
 		template <uint8_t Bit> uint8_t SetBit8(uint8_t a_Value);
 		template <uint8_t Bit> uint8_t ResetBit8(uint8_t a_Value);
 		uint16_t SignedAdd16(uint16_t a_Left, uint8_t a_Right) noexcept;
+		uint8_t DecimalAdjust8(uint8_t a_Value) noexcept;
 
 		// Composition ops
 		using UnaryOp8 = uint8_t(CPU::*)(uint8_t a_Value);
@@ -156,6 +157,7 @@ namespace Amber::Gameboy
 		void DisableInterrupts();
 		void EnableInterrupts();
 		void ProcessInterrupts();
+		template <uint8_t Destination, uint8_t Mask> void MASK_r();
 
 		// 8-bit load ops
 		template <uint8_t Destination> void LD_r_x(uint8_t a_Value);
