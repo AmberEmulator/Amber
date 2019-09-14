@@ -56,7 +56,7 @@ void PPU::Tick()
 			}
 			else
 			{
-				m_LCDMode = LCDMode::OAMSearch;
+				GotoOAM();
 			}
 		}
 		break;
@@ -64,7 +64,7 @@ void PPU::Tick()
 		case LCDMode::VBlank:
 		if (m_VCounter == 0)
 		{
-			m_LCDMode = LCDMode::OAMSearch;
+			GotoOAM();
 		}
 		break;
 
@@ -124,30 +124,111 @@ void PPU::Blit(void* a_Destination, size_t a_Pitch) const noexcept
 	}
 }
 
+void PPU::GotoOAM() noexcept
+{
+	m_LCDMode = LCDMode::OAMSearch;
+	m_SpriteCount = 0;
+}
+
 void PPU::OAMSearch() noexcept
 {
+	const uint8_t sprite_index = m_HCounter / 2;
 
+	// Load the first byte
+	if ((m_HCounter & 1) == 0)
+	{
+		m_SpriteY = m_MMU->Load8(0xFE00 + sprite_index * 4);
+		return;
+	}
+	
+	// Load the second byte
+	const uint8_t sprite_x = m_MMU->Load8(0xFE00 + sprite_index * 4 + 1);
+
+	// No more than 10 sprites allowed
+	if (m_SpriteCount == 10)
+	{
+		return;
+	}
+
+	// Check if it is on the current line
+	if (m_SpriteY > m_VCounter + 16 || m_SpriteY + 8 <= m_VCounter + 16)
+	{
+		return;
+	}
+
+	// Check if it is on the screen horizontally
+	if (sprite_x == 0 || sprite_x >= 168)
+	{
+		return;
+	}
+
+	// Add sprite to the list
+	m_Sprites[m_SpriteCount] = sprite_index;
+	++m_SpriteCount;
 }
 
 void PPU::PixelTransfer() noexcept
 {
+	// Calculate current screen position
 	const uint8_t x = static_cast<uint8_t>(m_HCounter - OAMCycles);
 	const uint8_t y = static_cast<uint8_t>(m_VCounter);
 
-	const uint8_t background_x = x / 8;
-	const uint8_t background_y = y / 8;
+	// Check if it is covered by a sprite
+	uint8_t sprite[4] = { 0, 0xFF, 0, 0 };
+	for (uint8_t i = 0; i < m_SpriteCount; ++i)
+	{
+		const uint8_t sprite_index = m_Sprites[i];
+		const uint8_t sprite_y = m_MMU->Load8(0xFE00 + sprite_index * 4 + 0);
+		const uint8_t sprite_x = m_MMU->Load8(0xFE00 + sprite_index * 4 + 1);
 
-	const uint16_t tile_index_offset = background_x + background_y * 32;
-	const uint8_t tile_index = m_MMU->Load8(0x9800 + tile_index_offset);
+		if (sprite_x > x + 8 || sprite_x + 8 <= x + 8)
+		{
+			continue;
+		}
+
+		if (sprite_y > y + 16 || sprite_y + 8 <= y + 16)
+		{
+			continue;
+		}
+
+		if (sprite_x >= sprite[1])
+		{
+			continue;
+		}
+
+		sprite[0] = sprite_y;
+		sprite[1] = sprite_x;
+		sprite[2] = m_MMU->Load8(0xFE00 + sprite_index * 4 + 2);
+		sprite[3] = m_MMU->Load8(0xFE00 + sprite_index * 4 + 3);
+	}
+
+	uint8_t tile_index;
+	uint8_t tile_x;
+	uint8_t tile_y;
+
+	if (sprite[0] != 0)
+	{
+		tile_index = sprite[2];
+		tile_x = x - (sprite[1] - 8);
+		tile_y = y - (sprite[0] - 16);
+	}
+	else
+	{
+		const uint8_t background_x = x / 8;
+		const uint8_t background_y = y / 8;
+
+		const uint16_t tile_index_offset = background_x + background_y * 32;
+		tile_index = m_MMU->Load8(0x9800 + tile_index_offset);
+
+		tile_x = x % 8;
+		tile_y = y % 8;
+	}
 
 	uint8_t tile_data[16];
 	for (uint16_t i = 0; i < 16; ++i)
 	{
 		tile_data[i] = m_MMU->Load8(0x8000 + (tile_index * 16 + i));
 	}
-
-	const uint8_t tile_x = x % 8;
-	const uint8_t tile_y = y % 8;
 
 	const uint8_t line = tile_y * 2;
 

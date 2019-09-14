@@ -37,6 +37,8 @@ namespace Amber::Gameboy
 		void Blit(void* a_Destination, size_t a_Pitch) const noexcept;
 
 		private:
+		void GotoOAM() noexcept;
+
 		void OAMSearch() noexcept;
 		void PixelTransfer() noexcept;
 
@@ -46,6 +48,11 @@ namespace Amber::Gameboy
 		// Other components
 		CPU* m_CPU = nullptr;
 		MMU* m_MMU = nullptr;
+
+		// OAM
+		uint8_t m_Sprites[10];
+		uint8_t m_SpriteCount;
+		uint8_t m_SpriteY;
 
 		// LCD Mode
 		uint16_t m_HCounter = 0;
