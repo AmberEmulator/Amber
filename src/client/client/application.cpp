@@ -112,6 +112,14 @@ void Application::Tick()
 
 	tile_texture.Blit(0, 0, tile_texture_width, tile_texture_height, tile_buffer.get());
 
+	static Texture lcd_texture(Gameboy::PPU::LCDWidth, Gameboy::PPU::LCDHeight);
+	static const size_t lcd_buffer_size = Gameboy::PPU::LCDWidth * Gameboy::PPU::LCDHeight * 4;
+	static const auto lcd_buffer = std::make_unique<uint8_t[]>(lcd_buffer_size);
+
+	device->GetPPU().Blit(lcd_buffer.get(), Gameboy::PPU::LCDWidth);
+	lcd_texture.Blit(0, 0, Gameboy::PPU::LCDWidth, Gameboy::PPU::LCDHeight, lcd_buffer.get());
+
+
 	// Show memory
 	static MemoryEditor memory_editor = []
 	{
@@ -229,6 +237,7 @@ void Application::Tick()
 			//cpu.GetRegisters().SetPC(0);
 		}
 
+		ImGui::Image(reinterpret_cast<ImTextureID>(lcd_texture.GetNativeHandle()), ImVec2(Gameboy::PPU::LCDWidth * 2, Gameboy::PPU::LCDHeight * 2));
 		ImGui::Image(reinterpret_cast<ImTextureID>(tile_texture.GetNativeHandle()), ImVec2(tile_texture_width * 2, tile_texture_height * 2));
 		ImGui::SameLine();
 		ImGui::Text("LY: %i", static_cast<int>(device->GetPPU().GetLY()));
