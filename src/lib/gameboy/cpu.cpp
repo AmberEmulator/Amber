@@ -31,6 +31,7 @@ CPU::CPU(Memory16& a_Memory):
 	instruction_builder.Begin(Opcode::NOP);
 	instruction_builder.Begin(Opcode::DI, &CPU::Delay<&CPU::DisableInterrupts, 1>);
 	instruction_builder.Begin(Opcode::EI, &CPU::Delay<&CPU::EnableInterrupts, 1>);
+	instruction_builder.Begin(Opcode::HALT, &CPU::Delay<&CPU::Halt, 1>);
 	instruction_builder.Begin(Opcode::EXT, &CPU::DecodeExtendedInstruction);
 	instruction_builder.Begin(Opcode::BREAKPOINT_STOP, &CPU::BreakpointStop);
 	instruction_builder.Begin(Opcode::BREAKPOINT_CONTINUE, &CPU::BreakpointContinue);
@@ -899,6 +900,12 @@ uint16_t CPU::ReadNext16() noexcept
 	return word;
 }
 
+void CPU::IncrementOpCounter(size_t& a_Counter)
+{
+	++a_Counter;
+	a_Counter %= std::size(m_MicroOps);
+}
+
 void CPU::PushOp(MicroOp a_Op)
 {
 	#ifdef _DEBUG
@@ -906,8 +913,7 @@ void CPU::PushOp(MicroOp a_Op)
 	#endif
 
 	m_MicroOps[m_OpBack] = a_Op;
-	++m_OpBack;
-	m_OpBack %= std::size(m_MicroOps);
+	IncrementOpCounter(m_OpBack);
 }
 
 MicroOp CPU::PopOp()
@@ -919,8 +925,7 @@ MicroOp CPU::PopOp()
 	m_MicroOps[m_OpFront] = nullptr;
 	#endif
 
-	++m_OpFront;
-	m_OpFront %= std::size(m_MicroOps);
+	IncrementOpCounter(m_OpFront);
 
 	return op;
 }
@@ -935,15 +940,13 @@ void CPU::InsertOp(MicroOp a_Op, size_t a_Index)
 	}
 
 	m_MicroOps[a_Index] = a_Op;
-	++m_OpBack;
-	m_OpBack %= std::size(m_MicroOps);
+	IncrementOpCounter(m_OpBack);
 }
 
 void CPU::InsertOpAndIncrementDone(MicroOp a_Op)
 {
 	InsertOp(a_Op, m_OpDone);
-	++m_OpDone;
-	m_OpDone %= std::size(m_MicroOps);
+	IncrementOpCounter(m_OpDone);
 }
 
 void CPU::CallOp(MicroOp a_Op)
@@ -1507,6 +1510,9 @@ void CPU::ProcessInterrupts()
 			continue;
 		}
 
+		// Resume if halted
+		m_Halted = false;
+
 		// Reset interrupt flags (TODO: when does this happen exactly?)
 		m_InterruptMasterEnable = false;
 		m_InterruptRequests ^= interrupt_mask;
@@ -1531,6 +1537,26 @@ void CPU::ProcessInterrupts()
 		StoreRegister16(RegisterXY, 0x40 + i * 8);
 		InsertOpAndIncrementDone(&CPU::JP_rr<RegisterXY>);
 		InsertOpAndIncrementDone(&CPU::Break);
+	}
+}
+
+void CPU::Halt()
+{
+	m_Halted = true;
+	CheckHalt();
+}
+
+void CPU::CheckHalt()
+{
+	IncrementOpCounter(m_OpDone);
+	if (m_Halted)
+	{
+		InsertOp(&CPU::CheckHalt, m_OpFront);
+		Break();
+	}
+	else
+	{
+		bool boop = true;
 	}
 }
 

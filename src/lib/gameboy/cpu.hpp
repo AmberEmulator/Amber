@@ -100,6 +100,7 @@ namespace Amber::Gameboy
 		uint16_t ReadNext16() noexcept;
 
 		// Managing Ops
+		void IncrementOpCounter(size_t& a_Counter);
 		void PushOp(MicroOp a_Op);
 		MicroOp PopOp();
 		void InsertOp(MicroOp a_Op, size_t a_Index);
@@ -158,6 +159,8 @@ namespace Amber::Gameboy
 		void DisableInterrupts();
 		void EnableInterrupts();
 		void ProcessInterrupts();
+		void Halt();
+		void CheckHalt();
 		template <uint8_t Destination, uint8_t Mask> void MASK_r();
 		void DMA();
 
@@ -219,6 +222,7 @@ namespace Amber::Gameboy
 		bool m_InterruptMasterEnable = false;
 		uint8_t m_InterruptEnable = 0;
 		uint8_t m_InterruptRequests = 0;
+		bool m_Halted = false;
 
 		// DMA
 		uint8_t m_DMAAddress = 0;
