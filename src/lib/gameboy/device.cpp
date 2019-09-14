@@ -17,6 +17,7 @@ Device::Device(const DeviceDescription& a_Description):
 	m_CPU = std::make_unique<CPU>(*m_MMU);
 
 	m_PPU->SetCPU(m_CPU.get());
+	m_PPU->SetMMU(m_MMU.get());
 
 	m_Joypad->SetCPU(m_CPU.get());
 
@@ -54,7 +55,11 @@ MMU& Device::GetMMU() noexcept
 
 bool Device::Tick()
 {
-	m_PPU->Tick();
+	for (size_t i = 0; i < 4; ++i)
+	{
+		m_PPU->Tick();
+	}
+
 	const bool done = m_CPU->Tick();
 
 	return done;
