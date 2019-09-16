@@ -9,7 +9,7 @@
 
 namespace Amber::Common
 {
-	template <typename Opcode, typename Op, Op EndOp>
+	template <typename Opcode, typename MicroOp, MicroOp EndOp>
 	class InstructionBuilder
 	{
 		public:
@@ -36,7 +36,7 @@ namespace Amber::Common
 			return *this;
 		}
 
-		std::unique_ptr<InstructionSet<Opcode, Op>> Build()
+		std::unique_ptr<InstructionSet<Opcode, MicroOp>> Build()
 		{
 			// Count the total amount of ops
 			const size_t instruction_count = m_Instructions.size();
@@ -48,7 +48,7 @@ namespace Amber::Common
 			}
 
 			// Allocate the instruction set
-			auto instruction_set = std::make_unique<InstructionSet<Opcode, Op>>(instruction_count, total_op_count);
+			auto instruction_set = std::make_unique<InstructionSet<Opcode, MicroOp>>(instruction_count, total_op_count);
 
 			// Fill the instruction set
 			total_op_count = 0;
@@ -75,7 +75,7 @@ namespace Amber::Common
 
 		void Resize(size_t a_Size)
 		{
-			std::vector<Op> default_ops;
+			std::vector<MicroOp> default_ops;
 			if constexpr (EndOp != nullptr)
 			{
 				default_ops.push_back(EndOp);
@@ -100,7 +100,7 @@ namespace Amber::Common
 		}
 
 		template <typename... Ops>
-		void Push(Opcode a_Opcode, Op a_Op, Ops... a_Ops)
+		void Push(Opcode a_Opcode, MicroOp a_Op, Ops... a_Ops)
 		{
 			m_Instructions[a_Opcode].push_back(a_Op);
 
@@ -110,7 +110,7 @@ namespace Amber::Common
 			}
 		}
 
-		std::vector<std::vector<Op>> m_Instructions;
+		std::vector<std::vector<MicroOp>> m_Instructions;
 		Opcode m_CurrentOp;
 	};
 }
