@@ -10,6 +10,9 @@ target_include_directories(common PUBLIC
 )
 
 # Add sources
+# Natvis
+amber_add_sources(common "common.natvis" FILTER "Natvis")
+
 # API
 amber_add_sources(common "api.hpp" FILTER "API")
 

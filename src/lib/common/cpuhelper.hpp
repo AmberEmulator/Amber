@@ -4,27 +4,73 @@
 #include <common/api.hpp>
 #include <common/register.hpp>
 
+#include <limits>
+#include <type_traits>
+
 namespace Amber::Common
 {
-	template <typename CPU, typename RegisterType, size_t RegisterCount>
-	class CPUHelper
+	namespace Internal
 	{
-		public:
-		using MicroOp = void (CPU::*)();
+		template <typename CPU, typename RegisterType, size_t RegisterCount>
+		class CPUHelperBase
+		{
+			public:
+			using MicroOp = void (CPU::*)();
 
-		// Composition ops
-		using UnaryOp8  = uint8_t  (CPU::*)(uint8_t  a_Value);
-		using UnaryOp16 = uint16_t (CPU::*)(uint16_t a_Value);
-		using UnaryOp32 = uint32_t (CPU::*)(uint32_t a_Value);
-		using UnaryOp64 = uint64_t (CPU::*)(uint64_t a_Value);
+			protected:
+			Register<RegisterType> m_Registers[RegisterCount];
+		};
 
-		using BinaryOp8  = uint8_t  (CPU::*)(uint8_t  a_Left, uint8_t  a_Right);
-		using BinaryOp16 = uint16_t (CPU::*)(uint16_t a_Left, uint16_t a_Right);
-		using BinaryOp32 = uint32_t (CPU::*)(uint32_t a_Left, uint32_t a_Right);
-		using BinaryOp64 = uint64_t (CPU::*)(uint64_t a_Left, uint64_t a_Right);
+		template <typename CPU, typename RegisterType, size_t RegisterCount>
+		class CPUHelper16 : public CPUHelperBase<CPU, RegisterType, RegisterCount>
+		{
+			public:
+			static constexpr size_t RegisterShift = sizeof(RegisterType) >> 2;
+			static constexpr size_t RegisterMask = 0b1111 >> (4 - RegisterShift);
 
-		protected:
-		Register<RegisterType> m_Registers[RegisterCount];
+			using UnaryOp16 = uint16_t(CPU::*)(uint16_t a_Value);
+			using BinaryOp16 = uint16_t(CPU::*)(uint16_t a_Left, uint16_t a_Right);
+
+			uint16_t LoadRegister16(uint8_t a_Register) const noexcept
+			{
+				auto& reg = m_Registers[a_Register >> RegisterShift];
+				return reg.Load16(a_Register & RegisterMask);
+			}
+
+			void StoreRegister16(uint8_t a_Register, uint16_t a_Value) noexcept
+			{
+				auto& reg = m_Registers[a_Register >> RegisterShift];
+				reg.Store16(a_Register & RegisterMask, a_Value);
+			}
+		};
+
+		template <typename CPU, typename RegisterType, size_t RegisterCount>
+		class CPUHelper8 : public std::conditional_t<sizeof(RegisterType) == 1, CPUHelperBase<CPU, RegisterType, RegisterCount>, CPUHelper16<CPU, RegisterType, RegisterCount>>
+		{
+			static constexpr size_t RegisterShift = sizeof(RegisterType) >> 1;
+			static constexpr size_t RegisterMask = 0b1111 >> (4 - RegisterShift);
+
+			public:
+			uint8_t LoadRegister8(uint8_t a_Register) const noexcept
+			{
+				auto& reg = m_Registers[a_Register >> RegisterShift];
+				return reg.Load8(a_Register & RegisterMask);
+			}
+
+			void StoreRegister8(uint8_t a_Register, uint8_t a_Value) noexcept
+			{
+				auto& reg = m_Registers[a_Register >> RegisterShift];
+				reg.Store8(a_Register & RegisterMask, a_Value);
+			}
+
+			using UnaryOp8 = uint8_t(CPU::*)(uint8_t  a_Value);
+			using BinaryOp8 = uint8_t(CPU::*)(uint8_t  a_Left, uint8_t  a_Right);
+		};
+	}
+
+	template <typename CPU, typename RegisterType, size_t RegisterCount>
+	class CPUHelper : public Internal::CPUHelper8<CPU, RegisterType, RegisterCount>
+	{
 	};
 
 }

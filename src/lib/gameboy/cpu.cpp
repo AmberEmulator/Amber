@@ -743,35 +743,11 @@ Memory16& CPU::GetMemory() const noexcept
 	return m_Memory;
 }
 
-uint8_t CPU::LoadRegister8(uint8_t a_Register) const noexcept
-{
-	auto& reg = m_Registers[a_Register >> 1];
-	return reg.Load8(a_Register & 1);
-}
-
-uint16_t CPU::LoadRegister16(uint8_t a_Register) const noexcept
-{
-	auto& reg = m_Registers[a_Register];
-	return reg.Load16();
-}
-
 bool CPU::LoadFlag(uint8_t a_Flag) const noexcept
 {
 	const uint8_t f = LoadRegister8(RegisterF);
 	const uint8_t mask = (1 << a_Flag);
 	return  (f & mask) != 0;
-}
-
-void CPU::StoreRegister8(uint8_t a_Register, uint8_t a_Value) noexcept
-{
-	auto& reg = m_Registers[a_Register >> 1];
-	reg.Store8(a_Register & 1, a_Value);
-}
-
-void CPU::StoreRegister16(uint8_t a_Register, uint16_t a_Value) noexcept
-{
-	auto& reg = m_Registers[a_Register];
-	reg.Store16(a_Value);
 }
 
 void CPU::StoreFlag(uint8_t a_Flag, bool a_Value) noexcept

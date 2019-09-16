@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+
+  <Type Name="Amber::Common::Internal::RegisterIndexed16&lt;*&gt;">
+    <DisplayString Condition="sizeof($T1) == 2">{ uint16_t((uint16_t(m_Data[0]) &lt;&lt; 8) | uint16_t(m_Data[1])), H}</DisplayString>
+    <Expand>
+      <Item Name="Foo">12</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="Amber::Common::Internal::RegisterIndexed8&lt;*&gt;">
+    <DisplayString Condition="sizeof($T1) == 1">m_Data[0]</DisplayString>
+    <DisplayString Condition="sizeof($T1) != 1">{ *((Amber::Common::Internal::RegisterIndexed16&lt;$T1&gt;*)this) }</DisplayString>
+    <Expand>
+      <ExpandedItem Condition="sizeof($T1) != 1">*((Amber::Common::Internal::RegisterIndexed16&lt;$T1&gt;*)this)</ExpandedItem>
+    </Expand>
+	</Type>
+  
+  <Type Name="Amber::Common::InstructionSet&lt;*,*&gt;">
+    <DisplayString>{{ instructions={m_InstructionCount} ops={m_OpCount} }}</DisplayString>
+    <Expand>
+      <CustomListItems>
+        <Variable Name="instruction_index" InitialValue="0" />
+        <Variable Name="op_offset" InitialValue="0" />
+        <Size>m_InstructionCount</Size>
+        <Loop>
+          <Item Name="{($T1)instruction_index,en} [{m_Instructions[instruction_index].m_Size}]">m_Ops,[m_Instructions[instruction_index].m_Size]na</Item>
+          <Exec>instruction_index++</Exec>
+          <Exec>op_offset += m_Instructions[instruction_index].m_Size</Exec>
+          <Break Condition="instruction_index == m_InstructionCount"></Break>
+        </Loop>
+      </CustomListItems>
+    </Expand>
+  </Type>
+	
+</AutoVisualizer>

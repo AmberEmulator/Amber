@@ -55,11 +55,13 @@ namespace Amber::Common
 		class RegisterNotIndexed16 : public RegisterIndexed16<T>
 		{
 			public:
+			using RegisterIndexed16::Load16;
 			uint16_t Load16() const noexcept
 			{
 				return RegisterIndexed16::Load16(0);
 			}
 
+			using RegisterIndexed16::Store16;
 			void Store16(uint16_t a_Value) noexcept
 			{
 				return RegisterIndexed16::Store16(0, a_Value);
@@ -85,11 +87,13 @@ namespace Amber::Common
 		class RegisterNotIndexed8 : public RegisterIndexed8<T>
 		{
 			public:
+			using RegisterIndexed8::Load8;
 			uint8_t Load8() const noexcept
 			{
 				return RegisterIndexed8::Load8(0);
 			}
 
+			using RegisterIndexed8::Store8;
 			void Store8(uint8_t a_Value) noexcept
 			{
 				return RegisterIndexed8::Store8(0, a_Value);

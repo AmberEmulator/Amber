@@ -61,12 +61,7 @@ namespace Amber::Gameboy
 		Common::Memory16& GetMemory() const noexcept;
 
 		// Registers
-		uint8_t LoadRegister8(uint8_t a_Register) const noexcept;
-		uint16_t LoadRegister16(uint8_t a_Register) const noexcept;
 		bool LoadFlag(uint8_t a_Flag) const noexcept;
-
-		void StoreRegister8(uint8_t a_Register, uint8_t a_Value) noexcept;
-		void StoreRegister16(uint8_t a_Register, uint16_t a_Value) noexcept;
 		void StoreFlag(uint8_t a_Flag, bool a_Value) noexcept;
 
 		// Interrupts
