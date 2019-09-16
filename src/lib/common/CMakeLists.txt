@@ -20,6 +20,10 @@ amber_add_sources(common "mmu.hpp" FILTER "Memory/MMU")
 amber_add_sources(common "ram.hpp" FILTER "Memory/RAM")
 amber_add_sources(common "rom.hpp" FILTER "Memory/ROM")
 
+# CPU
+amber_add_sources(common "instructionbuilder.hpp" FILTER "CPU/Instruction Builder")
+amber_add_sources(common "instructionset.hpp" FILTER "CPU/Instruction Set")
+
 # Debugging
 amber_add_sources(common "debugger.hpp" "debugger.cpp" FILTER "Debugging/Debugger")
 amber_add_sources(common "videoviewer.hpp" "videoviewer.cpp" FILTER "Debugging/Video Viewer")
