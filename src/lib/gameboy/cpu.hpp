@@ -3,11 +3,10 @@
 
 #include <gameboy/api.hpp>
 #include <gameboy/extendedopcode.hpp>
-#include <gameboy/instructionbuilder.hpp>
-#include <gameboy/instructionset.hpp>
 #include <gameboy/opcode.hpp>
 #include <gameboy/register.hpp>
 
+#include <common/instructionset.hpp>
 #include <common/memory.hpp>
 
 #include <functional>
@@ -16,9 +15,9 @@ namespace Amber::Gameboy
 {
 	class GAMEBOY_API CPU
 	{
-		template <typename T> friend class InstructionBuilder;
-
 		public:
+		using MicroOp = void (CPU::*)();
+
 		static constexpr uint8_t RegisterAF = 0;
 		static constexpr uint8_t RegisterBC = 1;
 		static constexpr uint8_t RegisterDE = 2;
@@ -208,8 +207,8 @@ namespace Amber::Gameboy
 		Register m_Registers[8]; // AF, BC, DE, HL, SP, PC, XY, ZW
 
 		// Instructions
-		std::unique_ptr<InstructionSet<Opcode::Enum, MicroOp>> m_Instructions;
-		std::unique_ptr<InstructionSet<ExtendedOpcode::Enum, MicroOp>> m_ExtendedInstructions;
+		std::unique_ptr<Common::InstructionSet<Opcode::Enum, MicroOp>> m_Instructions;
+		std::unique_ptr<Common::InstructionSet<ExtendedOpcode::Enum, MicroOp>> m_ExtendedInstructions;
 
 		// Opcode queue
 		MicroOp m_MicroOps[16] = {};

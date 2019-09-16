@@ -1,6 +1,6 @@
 #include <gameboy/cpu.hpp>
 
-#include <gameboy/instructionbuilder.hpp>
+#include <common/instructionbuilder.hpp>
 
 #include <cassert>
 #include <iomanip>
@@ -15,8 +15,8 @@ static uint64_t g_Counter;
 CPU::CPU(Memory16& a_Memory):
 	m_Memory(a_Memory)
 {
-	InstructionBuilder<Opcode::Enum> instruction_builder;
-	InstructionBuilder<ExtendedOpcode::Enum> extended_instruction_builder;
+	InstructionBuilder<Opcode::Enum, MicroOp, &CPU::Break> instruction_builder;
+	InstructionBuilder<ExtendedOpcode::Enum, MicroOp, & CPU::Break> extended_instruction_builder;
 	
 	for (size_t i = 0; i < 256; ++i)
 	{
@@ -916,7 +916,7 @@ void CPU::PushOp(MicroOp a_Op)
 	IncrementOpCounter(m_OpBack);
 }
 
-MicroOp CPU::PopOp()
+CPU::MicroOp CPU::PopOp()
 {
 	const MicroOp op = m_MicroOps[m_OpFront];
 
@@ -1313,7 +1313,7 @@ void CPU::BinaryOp_rr_rr() noexcept
 	BinaryOp_rr_xx<Destination, Op, Store>(value);
 }
 
-template <MicroOp Op, uint8_t Counter>
+template <CPU::MicroOp Op, uint8_t Counter>
 void CPU::Delay()
 {
 	if constexpr (Counter == 0)
