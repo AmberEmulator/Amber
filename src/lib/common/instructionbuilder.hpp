@@ -1,20 +1,16 @@
-#ifndef H_AMBER_GAMEBOY_INSTRUCTIONBUILDER
-#define H_AMBER_GAMEBOY_INSTRUCTIONBUILDER
+#ifndef H_AMBER_COMMON_INSTRUCTIONBUILDER
+#define H_AMBER_COMMON_INSTRUCTIONBUILDER
 
-#include <gameboy/api.hpp>
-#include <gameboy/cpu.hpp>
-#include <gameboy/instructionset.hpp>
+#include <common/api.hpp>
+#include <common/instructionset.hpp>
 
 #include <memory>
 #include <vector>
 
-namespace Amber::Gameboy
+namespace Amber::Common
 {
-	class CPU;
-	using MicroOp = void (CPU::*)();
-
-	template <typename Opcode>
-	class GAMEBOY_API InstructionBuilder
+	template <typename Opcode, typename Op, Op EndOp>
+	class InstructionBuilder
 	{
 		public:
 		template <typename... Ops>
@@ -33,11 +29,14 @@ namespace Amber::Gameboy
 			{
 				Push(m_CurrentOp, a_Ops...);
 			}
-			Push(m_CurrentOp, &CPU::Break);
+			if constexpr (EndOp != nullptr)
+			{
+				Push(m_CurrentOp, EndOp);
+			}
 			return *this;
 		}
 
-		std::unique_ptr<InstructionSet<Opcode, MicroOp>> Build()
+		std::unique_ptr<InstructionSet<Opcode, Op>> Build()
 		{
 			// Count the total amount of ops
 			const size_t instruction_count = m_Instructions.size();
@@ -49,7 +48,7 @@ namespace Amber::Gameboy
 			}
 
 			// Allocate the instruction set
-			auto instruction_set = std::make_unique<InstructionSet<Opcode, MicroOp>>(instruction_count, total_op_count);
+			auto instruction_set = std::make_unique<InstructionSet<Opcode, Op>>(instruction_count, total_op_count);
 
 			// Fill the instruction set
 			total_op_count = 0;
@@ -76,7 +75,13 @@ namespace Amber::Gameboy
 
 		void Resize(size_t a_Size)
 		{
-			m_Instructions.resize(a_Size, std::vector<MicroOp>(1, &CPU::Break));
+			std::vector<Op> default_ops;
+			if constexpr (EndOp != nullptr)
+			{
+				default_ops.push_back(EndOp);
+			}
+
+			m_Instructions.resize(a_Size, default_ops);
 		}
 
 		private:
@@ -95,7 +100,7 @@ namespace Amber::Gameboy
 		}
 
 		template <typename... Ops>
-		void Push(Opcode a_Opcode, MicroOp a_Op, Ops... a_Ops)
+		void Push(Opcode a_Opcode, Op a_Op, Ops... a_Ops)
 		{
 			m_Instructions[a_Opcode].push_back(a_Op);
 
@@ -105,7 +110,7 @@ namespace Amber::Gameboy
 			}
 		}
 
-		std::vector<std::vector<MicroOp>> m_Instructions;
+		std::vector<std::vector<Op>> m_Instructions;
 		Opcode m_CurrentOp;
 	};
 }

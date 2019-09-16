@@ -1,11 +1,11 @@
-#ifndef H_AMBER_GAMEBOY_INSTRUCTIONSET
-#define H_AMBER_GAMEBOY_INSTRUCTIONSET
+#ifndef H_AMBER_COMMON_INSTRUCTIONSET
+#define H_AMBER_COMMON_INSTRUCTIONSET
 
-#include <gameboy/api.hpp>
+#include <common/api.hpp>
 
 #include <memory>
 
-namespace Amber::Gameboy
+namespace Amber::Common
 {
 	template <typename Opcode, typename Op>
 	class InstructionSet
