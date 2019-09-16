@@ -6,6 +6,7 @@
 #include <gameboy/opcode.hpp>
 #include <gameboy/register.hpp>
 
+#include <common/cpuhelper.hpp>
 #include <common/instructionset.hpp>
 #include <common/memory.hpp>
 
@@ -13,11 +14,9 @@
 
 namespace Amber::Gameboy
 {
-	class GAMEBOY_API CPU
+	class GAMEBOY_API CPU : public Common::CPUHelper<CPU>
 	{
 		public:
-		using MicroOp = void (CPU::*)();
-
 		static constexpr uint8_t RegisterAF = 0;
 		static constexpr uint8_t RegisterBC = 1;
 		static constexpr uint8_t RegisterDE = 2;
@@ -131,11 +130,6 @@ namespace Amber::Gameboy
 		uint8_t DecimalAdjust8(uint8_t a_Value) noexcept;
 
 		// Composition ops
-		using UnaryOp8 = uint8_t(CPU::*)(uint8_t a_Value);
-		using UnaryOp16 = uint16_t(CPU::*)(uint16_t a_Value);
-		using BinaryOp8 = uint8_t(CPU::*)(uint8_t a_Left, uint8_t a_Right);
-		using BinaryOp16 = uint16_t(CPU::*)(uint16_t a_Left, uint16_t a_Right);
-
 		template <uint8_t Destination, UnaryOp8 Op, bool Store = true> void UnaryOp_r() noexcept;
 		template <uint8_t Destination, UnaryOp16 Op, bool Store = true> void UnaryOp_rr() noexcept;
 

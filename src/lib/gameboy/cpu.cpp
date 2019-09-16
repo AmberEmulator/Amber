@@ -16,7 +16,7 @@ CPU::CPU(Memory16& a_Memory):
 	m_Memory(a_Memory)
 {
 	InstructionBuilder<Opcode::Enum, MicroOp, &CPU::Break> instruction_builder;
-	InstructionBuilder<ExtendedOpcode::Enum, MicroOp, & CPU::Break> extended_instruction_builder;
+	InstructionBuilder<ExtendedOpcode::Enum, MicroOp, &CPU::Break> extended_instruction_builder;
 	
 	for (size_t i = 0; i < 256; ++i)
 	{

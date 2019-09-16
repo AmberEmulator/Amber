@@ -21,6 +21,7 @@ amber_add_sources(common "ram.hpp" FILTER "Memory/RAM")
 amber_add_sources(common "rom.hpp" FILTER "Memory/ROM")
 
 # CPU
+amber_add_sources(common "cpuhelper.hpp" FILTER "CPU/CPU")
 amber_add_sources(common "instructionbuilder.hpp" FILTER "CPU/Instruction Builder")
 amber_add_sources(common "instructionset.hpp" FILTER "CPU/Instruction Set")
 
