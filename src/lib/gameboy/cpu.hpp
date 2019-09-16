@@ -4,17 +4,17 @@
 #include <gameboy/api.hpp>
 #include <gameboy/extendedopcode.hpp>
 #include <gameboy/opcode.hpp>
-#include <gameboy/register.hpp>
 
 #include <common/cpuhelper.hpp>
 #include <common/instructionset.hpp>
 #include <common/memory.hpp>
+#include <common/register.hpp>
 
 #include <functional>
 
 namespace Amber::Gameboy
 {
-	class GAMEBOY_API CPU : public Common::CPUHelper<CPU>
+	class GAMEBOY_API CPU : public Common::CPUHelper<CPU, uint16_t, 8>
 	{
 		public:
 		static constexpr uint8_t RegisterAF = 0;
@@ -196,9 +196,6 @@ namespace Amber::Gameboy
 
 		// Memory
 		Common::Memory16& m_Memory;
-
-		// Registers
-		Register m_Registers[8]; // AF, BC, DE, HL, SP, PC, XY, ZW
 
 		// Instructions
 		std::unique_ptr<Common::InstructionSet<Opcode::Enum, MicroOp>> m_Instructions;
