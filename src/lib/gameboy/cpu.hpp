@@ -138,18 +138,7 @@ namespace Amber::Gameboy
 		template <uint8_t Destination, uint8_t Mask> void MASK_r();
 		void DMA();
 
-		// 8-bit load ops
-		template <uint8_t Destination> void LD_r_x(uint8_t a_Value);
-		template <uint8_t Destination> void LD_r_n();
-		template <uint8_t Destination> void LD_r_axx(uint16_t a_Address);
-		template <uint8_t Destination, uint8_t Source> void LD_r_arr();
-
-		void LD_axx_x(uint16_t a_Address, uint8_t a_Value);
-		template <uint8_t Destination> void LD_arr_x(uint8_t a_Value);
-		template <uint8_t Destination, uint8_t Source> void LD_arr_r();
-
 		// 16-bit load ops
-		template <uint8_t Destination> void LD_rr_xx(uint16_t a_Value);
 		template <uint8_t Destination, uint8_t Source> void LD_rr_xxr(uint16_t a_Base);
 		template <uint8_t Destination, uint8_t Source> void LD_rr_FFr();
 		template <uint8_t Destination, uint8_t BaseSource, uint8_t OffsetSource> void LD_rr_rrr();

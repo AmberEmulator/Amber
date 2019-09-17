@@ -101,11 +101,40 @@ namespace Amber::Common
 			}
 
 			// Load ops
+			template <typename T, size_t Destination>
+			void LoadOp_r_x(T a_Value)
+			{
+				StoreRegister<T>(Destination, a_Value);
+			}
+
 			template <typename T, size_t Destination, size_t Source>
 			void LoadOp_r_r()
 			{
 				const T value = LoadRegister<T>(Source);
-				StoreRegister<T>(Destination, value);
+				LoadOp_r_x<T, Destination>(value);
+			}
+
+			template <typename T, size_t Destination>
+			void LoadOp_r_n()
+			{
+				const T value = ReadNext<T>();
+				LoadOp_r_x<T, Destination>(value);
+			}
+
+			template <typename T, size_t Destination, size_t Source>
+			void LoadOp_r_ar()
+			{
+				const RegisterType address = LoadRegister<RegisterType>(Source);
+				const T value = m_Memory.Load<T>(address);
+				LoadOp_r_x<T, Destination>(value);
+			}
+
+			template <typename T, size_t Destination, size_t Source>
+			void LoadOp_ar_r()
+			{
+				const RegisterType address = LoadRegister<RegisterType>(Destination);
+				const T value = LoadRegister<T>(Source);
+				m_Memory.Store<T>(address, value);
 			}
 
 			protected:
@@ -184,10 +213,34 @@ namespace Amber::Common
 			}
 
 			// Load ops
+			template <size_t Destination>
+			void LoadOp_r16_x16(uint16_t a_Value)
+			{
+				LoadOp_r_x<uint16_t, Destination>(a_Value);
+			}
+
 			template <size_t Destination, size_t Source>
 			void LoadOp_r16_r16()
 			{
 				LoadOp_r_r<uint16_t, Destination, Source>();
+			}
+
+			template <size_t Destination>
+			void LoadOp_r16_n16()
+			{
+				LoadOp_r_n<uint16_t, Destination>();
+			}
+
+			template <size_t Destination, size_t Source>
+			void LoadOp_r16_ar()
+			{
+				LoadOp_r_ar<uint16_t, Destination, Source>();
+			}
+
+			template <size_t Destination, size_t Source>
+			void LoadOp_ar_r16()
+			{
+				LoadOp_ar_r<uint16_t, Destination, Source>();
 			}
 		};
 
@@ -236,10 +289,34 @@ namespace Amber::Common
 			}
 
 			// Load ops
+			template <size_t Destination>
+			void LoadOp_r8_x8(uint8_t a_Value)
+			{
+				LoadOp_r_x<uint8_t, Destination>(a_Value);
+			}
+
 			template <size_t Destination, size_t Source>
 			void LoadOp_r8_r8()
 			{
 				LoadOp_r_r<uint8_t, Destination, Source>();
+			}
+
+			template <size_t Destination>
+			void LoadOp_r8_n8()
+			{
+				LoadOp_r_n<uint8_t, Destination>();
+			}
+
+			template <size_t Destination, size_t Source>
+			void LoadOp_r8_ar()
+			{
+				LoadOp_r_ar<uint8_t, Destination, Source>();
+			}
+
+			template <size_t Destination, size_t Source>
+			void LoadOp_ar_r8()
+			{
+				LoadOp_ar_r<uint8_t, Destination, Source>();
 			}
 		};
 	}
