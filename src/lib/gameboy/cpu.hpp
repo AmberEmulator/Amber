@@ -125,14 +125,6 @@ namespace Amber::Gameboy
 		uint8_t DecimalAdjust8(uint8_t a_Value) noexcept;
 
 		// Composition ops
-		template <uint8_t Destination, UnaryOp8 Op, bool Store = true> void UnaryOp_r() noexcept;
-		template <uint8_t Destination, UnaryOp16 Op, bool Store = true> void UnaryOp_rr() noexcept;
-
-		template <uint8_t Destination, BinaryOp8 Op, bool Store = true> void BinaryOp_r_x(uint8_t a_Value) noexcept;
-		template <uint8_t Destination, uint8_t Source, BinaryOp8 Op, bool Store = true> void BinaryOp_r_r() noexcept;
-		template <uint8_t Destination, BinaryOp16 Op, bool Store = true> void BinaryOp_rr_xx(uint16_t a_Value) noexcept;
-		template <uint8_t Destination, uint8_t Source, BinaryOp16 Op, bool Store = true> void BinaryOp_rr_rr() noexcept;
-
 		template <MicroOp Op, uint8_t Counter> void Delay();
 
 		// Base ops
