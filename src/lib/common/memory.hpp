@@ -4,6 +4,7 @@
 #include <common/api.hpp>
 
 #include <optional>
+#include <type_traits>
 #include <unordered_map>
 
 namespace Amber::Common
@@ -26,6 +27,52 @@ namespace Amber::Common
 		virtual void Store16(Address a_Address, uint16_t a_Value) = 0;
 		virtual void Store32(Address a_Address, uint32_t a_Value) = 0;
 		virtual void Store64(Address a_Address, uint64_t a_Value) = 0;
+
+		template <typename U>
+		U Load(Address a_Address)
+		{
+			static_assert(std::is_unsigned_v<U> && !std::is_same_v<Address, bool>);
+
+			if constexpr (std::is_same_v<U, uint8_t>)
+			{
+				return Load8(a_Address);
+			}
+			else if constexpr (std::is_same_v<U, uint16_t>)
+			{
+				return Load16(a_Address);
+			}
+			else if constexpr (std::is_same_v<U, uint32_t>)
+			{
+				return Load32(a_Address);
+			}
+			else if constexpr (std::is_same_v<U, uint64_t>)
+			{
+				return Load64(a_Address);
+			}
+		}
+
+		template <typename U>
+		void Store(Address a_Address, U a_Value)
+		{
+			static_assert(std::is_unsigned_v<U> && !std::is_same_v<Address, bool>);
+
+			if constexpr (std::is_same_v<U, uint8_t>)
+			{
+				Store8(a_Address, a_Value);
+			}
+			else if constexpr (std::is_same_v<U, uint16_t>)
+			{
+				Store16(a_Address, a_Value);
+			}
+			else if constexpr (std::is_same_v<U, uint32_t>)
+			{
+				Store32(a_Address, a_Value);
+			}
+			else if constexpr (std::is_same_v<U, uint64_t>)
+			{
+				Store64(a_Address, a_Value);
+			}
+		}
 
 		virtual uint64_t GetPhysicalAddress(Address a_Address) const
 		{

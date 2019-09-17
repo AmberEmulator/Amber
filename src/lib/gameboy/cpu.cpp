@@ -13,6 +13,7 @@ using namespace Gameboy;
 static uint64_t g_Counter;
 
 CPU::CPU(Memory16& a_Memory):
+	CPUHelper(a_Memory),
 	m_Memory(a_Memory)
 {
 	InstructionBuilder<Opcode::Enum, MicroOp, &CPU::Break> instruction_builder;
@@ -850,30 +851,6 @@ void CPU::Reset()
 
 	PushOp(&CPU::DecodeInstruction);
 	StoreRegister16(RegisterPC, 0);
-}
-
-uint8_t CPU::PeekNext8() const noexcept
-{
-	return m_Memory.Load8(LoadRegister16(RegisterPC));
-}
-
-uint16_t CPU::PeekNext16() const noexcept
-{
-	return m_Memory.Load16(LoadRegister16(RegisterPC));
-}
-
-uint8_t CPU::ReadNext8() noexcept
-{
-	const uint8_t byte = PeekNext8();
-	StoreRegister16(RegisterPC, LoadRegister16(RegisterPC) + 1);
-	return byte;
-}
-
-uint16_t CPU::ReadNext16() noexcept
-{
-	const uint16_t word = PeekNext16();
-	StoreRegister16(RegisterPC, LoadRegister16(RegisterPC) + 2);
-	return word;
 }
 
 void CPU::IncrementOpCounter(size_t& a_Counter)

@@ -14,7 +14,7 @@
 
 namespace Amber::Gameboy
 {
-	class GAMEBOY_API CPU : public Common::CPUHelper<CPU, uint16_t, 8>
+	class GAMEBOY_API CPU : public Common::CPUHelper<CPU, uint16_t, 8, 5>
 	{
 		public:
 		static constexpr uint8_t RegisterAF = 0;
@@ -86,12 +86,6 @@ namespace Amber::Gameboy
 		void Reset();
 
 		private:
-		// Reading bytes
-		uint8_t PeekNext8() const noexcept;
-		uint16_t PeekNext16() const noexcept;
-		uint8_t ReadNext8() noexcept;
-		uint16_t ReadNext16() noexcept;
-
 		// Managing Ops
 		void IncrementOpCounter(size_t& a_Counter);
 		void PushOp(MicroOp a_Op);

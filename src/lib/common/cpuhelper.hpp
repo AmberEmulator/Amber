@@ -2,6 +2,7 @@
 #define H_AMBER_COMMON_CPUHELPER
 
 #include <common/api.hpp>
+#include <common/memory.hpp>
 #include <common/register.hpp>
 
 #include <limits>
@@ -11,11 +12,16 @@ namespace Amber::Common
 {
 	namespace Internal
 	{
-		template <typename CPU, typename RegisterType, size_t RegisterCount>
+		template <typename CPU, typename RegisterType, size_t RegisterCount, size_t ProgramCounter>
 		class CPUHelperBase
 		{
 			public:
 			using MicroOp = void (CPU::*)();
+
+			CPUHelperBase(Memory<RegisterType>& a_Memory) noexcept:
+				m_Memory(a_Memory)
+			{
+			}
 
 			// Register load and store
 			template <typename T>
@@ -36,6 +42,35 @@ namespace Amber::Common
 
 				auto& reg = m_Registers[a_Register >> RegisterShift];
 				reg.Store<T>(a_Register & RegisterMask, a_Value);
+			}
+
+			// Program counter
+			RegisterType LoadProgramCounter() const noexcept
+			{
+				return LoadRegister<RegisterType>(ProgramCounter);
+			}
+
+			void StoreProgramCounter(RegisterType a_Value) noexcept
+			{
+				StoreRegister<RegisterType>(ProgramCounter, a_Value);
+			}
+
+			template <typename T>
+			T PeekNext() const noexcept
+			{
+				const auto pc = LoadProgramCounter();
+				return m_Memory.Load<T>(pc);
+			}
+
+			template <typename T>
+			T ReadNext() noexcept
+			{
+				auto pc = LoadProgramCounter();
+				const auto result = m_Memory.Load<T>(pc);
+				pc += sizeof(T);
+				StoreProgramCounter(pc);
+
+				return result;
 			}
 
 			// Composition ops
@@ -74,6 +109,7 @@ namespace Amber::Common
 			}
 
 			protected:
+			Memory<RegisterType>& m_Memory;
 			Register<RegisterType> m_Registers[RegisterCount];
 		};
 
@@ -97,15 +133,18 @@ namespace Amber::Common
 			using BinaryOp32 = BinaryOp<uint32_t>;
 		};*/
 
-		template <typename CPU, typename RegisterType, size_t RegisterCount, bool Enabled = sizeof(RegisterType) >= 2>
-		class CPUHelper16 : public CPUHelperBase<CPU, RegisterType, RegisterCount>
+		template <typename CPU, typename RegisterType, size_t RegisterCount, size_t ProgramCounter, bool Enabled = sizeof(RegisterType) >= 2>
+		class CPUHelper16 : public CPUHelperBase<CPU, RegisterType, RegisterCount, ProgramCounter>
 		{
+			using CPUHelperBase::CPUHelperBase;
 		};
 
-		template <typename CPU, typename RegisterType, size_t RegisterCount>
-		class CPUHelper16<CPU, RegisterType, RegisterCount, true> : public CPUHelperBase<CPU, RegisterType, RegisterCount>
+		template <typename CPU, typename RegisterType, size_t RegisterCount, size_t ProgramCounter>
+		class CPUHelper16<CPU, RegisterType, RegisterCount, ProgramCounter, true> : public CPUHelperBase<CPU, RegisterType, RegisterCount, ProgramCounter>
 		{
 			public:
+			using CPUHelperBase::CPUHelperBase;
+
 			// Register load and store
 			uint16_t LoadRegister16(size_t a_Register) const noexcept
 			{
@@ -115,6 +154,17 @@ namespace Amber::Common
 			void StoreRegister16(size_t a_Register, uint16_t a_Value) noexcept
 			{
 				StoreRegister<uint16_t>(a_Register, a_Value);
+			}
+
+			// Program counter
+			uint16_t PeekNext16() const noexcept
+			{
+				return PeekNext<uint16_t>();
+			}
+
+			uint16_t ReadNext16() noexcept
+			{
+				return ReadNext<uint16_t>();
 			}
 
 			// Composition ops
@@ -141,10 +191,12 @@ namespace Amber::Common
 			}
 		};
 
-		template <typename CPU, typename RegisterType, size_t RegisterCount>
-		class CPUHelper8 : public CPUHelper16<CPU, RegisterType, RegisterCount>
+		template <typename CPU, typename RegisterType, size_t RegisterCount, size_t ProgramCounter>
+		class CPUHelper8 : public CPUHelper16<CPU, RegisterType, RegisterCount, ProgramCounter>
 		{
 			public:
+			using CPUHelper16::CPUHelper16;
+
 			// Register load and store
 			uint8_t LoadRegister8(size_t a_Register) const noexcept
 			{
@@ -154,6 +206,17 @@ namespace Amber::Common
 			void StoreRegister8(size_t a_Register, uint8_t a_Value) noexcept
 			{
 				StoreRegister<uint8_t>(a_Register, a_Value);
+			}
+
+			// Program counter
+			uint8_t PeekNext8() const noexcept
+			{
+				return PeekNext<uint8_t>();
+			}
+
+			uint8_t ReadNext8() noexcept
+			{
+				return ReadNext<uint8_t>();
 			}
 
 			// Composition ops
@@ -181,9 +244,11 @@ namespace Amber::Common
 		};
 	}
 
-	template <typename CPU, typename RegisterType, size_t RegisterCount>
-	class CPUHelper : public Internal::CPUHelper8<CPU, RegisterType, RegisterCount>
+	template <typename CPU, typename RegisterType, size_t RegisterCount, size_t ProgramCounter>
+	class CPUHelper : public Internal::CPUHelper8<CPU, RegisterType, RegisterCount, ProgramCounter>
 	{
+		public:
+		using CPUHelper8::CPUHelper8;
 	};
 }
 
