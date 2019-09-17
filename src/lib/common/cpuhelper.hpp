@@ -17,8 +17,51 @@ namespace Amber::Common
 			public:
 			using MicroOp = void (CPU::*)();
 
+			template <typename T>
+			T LoadRegister(size_t a_Register) const noexcept
+			{
+				static constexpr size_t RegisterShift = (sizeof(RegisterType) / sizeof(T)) - 1;
+				static constexpr size_t RegisterMask = 0b1111 >> (4 - RegisterShift);
+
+				auto& reg = m_Registers[a_Register >> RegisterShift];
+				return reg.Load<T>(a_Register & RegisterMask);
+			}
+
+			template <typename T>
+			void StoreRegister(size_t a_Register, T a_Value) noexcept
+			{
+				static constexpr size_t RegisterShift = (sizeof(RegisterType) / sizeof(T)) - 1;
+				static constexpr size_t RegisterMask = 0b1111 >> (4 - RegisterShift);
+
+				auto& reg = m_Registers[a_Register >> RegisterShift];
+				reg.Store<T>(a_Register & RegisterMask, a_Value);
+			}
+
 			template <typename T> using UnaryOp = T (CPU::*)(T a_Value);
 			template <typename T> using BinaryOp = T (CPU::*)(T a_Left, T a_Right);
+
+			template <typename T, uint8_t Destination, UnaryOp<T> Op, bool Store = true>
+			void UnaryOp_r() noexcept
+			{
+				const T destination_value = LoadRegister<T>(Destination);
+				const T result = (static_cast<CPU*>(this)->*Op)(destination_value);
+				if constexpr (Store)
+				{
+					StoreRegister<T>(Destination, result);
+				}
+			}
+
+			template <typename T, uint8_t Destination, uint8_t Source, BinaryOp<T> Op, bool Store = true>
+			void BinaryOp_r_r() noexcept
+			{
+				const T destination_value = LoadRegister<T>(Destination);
+				const T source_value = LoadRegister<T>(Source);
+				const T result = (static_cast<CPU*>(this)->*Op)(destination_value, source_value);
+				if constexpr (Store)
+				{
+					StoreRegister<T>(Destination, result);
+				}
+			}
 
 			protected:
 			Register<RegisterType> m_Registers[RegisterCount];
@@ -53,19 +96,14 @@ namespace Amber::Common
 		class CPUHelper16<CPU, RegisterType, RegisterCount, true> : public CPUHelperBase<CPU, RegisterType, RegisterCount>
 		{
 			public:
-			static constexpr size_t RegisterShift = (sizeof(RegisterType) / sizeof(uint16_t)) - 1;
-			static constexpr size_t RegisterMask = 0b1111 >> (4 - RegisterShift);
-
-			uint16_t LoadRegister16(uint8_t a_Register) const noexcept
+			uint16_t LoadRegister16(size_t a_Register) const noexcept
 			{
-				auto& reg = m_Registers[a_Register >> RegisterShift];
-				return reg.Load16(a_Register & RegisterMask);
+				return LoadRegister<uint16_t>(a_Register);
 			}
 
-			void StoreRegister16(uint8_t a_Register, uint16_t a_Value) noexcept
+			void StoreRegister16(size_t a_Register, uint16_t a_Value) noexcept
 			{
-				auto& reg = m_Registers[a_Register >> RegisterShift];
-				reg.Store16(a_Register & RegisterMask, a_Value);
+				StoreRegister<uint16_t>(a_Register, a_Value);
 			}
 
 			using UnaryOp16 = CPUHelperBase::UnaryOp<uint16_t>;
@@ -74,44 +112,28 @@ namespace Amber::Common
 			template <uint8_t Destination, UnaryOp16 Op, bool Store = true>
 			void UnaryOp_r16() noexcept
 			{
-				const uint16_t destination_value = LoadRegister16(Destination);
-				const uint16_t result = (static_cast<CPU*>(this)->*Op)(destination_value);
-				if constexpr (Store)
-				{
-					StoreRegister16(Destination, result);
-				}
+				UnaryOp_r<uint16_t, Destination, Op, Store>();
 			}
 
 			template <uint8_t Destination, uint8_t Source, BinaryOp16 Op, bool Store = true>
 			void BinaryOp_r16_r16() noexcept
 			{
-				const uint16_t destination_value = LoadRegister16(Destination);
-				const uint16_t source_value = LoadRegister16(Source);
-				const uint16_t result = (static_cast<CPU*>(this)->*Op)(destination_value, source_value);
-				if constexpr (Store)
-				{
-					StoreRegister16(Destination, result);
-				}
+				BinaryOp_r_r<uint16_t, Destination, Source, Op, Store>();
 			}
 		};
 
 		template <typename CPU, typename RegisterType, size_t RegisterCount>
 		class CPUHelper8 : public CPUHelper16<CPU, RegisterType, RegisterCount>
 		{
-			static constexpr size_t RegisterShift = (sizeof(RegisterType) / sizeof(uint8_t)) - 1;
-			static constexpr size_t RegisterMask = 0b1111 >> (4 - RegisterShift);
-
 			public:
-			uint8_t LoadRegister8(uint8_t a_Register) const noexcept
+			uint8_t LoadRegister8(size_t a_Register) const noexcept
 			{
-				auto& reg = m_Registers[a_Register >> RegisterShift];
-				return reg.Load8(a_Register & RegisterMask);
+				return LoadRegister<uint8_t>(a_Register);
 			}
 
-			void StoreRegister8(uint8_t a_Register, uint8_t a_Value) noexcept
+			void StoreRegister8(size_t a_Register, uint8_t a_Value) noexcept
 			{
-				auto& reg = m_Registers[a_Register >> RegisterShift];
-				reg.Store8(a_Register & RegisterMask, a_Value);
+				StoreRegister<uint8_t>(a_Register, a_Value);
 			}
 
 			using UnaryOp8 = CPUHelperBase::UnaryOp<uint8_t>;
@@ -120,24 +142,13 @@ namespace Amber::Common
 			template <uint8_t Destination, UnaryOp8 Op, bool Store = true>
 			void UnaryOp_r8() noexcept
 			{
-				const uint8_t destination_value = LoadRegister8(Destination);
-				const uint8_t result = (static_cast<CPU*>(this)->*Op)(destination_value);
-				if constexpr (Store)
-				{
-					StoreRegister8(Destination, result);
-				}
+				UnaryOp_r<uint8_t, Destination, Op, Store>();
 			}
 
 			template <uint8_t Destination, uint8_t Source, BinaryOp8 Op, bool Store = true>
 			void BinaryOp_r8_r8() noexcept
 			{
-				const uint8_t destination_value = LoadRegister8(Destination);
-				const uint8_t source_value = LoadRegister8(Source);
-				const uint8_t result = (static_cast<CPU*>(this)->*Op)(destination_value, source_value);
-				if constexpr (Store)
-				{
-					StoreRegister8(Destination, result);
-				}
+				BinaryOp_r_r<uint8_t, Destination, Source, Op, Store>();
 			}
 		};
 	}

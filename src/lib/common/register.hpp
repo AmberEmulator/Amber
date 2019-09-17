@@ -11,43 +11,46 @@ namespace Amber::Common
 	namespace Internal
 	{
 		template <typename T>
-		class RegisterStorage
+		class RegisterBase
 		{
-			protected:
+			public:
 			template <typename U>
-			void LoadBlock(U* a_Destination, uint8_t a_Index) const noexcept
+			U Load(uint8_t a_Index) const noexcept
 			{
 				// TODO: big endian support
 				constexpr size_t start = sizeof(T) - sizeof(U);
-				std::memcpy(a_Destination, (m_Data + start) - sizeof(U) * a_Index, sizeof(U));
+
+				U value;
+				std::memcpy(&value, (m_Data + start) - sizeof(U) * a_Index, sizeof(U));
+				return value;
 			}
 
 			template <typename U>
-			void StoreBlock(const U* a_Source, uint8_t a_Index) noexcept
+			void Store(uint8_t a_Index, U a_Value) noexcept
 			{
 				// TODO: big endian support
 				constexpr size_t start = sizeof(T) - sizeof(U);
-				std::memcpy((m_Data + start) - sizeof(U) * a_Index, a_Source, sizeof(U));
+
+				std::memcpy((m_Data + start) - sizeof(U) * a_Index, &a_Value, sizeof(U));
 			}
 
+			private:
 			uint8_t m_Data[sizeof(T)] = {};
 		};
 
 
 		template <typename T>
-		class RegisterIndexed16 : public RegisterStorage<T>
+		class RegisterIndexed16 : public RegisterBase<T>
 		{
 			public:
 			uint16_t Load16(uint8_t a_Index) const noexcept
 			{
-				uint16_t value;
-				LoadBlock(&value, a_Index);
-				return value;
+				return Load<uint16_t>(a_Index);
 			}
 
 			void Store16(uint8_t a_Index, uint16_t a_Value) noexcept
 			{
-				StoreBlock(&a_Value, a_Index);
+				Store<uint16_t>(a_Index, a_Value);
 			}
 		};
 
@@ -69,17 +72,17 @@ namespace Amber::Common
 		};
 
 		template <typename T>
-		class RegisterIndexed8 : public std::conditional_t<sizeof(T) == 1, RegisterStorage<T>, std::conditional_t<sizeof(T) == 2, RegisterNotIndexed16<T>, RegisterIndexed16<T>>>
+		class RegisterIndexed8 : public std::conditional_t<sizeof(T) == 1, RegisterBase<T>, std::conditional_t<sizeof(T) == 2, RegisterNotIndexed16<T>, RegisterIndexed16<T>>>
 		{
 			public:
 			uint8_t Load8(uint8_t a_Index) const noexcept
 			{
-				return m_Data[(sizeof(T) - 1) - a_Index];
+				return Load<uint8_t>(a_Index);
 			}
 
 			void Store8(uint8_t a_Index, uint8_t a_Value) noexcept
 			{
-				m_Data[(sizeof(T) - 1) - a_Index] = a_Value;
+				Store<uint8_t>(a_Index, a_Value);
 			}
 		};
 
