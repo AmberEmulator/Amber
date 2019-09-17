@@ -5,6 +5,7 @@
 #include <common/memory.hpp>
 #include <common/register.hpp>
 
+#include <cassert>
 #include <limits>
 #include <type_traits>
 
@@ -55,6 +56,7 @@ namespace Amber::Common
 				StoreRegister<RegisterType>(ProgramCounter, a_Value);
 			}
 
+			// Decoding
 			template <typename T>
 			T PeekNext() const noexcept
 			{
@@ -147,9 +149,151 @@ namespace Amber::Common
 				m_Memory.Store<T>(address, value);
 			}
 
+			// Jump ops
+			void JumpOp_x(RegisterType a_Address) noexcept
+			{
+				StoreProgramCounter(a_Address);
+			}
+
+			template <size_t Source>
+			void JumpOp_r() noexcept
+			{
+				const RegisterType address = LoadRegister<RegisterType>(Source);
+				JumpOp_x(address);
+			}
+
+			template <RegisterType Address>
+			void JumpOp() noexcept
+			{
+				JumpOp_x(Address);
+			}
+
 			protected:
+			// Managing op queue
+			void PushOp(MicroOp a_Op) noexcept
+			{
+				#ifdef _DEBUG
+				assert(m_MicroOps[m_OpBack] == nullptr);
+				#endif
+
+				m_MicroOps[m_OpBack] = a_Op;
+				IncrementOpCounter(m_OpBack);
+			}
+
+			MicroOp PopOp() noexcept
+			{
+				const MicroOp op = m_MicroOps[m_OpFront];
+
+				#ifdef _DEBUG
+				assert(m_MicroOps[m_OpFront] != nullptr);
+				m_MicroOps[m_OpFront] = nullptr;
+				#endif
+
+				IncrementOpCounter(m_OpFront);
+
+				return op;
+			}
+
+			void CallOp(MicroOp a_Op)
+			{
+				(static_cast<CPU*>(this)->*a_Op)();
+			}
+
+			void ClearOps() noexcept
+			{
+				m_OpBack = m_OpFront;
+
+				#ifdef _DEBUG
+				std::memset(m_MicroOps, 0, sizeof(m_MicroOps));
+				#endif
+			}
+
+			void PushInstruction(MicroOp a_Op) noexcept
+			{
+				PushInstruction(&a_Op, 1);
+			}
+
+			// TODO: use span
+			void PushInstruction(const MicroOp* a_Ops, size_t a_Count) noexcept
+			{
+				for (size_t i = 0; i < a_Count; ++i)
+				{
+					PushOp(a_Ops[i]);
+				}
+
+				m_OpDone = m_OpBack;
+			}
+
+			void InsertOpBeforeInstruction(MicroOp a_Op)
+			{
+				InsertOp(a_Op, m_OpFront);
+			}
+
+			void InsertOpAfterInstruction(MicroOp a_Op)
+			{
+				InsertOp(a_Op, m_OpDone);
+			}
+
+			void ExtendInstruction(MicroOp a_Op) noexcept
+			{
+				ExtendInstruction(&a_Op, 1);
+			}
+
+			// TODO: use span
+			void ExtendInstruction(const MicroOp* a_Ops, size_t a_Count) noexcept
+			{
+				for (size_t i = 0; i < a_Count; ++i)
+				{
+					InsertOpAfterInstruction(a_Ops[i]);
+					IncrementInstruction();
+				}
+			}
+
+			bool IsInstructionDone() const noexcept
+			{
+				return m_OpFront == m_OpDone;
+			}
+
+			void IncrementInstruction() noexcept
+			{
+				IncrementOpCounter(m_OpDone);
+			}
+
+			void ResetInstruction() noexcept
+			{
+				m_OpDone = m_OpFront;
+			}
+
+			// Memory variables
 			Memory<RegisterType>& m_Memory;
 			Register<RegisterType> m_Registers[RegisterCount];
+
+			private:
+			// Managing op queue
+			void IncrementOpCounter(size_t& a_Counter) const noexcept
+			{
+				++a_Counter;
+				a_Counter %= std::size(m_MicroOps);
+			}
+
+			void InsertOp(MicroOp a_Op, size_t a_Index) noexcept
+			{
+				for (size_t i = m_OpBack; i != a_Index; i = (i - 1) % std::size(m_MicroOps))
+				{
+					const size_t prev = (i - 1) % std::size(m_MicroOps);
+
+					m_MicroOps[i] = m_MicroOps[prev];
+				}
+
+				m_MicroOps[a_Index] = a_Op;
+				IncrementOpCounter(m_OpBack);
+			}
+
+			// Op queue variables
+			MicroOp m_MicroOps[16] = {};
+			size_t m_OpFront = 0;
+			size_t m_OpBack = 0;
+			size_t m_OpDone = 0;
 		};
 
 		/*template <typename CPU, typename RegisterType, size_t RegisterCount>

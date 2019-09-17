@@ -287,19 +287,19 @@ CPU::CPU(Memory16& a_Memory):
 	instruction_builder.Begin(Opcode::RR_A, &CPU::UnaryOp_r8<RegisterA, &CPU::RotateRightThroughCarry8<true>>);
 
 	// Absolute jump instructions
-	instruction_builder.Begin(Opcode::JP_nn).Cycle(&CPU::LoadOp_r8_n8<RegisterY>).Cycle(&CPU::LoadOp_r8_n8<RegisterX>).Cycle(&CPU::JP_rr<RegisterXY>);
-	instruction_builder.Begin(Opcode::JP_NZ_nn).Cycle(&CPU::LoadOp_r8_n8<RegisterY>).Cycle(&CPU::LoadOp_r8_n8<RegisterX>, &CPU::FlagCondition<FlagZero, false>).Cycle(&CPU::JP_rr<RegisterXY>);
-	instruction_builder.Begin(Opcode::JP_Z_nn).Cycle(&CPU::LoadOp_r8_n8<RegisterY>).Cycle(&CPU::LoadOp_r8_n8<RegisterX>, &CPU::FlagCondition<FlagZero, true>).Cycle(&CPU::JP_rr<RegisterXY>);
-	instruction_builder.Begin(Opcode::JP_NC_nn).Cycle(&CPU::LoadOp_r8_n8<RegisterY>).Cycle(&CPU::LoadOp_r8_n8<RegisterX>, &CPU::FlagCondition<FlagCarry, false>).Cycle(&CPU::JP_rr<RegisterXY>);
-	instruction_builder.Begin(Opcode::JP_C_nn).Cycle(&CPU::LoadOp_r8_n8<RegisterY>).Cycle(&CPU::LoadOp_r8_n8<RegisterX>, &CPU::FlagCondition<FlagCarry, true>).Cycle(&CPU::JP_rr<RegisterXY>);
-	instruction_builder.Begin(Opcode::JP_HL, &CPU::JP_rr<RegisterHL>);
+	instruction_builder.Begin(Opcode::JP_nn).Cycle(&CPU::LoadOp_r8_n8<RegisterY>).Cycle(&CPU::LoadOp_r8_n8<RegisterX>).Cycle(&CPU::JumpOp_r<RegisterXY>);
+	instruction_builder.Begin(Opcode::JP_NZ_nn).Cycle(&CPU::LoadOp_r8_n8<RegisterY>).Cycle(&CPU::LoadOp_r8_n8<RegisterX>, &CPU::FlagCondition<FlagZero, false>).Cycle(&CPU::JumpOp_r<RegisterXY>);
+	instruction_builder.Begin(Opcode::JP_Z_nn).Cycle(&CPU::LoadOp_r8_n8<RegisterY>).Cycle(&CPU::LoadOp_r8_n8<RegisterX>, &CPU::FlagCondition<FlagZero, true>).Cycle(&CPU::JumpOp_r<RegisterXY>);
+	instruction_builder.Begin(Opcode::JP_NC_nn).Cycle(&CPU::LoadOp_r8_n8<RegisterY>).Cycle(&CPU::LoadOp_r8_n8<RegisterX>, &CPU::FlagCondition<FlagCarry, false>).Cycle(&CPU::JumpOp_r<RegisterXY>);
+	instruction_builder.Begin(Opcode::JP_C_nn).Cycle(&CPU::LoadOp_r8_n8<RegisterY>).Cycle(&CPU::LoadOp_r8_n8<RegisterX>, &CPU::FlagCondition<FlagCarry, true>).Cycle(&CPU::JumpOp_r<RegisterXY>);
+	instruction_builder.Begin(Opcode::JP_HL, &CPU::JumpOp_r<RegisterHL>);
 
 	// Relative jump instructions
-	instruction_builder.Begin(Opcode::JR_n).Cycle(&CPU::LoadOp_r8_n8<RegisterX>).Cycle(&CPU::JR_rr_r<RegisterPC, RegisterX>);
-	instruction_builder.Begin(Opcode::JR_NZ_n).Cycle(&CPU::LoadOp_r8_n8<RegisterX>, &CPU::FlagCondition<FlagZero, false>).Cycle(&CPU::JR_rr_r<RegisterPC, RegisterX>);
-	instruction_builder.Begin(Opcode::JR_Z_n).Cycle(&CPU::LoadOp_r8_n8<RegisterX>, &CPU::FlagCondition<FlagZero, true>).Cycle(&CPU::JR_rr_r<RegisterPC, RegisterX>);
-	instruction_builder.Begin(Opcode::JR_NC_n).Cycle(&CPU::LoadOp_r8_n8<RegisterX>, &CPU::FlagCondition<FlagCarry, false>).Cycle(&CPU::JR_rr_r<RegisterPC, RegisterX>);
-	instruction_builder.Begin(Opcode::JR_C_n).Cycle(&CPU::LoadOp_r8_n8<RegisterX>, &CPU::FlagCondition<FlagCarry, true>).Cycle(&CPU::JR_rr_r<RegisterPC, RegisterX>);
+	instruction_builder.Begin(Opcode::JR_n).Cycle(&CPU::LoadOp_r8_n8<RegisterX>).Cycle(&CPU::JumpOp_r16_r8<RegisterPC, RegisterX>);
+	instruction_builder.Begin(Opcode::JR_NZ_n).Cycle(&CPU::LoadOp_r8_n8<RegisterX>, &CPU::FlagCondition<FlagZero, false>).Cycle(&CPU::JumpOp_r16_r8<RegisterPC, RegisterX>);
+	instruction_builder.Begin(Opcode::JR_Z_n).Cycle(&CPU::LoadOp_r8_n8<RegisterX>, &CPU::FlagCondition<FlagZero, true>).Cycle(&CPU::JumpOp_r16_r8<RegisterPC, RegisterX>);
+	instruction_builder.Begin(Opcode::JR_NC_n).Cycle(&CPU::LoadOp_r8_n8<RegisterX>, &CPU::FlagCondition<FlagCarry, false>).Cycle(&CPU::JumpOp_r16_r8<RegisterPC, RegisterX>);
+	instruction_builder.Begin(Opcode::JR_C_n).Cycle(&CPU::LoadOp_r8_n8<RegisterX>, &CPU::FlagCondition<FlagCarry, true>).Cycle(&CPU::JumpOp_r16_r8<RegisterPC, RegisterX>);
 
 	// Push instructions
 	instruction_builder.Begin(Opcode::PUSH_AF)
@@ -339,97 +339,97 @@ CPU::CPU(Memory16& a_Memory):
 		.Cycle(&CPU::LoadOp_r8_n8<RegisterX>)
 		.Cycle(&CPU::UnaryOp_r16<RegisterSP, &CPU::Decrement16>, &CPU::LoadOp_ar_r8<RegisterSP, RegisterPC_P>)
 		.Cycle(&CPU::UnaryOp_r16<RegisterSP, &CPU::Decrement16>, &CPU::LoadOp_ar_r8<RegisterSP, RegisterPC_C>)
-		.Cycle(&CPU::JP_rr<RegisterXY>);
+		.Cycle(&CPU::JumpOp_r<RegisterXY>);
 	instruction_builder.Begin(Opcode::CALL_NZ_nn)
 		.Cycle(&CPU::LoadOp_r8_n8<RegisterY>)
 		.Cycle(&CPU::LoadOp_r8_n8<RegisterX>, &CPU::FlagCondition<FlagZero, false>)
 		.Cycle(&CPU::UnaryOp_r16<RegisterSP, &CPU::Decrement16>, &CPU::LoadOp_ar_r8<RegisterSP, RegisterPC_P>)
 		.Cycle(&CPU::UnaryOp_r16<RegisterSP, &CPU::Decrement16>, &CPU::LoadOp_ar_r8<RegisterSP, RegisterPC_C>)
-		.Cycle(&CPU::JP_rr<RegisterXY>);
+		.Cycle(&CPU::JumpOp_r<RegisterXY>);
 	instruction_builder.Begin(Opcode::CALL_Z_nn)
 		.Cycle(&CPU::LoadOp_r8_n8<RegisterY>)
 		.Cycle(&CPU::LoadOp_r8_n8<RegisterX>, &CPU::FlagCondition<FlagZero, true>)
 		.Cycle(&CPU::UnaryOp_r16<RegisterSP, &CPU::Decrement16>, &CPU::LoadOp_ar_r8<RegisterSP, RegisterPC_P>)
 		.Cycle(&CPU::UnaryOp_r16<RegisterSP, &CPU::Decrement16>, &CPU::LoadOp_ar_r8<RegisterSP, RegisterPC_C>)
-		.Cycle(&CPU::JP_rr<RegisterXY>);
+		.Cycle(&CPU::JumpOp_r<RegisterXY>);
 	instruction_builder.Begin(Opcode::CALL_NC_nn)
 		.Cycle(&CPU::LoadOp_r8_n8<RegisterY>)
 		.Cycle(&CPU::LoadOp_r8_n8<RegisterX>, &CPU::FlagCondition<FlagCarry, false>)
 		.Cycle(&CPU::UnaryOp_r16<RegisterSP, &CPU::Decrement16>, &CPU::LoadOp_ar_r8<RegisterSP, RegisterPC_P>)
 		.Cycle(&CPU::UnaryOp_r16<RegisterSP, &CPU::Decrement16>, &CPU::LoadOp_ar_r8<RegisterSP, RegisterPC_C>)
-		.Cycle(&CPU::JP_rr<RegisterXY>);
+		.Cycle(&CPU::JumpOp_r<RegisterXY>);
 	instruction_builder.Begin(Opcode::CALL_C_nn)
 		.Cycle(&CPU::LoadOp_r8_n8<RegisterY>)
 		.Cycle(&CPU::LoadOp_r8_n8<RegisterX>, &CPU::FlagCondition<FlagCarry, true>)
 		.Cycle(&CPU::UnaryOp_r16<RegisterSP, &CPU::Decrement16>, &CPU::LoadOp_ar_r8<RegisterSP, RegisterPC_P>)
 		.Cycle(&CPU::UnaryOp_r16<RegisterSP, &CPU::Decrement16>, &CPU::LoadOp_ar_r8<RegisterSP, RegisterPC_C>)
-		.Cycle(&CPU::JP_rr<RegisterXY>);
+		.Cycle(&CPU::JumpOp_r<RegisterXY>);
 
 	// Return instructions
 	instruction_builder.Begin(Opcode::RET)
 		.Cycle(&CPU::LoadOp_r8_ar<RegisterY, RegisterSP>, &CPU::UnaryOp_r16<RegisterSP, &CPU::Increment16>)
 		.Cycle(&CPU::LoadOp_r8_ar<RegisterX, RegisterSP>, &CPU::UnaryOp_r16<RegisterSP, &CPU::Increment16>)
-		.Cycle(&CPU::JP_rr<RegisterXY>);
+		.Cycle(&CPU::JumpOp_r<RegisterXY>);
 	instruction_builder.Begin(Opcode::RET_NZ)
 		.Cycle(&CPU::FlagCondition<FlagZero, false>)
 		.Cycle(&CPU::LoadOp_r8_ar<RegisterY, RegisterSP>, &CPU::UnaryOp_r16<RegisterSP, &CPU::Increment16>)
 		.Cycle(&CPU::LoadOp_r8_ar<RegisterX, RegisterSP>, &CPU::UnaryOp_r16<RegisterSP, &CPU::Increment16>)
-		.Cycle(&CPU::JP_rr<RegisterXY>);
+		.Cycle(&CPU::JumpOp_r<RegisterXY>);
 	instruction_builder.Begin(Opcode::RET_Z)
 		.Cycle(&CPU::FlagCondition<FlagZero, true>)
 		.Cycle(&CPU::LoadOp_r8_ar<RegisterY, RegisterSP>, &CPU::UnaryOp_r16<RegisterSP, &CPU::Increment16>)
 		.Cycle(&CPU::LoadOp_r8_ar<RegisterX, RegisterSP>, &CPU::UnaryOp_r16<RegisterSP, &CPU::Increment16>)
-		.Cycle(&CPU::JP_rr<RegisterXY>);
+		.Cycle(&CPU::JumpOp_r<RegisterXY>);
 	instruction_builder.Begin(Opcode::RET_NC)
 		.Cycle(&CPU::FlagCondition<FlagCarry, false>)
 		.Cycle(&CPU::LoadOp_r8_ar<RegisterY, RegisterSP>, &CPU::UnaryOp_r16<RegisterSP, &CPU::Increment16>)
 		.Cycle(&CPU::LoadOp_r8_ar<RegisterX, RegisterSP>, &CPU::UnaryOp_r16<RegisterSP, &CPU::Increment16>)
-		.Cycle(&CPU::JP_rr<RegisterXY>);
+		.Cycle(&CPU::JumpOp_r<RegisterXY>);
 	instruction_builder.Begin(Opcode::RET_C)
 		.Cycle(&CPU::FlagCondition<FlagCarry, true>)
 		.Cycle(&CPU::LoadOp_r8_ar<RegisterY, RegisterSP>, &CPU::UnaryOp_r16<RegisterSP, &CPU::Increment16>)
 		.Cycle(&CPU::LoadOp_r8_ar<RegisterX, RegisterSP>, &CPU::UnaryOp_r16<RegisterSP, &CPU::Increment16>)
-		.Cycle(&CPU::JP_rr<RegisterXY>);
+		.Cycle(&CPU::JumpOp_r<RegisterXY>);
 
 	// Return instructions
 	instruction_builder.Begin(Opcode::RETI)
 		.Cycle(&CPU::LoadOp_r8_ar<RegisterY, RegisterSP>, &CPU::UnaryOp_r16<RegisterSP, &CPU::Increment16>)
 		.Cycle(&CPU::LoadOp_r8_ar<RegisterX, RegisterSP>, &CPU::UnaryOp_r16<RegisterSP, &CPU::Increment16>)
-		.Cycle(&CPU::JP_rr<RegisterXY>, &CPU::EnableInterrupts);
+		.Cycle(&CPU::JumpOp_r<RegisterXY>, &CPU::EnableInterrupts);
 
 	// Restart instructions
 	instruction_builder.Begin(Opcode::RST_00)
 		.Cycle(&CPU::UnaryOp_r16<RegisterSP, &CPU::Decrement16>, &CPU::LoadOp_ar_r8<RegisterSP, RegisterPC_P>)
 		.Cycle(&CPU::UnaryOp_r16<RegisterSP, &CPU::Decrement16>, &CPU::LoadOp_ar_r8<RegisterSP, RegisterPC_C>)
-		.Cycle(&CPU::JP<0x0000>);
+		.Cycle(&CPU::JumpOp<0x0000>);
 	instruction_builder.Begin(Opcode::RST_08)
 		.Cycle(&CPU::UnaryOp_r16<RegisterSP, &CPU::Decrement16>, &CPU::LoadOp_ar_r8<RegisterSP, RegisterPC_P>)
 		.Cycle(&CPU::UnaryOp_r16<RegisterSP, &CPU::Decrement16>, &CPU::LoadOp_ar_r8<RegisterSP, RegisterPC_C>)
-		.Cycle(&CPU::JP<0x0008>);
+		.Cycle(&CPU::JumpOp<0x0008>);
 	instruction_builder.Begin(Opcode::RST_10)
 		.Cycle(&CPU::UnaryOp_r16<RegisterSP, &CPU::Decrement16>, &CPU::LoadOp_ar_r8<RegisterSP, RegisterPC_P>)
 		.Cycle(&CPU::UnaryOp_r16<RegisterSP, &CPU::Decrement16>, &CPU::LoadOp_ar_r8<RegisterSP, RegisterPC_C>)
-		.Cycle(&CPU::JP<0x0010>);
+		.Cycle(&CPU::JumpOp<0x0010>);
 	instruction_builder.Begin(Opcode::RST_18)
 		.Cycle(&CPU::UnaryOp_r16<RegisterSP, &CPU::Decrement16>, &CPU::LoadOp_ar_r8<RegisterSP, RegisterPC_P>)
 		.Cycle(&CPU::UnaryOp_r16<RegisterSP, &CPU::Decrement16>, &CPU::LoadOp_ar_r8<RegisterSP, RegisterPC_C>)
-		.Cycle(&CPU::JP<0x0018>);
+		.Cycle(&CPU::JumpOp<0x0018>);
 	instruction_builder.Begin(Opcode::RST_20)
 		.Cycle(&CPU::UnaryOp_r16<RegisterSP, &CPU::Decrement16>, &CPU::LoadOp_ar_r8<RegisterSP, RegisterPC_P>)
 		.Cycle(&CPU::UnaryOp_r16<RegisterSP, &CPU::Decrement16>, &CPU::LoadOp_ar_r8<RegisterSP, RegisterPC_C>)
-		.Cycle(&CPU::JP<0x0020>);
+		.Cycle(&CPU::JumpOp<0x0020>);
 	instruction_builder.Begin(Opcode::RST_28)
 		.Cycle(&CPU::UnaryOp_r16<RegisterSP, &CPU::Decrement16>, &CPU::LoadOp_ar_r8<RegisterSP, RegisterPC_P>)
 		.Cycle(&CPU::UnaryOp_r16<RegisterSP, &CPU::Decrement16>, &CPU::LoadOp_ar_r8<RegisterSP, RegisterPC_C>)
-		.Cycle(&CPU::JP<0x0028>);
+		.Cycle(&CPU::JumpOp<0x0028>);
 	instruction_builder.Begin(Opcode::RST_30)
 		.Cycle(&CPU::UnaryOp_r16<RegisterSP, &CPU::Decrement16>, &CPU::LoadOp_ar_r8<RegisterSP, RegisterPC_P>)
 		.Cycle(&CPU::UnaryOp_r16<RegisterSP, &CPU::Decrement16>, &CPU::LoadOp_ar_r8<RegisterSP, RegisterPC_C>)
-		.Cycle(&CPU::JP<0x0030>);
+		.Cycle(&CPU::JumpOp<0x0030>);
 	instruction_builder.Begin(Opcode::RST_38)
 		.Cycle(&CPU::UnaryOp_r16<RegisterSP, &CPU::Decrement16>, &CPU::LoadOp_ar_r8<RegisterSP, RegisterPC_P>)
 		.Cycle(&CPU::UnaryOp_r16<RegisterSP, &CPU::Decrement16>, &CPU::LoadOp_ar_r8<RegisterSP, RegisterPC_C>)
-		.Cycle(&CPU::JP<0x0038>);
+		.Cycle(&CPU::JumpOp<0x0038>);
 
 	// Misc instructions
 	instruction_builder.Begin(Opcode::CPL_A, &CPU::UnaryOp_r8<RegisterA, &CPU::Complement8>);
@@ -781,7 +781,7 @@ void CPU::SetInterruptEnable(uint8_t a_Interrupts) noexcept
 	if (m_InterruptEnable != a_Interrupts)
 	{
 		m_InterruptEnable = a_Interrupts;
-		InsertOp(&CPU::ProcessInterrupts, m_OpDone);
+		InsertOpAfterInstruction(&CPU::ProcessInterrupts);
 	}
 }
 
@@ -790,7 +790,7 @@ void CPU::SetInterruptRequests(uint8_t a_Interrupts) noexcept
 	if (m_InterruptRequests != a_Interrupts)
 	{
 		m_InterruptRequests = a_Interrupts;
-		InsertOp(&CPU::ProcessInterrupts, m_OpDone);
+		InsertOpAfterInstruction(&CPU::ProcessInterrupts);
 	}
 }
 
@@ -838,73 +838,14 @@ bool CPU::Tick()
 	}
 
 	++g_Counter;
-	return m_OpFront == m_OpDone;
+	return IsInstructionDone();
 }
 
 void CPU::Reset()
 {
-	m_OpBack = m_OpFront;
-
-	#ifdef _DEBUG
-	std::memset(m_MicroOps, 0, sizeof(m_MicroOps));
-	#endif
-
+	ClearOps();
 	PushOp(&CPU::DecodeInstruction);
 	StoreRegister16(RegisterPC, 0);
-}
-
-void CPU::IncrementOpCounter(size_t& a_Counter)
-{
-	++a_Counter;
-	a_Counter %= std::size(m_MicroOps);
-}
-
-void CPU::PushOp(MicroOp a_Op)
-{
-	#ifdef _DEBUG
-	assert(m_MicroOps[m_OpBack] == nullptr);
-	#endif
-
-	m_MicroOps[m_OpBack] = a_Op;
-	IncrementOpCounter(m_OpBack);
-}
-
-CPU::MicroOp CPU::PopOp()
-{
-	const MicroOp op = m_MicroOps[m_OpFront];
-
-	#ifdef _DEBUG
-	assert(m_MicroOps[m_OpFront] != nullptr);
-	m_MicroOps[m_OpFront] = nullptr;
-	#endif
-
-	IncrementOpCounter(m_OpFront);
-
-	return op;
-}
-
-void CPU::InsertOp(MicroOp a_Op, size_t a_Index)
-{
-	for (size_t i = m_OpBack; i != a_Index; i = (i - 1) % std::size(m_MicroOps))
-	{
-		const size_t prev = (i - 1) % std::size(m_MicroOps);
-
-		m_MicroOps[i] = m_MicroOps[prev];
-	}
-
-	m_MicroOps[a_Index] = a_Op;
-	IncrementOpCounter(m_OpBack);
-}
-
-void CPU::InsertOpAndIncrementDone(MicroOp a_Op)
-{
-	InsertOp(a_Op, m_OpDone);
-	IncrementOpCounter(m_OpDone);
-}
-
-void CPU::CallOp(MicroOp a_Op)
-{
-	(this->*a_Op)();
 }
 
 template <bool Carry>
@@ -1213,7 +1154,7 @@ void CPU::Delay()
 {
 	if constexpr (Counter == 0)
 	{
-		InsertOp(Op, m_OpDone);
+		ExtendInstruction(Op);
 	}
 	else
 	{
@@ -1279,13 +1220,7 @@ void CPU::DecodeInstruction()
 	const size_t instruction_size = m_Instructions->GetInstructionSize(opcode);
 	const MicroOp* const ops = m_Instructions->GetInstructionOps(opcode);
 
-	for (size_t i = 0; i < instruction_size; ++i)
-	{
-		PushOp(ops[i]);
-	}
-
-	m_OpDone = m_OpBack;
-
+	PushInstruction(ops, instruction_size);
 	PushOp(&CPU::DecodeInstruction);
 }
 
@@ -1295,10 +1230,7 @@ void CPU::DecodeExtendedInstruction()
 	const size_t instruction_size = m_ExtendedInstructions->GetInstructionSize(opcode);
 	const MicroOp* const ops = m_ExtendedInstructions->GetInstructionOps(opcode);
 
-	for (size_t i = 0; i < instruction_size; ++i)
-	{
-		InsertOpAndIncrementDone(ops[i]);
-	}
+	ExtendInstruction(ops, instruction_size);
 }
 
 void CPU::BreakpointStop()
@@ -1344,10 +1276,7 @@ void CPU::BreakpointContinue()
 	const size_t instruction_size = m_Instructions->GetInstructionSize(opcode);
 	const MicroOp* const ops = m_Instructions->GetInstructionOps(opcode);
 
-	for (size_t i = 0; i < instruction_size; ++i)
-	{
-		InsertOpAndIncrementDone(ops[i]);
-	}
+	ExtendInstruction(ops, instruction_size);
 }
 
 void CPU::Break()
@@ -1357,7 +1286,7 @@ void CPU::Break()
 
 void CPU::Skip()
 {
-	while (m_OpFront != m_OpDone)
+	while (!IsInstructionDone())
 	{
 		PopOp();
 	}
@@ -1413,25 +1342,25 @@ void CPU::ProcessInterrupts()
 		m_InterruptRequests ^= interrupt_mask;
 
 		// Set done to front
-		m_OpDone = m_OpFront;
+		ResetInstruction();
 
 		// Wait 2 cycles
-		InsertOpAndIncrementDone(&CPU::Break);
-		InsertOpAndIncrementDone(&CPU::Break);
+		ExtendInstruction(&CPU::Break);
+		ExtendInstruction(&CPU::Break);
 
 		// Push PC on the stack
-		InsertOpAndIncrementDone(&CPU::UnaryOp_r16<RegisterSP, &CPU::Decrement16>);
-		InsertOpAndIncrementDone(&CPU::LoadOp_ar_r8<RegisterSP, RegisterPC_P>);
-		InsertOpAndIncrementDone(&CPU::Break);
+		ExtendInstruction(&CPU::UnaryOp_r16<RegisterSP, &CPU::Decrement16>);
+		ExtendInstruction(&CPU::LoadOp_ar_r8<RegisterSP, RegisterPC_P>);
+		ExtendInstruction(&CPU::Break);
 
-		InsertOpAndIncrementDone(&CPU::UnaryOp_r16<RegisterSP, &CPU::Decrement16>);
-		InsertOpAndIncrementDone(&CPU::LoadOp_ar_r8<RegisterSP, RegisterPC_C>);
-		InsertOpAndIncrementDone(&CPU::Break);
+		ExtendInstruction(&CPU::UnaryOp_r16<RegisterSP, &CPU::Decrement16>);
+		ExtendInstruction(&CPU::LoadOp_ar_r8<RegisterSP, RegisterPC_C>);
+		ExtendInstruction(&CPU::Break);
 
 		// Jump to interrupt handler
 		StoreRegister16(RegisterXY, 0x40 + i * 8);
-		InsertOpAndIncrementDone(&CPU::JP_rr<RegisterXY>);
-		InsertOpAndIncrementDone(&CPU::Break);
+		ExtendInstruction(&CPU::JumpOp_r<RegisterXY>);
+		ExtendInstruction(&CPU::Break);
 	}
 }
 
@@ -1443,15 +1372,11 @@ void CPU::Halt()
 
 void CPU::CheckHalt()
 {
-	IncrementOpCounter(m_OpDone);
+	IncrementInstruction();
 	if (m_Halted)
 	{
-		InsertOp(&CPU::CheckHalt, m_OpFront);
+		InsertOpBeforeInstruction(&CPU::CheckHalt);
 		Break();
-	}
-	else
-	{
-		bool boop = true;
 	}
 }
 
@@ -1508,32 +1433,14 @@ void CPU::ADD_rr_r() noexcept
 	LoadOp_r16_x16<Destination>(value);
 }
 
-void CPU::JP_xx(uint16_t a_Address) noexcept
-{
-	StoreRegister16(RegisterPC, a_Address);
-}
-
-template <uint8_t Source>
-void CPU::JP_rr() noexcept
-{
-	const uint16_t address = LoadRegister16(Source);
-	JP_xx(address);
-}
-
-template <uint16_t Address>
-void CPU::JP() noexcept
-{
-	JP_xx(Address);
-}
-
 template <uint8_t Base, uint8_t Offset>
-void CPU::JR_rr_r() noexcept
+void CPU::JumpOp_r16_r8() noexcept
 {
 	const uint16_t base = LoadRegister16(Base);
 	const uint8_t offset = LoadRegister8(Offset);
 	const uint16_t address = SignedAdd16<false>(base, offset);
 
-	JP_xx(address);
+	JumpOp_x(address);
 }
 
 template <uint8_t Bit>

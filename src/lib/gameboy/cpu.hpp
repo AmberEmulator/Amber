@@ -86,14 +86,6 @@ namespace Amber::Gameboy
 		void Reset();
 
 		private:
-		// Managing Ops
-		void IncrementOpCounter(size_t& a_Counter);
-		void PushOp(MicroOp a_Op);
-		MicroOp PopOp();
-		void InsertOp(MicroOp a_Op, size_t a_Index);
-		void InsertOpAndIncrementDone(MicroOp a_Op);
-		void CallOp(MicroOp a_Op);
-
 		// Math ops
 		template <bool Carry> uint8_t Add8(uint8_t a_Left, uint8_t a_Right) noexcept;
 		template <bool Carry> uint8_t Subtract8(uint8_t a_Left, uint8_t a_Right) noexcept;
@@ -146,13 +138,8 @@ namespace Amber::Gameboy
 		// 16-bit add ops
 		template <uint8_t Destination, uint8_t Source> void ADD_rr_r() noexcept;
 
-		// Absolute jump ops
-		void JP_xx(uint16_t a_Address) noexcept;
-		template <uint8_t Source> void JP_rr() noexcept;
-		template <uint16_t Address> void JP() noexcept;
-
 		// Relative jump ops
-		template <uint8_t Base, uint8_t Offset> void JR_rr_r() noexcept;
+		template <uint8_t Base, uint8_t Offset> void JumpOp_r16_r8() noexcept;
 
 		// 8-bit test bit ops
 		template <uint8_t Bit> void BIT_x_b(uint8_t a_Value) noexcept;
@@ -170,10 +157,6 @@ namespace Amber::Gameboy
 		std::unique_ptr<Common::InstructionSet<ExtendedOpcode::Enum, MicroOp>> m_ExtendedInstructions;
 
 		// Opcode queue
-		MicroOp m_MicroOps[16] = {};
-		size_t m_OpFront = 0;
-		size_t m_OpBack = 0;
-		size_t m_OpDone = 0;
 		bool m_OpBreak = false;
 
 		// Interrupts
