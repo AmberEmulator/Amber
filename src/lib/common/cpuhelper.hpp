@@ -100,29 +100,39 @@ namespace Amber::Common
 				}
 			}
 
+			template <auto Op, auto... Ops>
+			void Concat() noexcept
+			{
+				(static_cast<CPU*>(this)->*Op)();
+				if constexpr (sizeof...(Ops) != 0)
+				{
+					Concat<Ops...>();
+				}
+			}
+
 			// Load ops
 			template <typename T, size_t Destination>
-			void LoadOp_r_x(T a_Value)
+			void LoadOp_r_x(T a_Value) noexcept
 			{
 				StoreRegister<T>(Destination, a_Value);
 			}
 
 			template <typename T, size_t Destination, size_t Source>
-			void LoadOp_r_r()
+			void LoadOp_r_r() noexcept
 			{
 				const T value = LoadRegister<T>(Source);
 				LoadOp_r_x<T, Destination>(value);
 			}
 
 			template <typename T, size_t Destination>
-			void LoadOp_r_n()
+			void LoadOp_r_n() noexcept
 			{
 				const T value = ReadNext<T>();
 				LoadOp_r_x<T, Destination>(value);
 			}
 
 			template <typename T, size_t Destination, size_t Source>
-			void LoadOp_r_ar()
+			void LoadOp_r_ar() noexcept
 			{
 				const RegisterType address = LoadRegister<RegisterType>(Source);
 				const T value = m_Memory.Load<T>(address);
@@ -130,7 +140,7 @@ namespace Amber::Common
 			}
 
 			template <typename T, size_t Destination, size_t Source>
-			void LoadOp_ar_r()
+			void LoadOp_ar_r() noexcept
 			{
 				const RegisterType address = LoadRegister<RegisterType>(Destination);
 				const T value = LoadRegister<T>(Source);
@@ -214,31 +224,31 @@ namespace Amber::Common
 
 			// Load ops
 			template <size_t Destination>
-			void LoadOp_r16_x16(uint16_t a_Value)
+			void LoadOp_r16_x16(uint16_t a_Value) noexcept
 			{
 				LoadOp_r_x<uint16_t, Destination>(a_Value);
 			}
 
 			template <size_t Destination, size_t Source>
-			void LoadOp_r16_r16()
+			void LoadOp_r16_r16() noexcept
 			{
 				LoadOp_r_r<uint16_t, Destination, Source>();
 			}
 
 			template <size_t Destination>
-			void LoadOp_r16_n16()
+			void LoadOp_r16_n16() noexcept
 			{
 				LoadOp_r_n<uint16_t, Destination>();
 			}
 
 			template <size_t Destination, size_t Source>
-			void LoadOp_r16_ar()
+			void LoadOp_r16_ar() noexcept
 			{
 				LoadOp_r_ar<uint16_t, Destination, Source>();
 			}
 
 			template <size_t Destination, size_t Source>
-			void LoadOp_ar_r16()
+			void LoadOp_ar_r16() noexcept
 			{
 				LoadOp_ar_r<uint16_t, Destination, Source>();
 			}
@@ -290,31 +300,31 @@ namespace Amber::Common
 
 			// Load ops
 			template <size_t Destination>
-			void LoadOp_r8_x8(uint8_t a_Value)
+			void LoadOp_r8_x8(uint8_t a_Value) noexcept
 			{
 				LoadOp_r_x<uint8_t, Destination>(a_Value);
 			}
 
 			template <size_t Destination, size_t Source>
-			void LoadOp_r8_r8()
+			void LoadOp_r8_r8() noexcept
 			{
 				LoadOp_r_r<uint8_t, Destination, Source>();
 			}
 
 			template <size_t Destination>
-			void LoadOp_r8_n8()
+			void LoadOp_r8_n8() noexcept
 			{
 				LoadOp_r_n<uint8_t, Destination>();
 			}
 
 			template <size_t Destination, size_t Source>
-			void LoadOp_r8_ar()
+			void LoadOp_r8_ar() noexcept
 			{
 				LoadOp_r_ar<uint8_t, Destination, Source>();
 			}
 
 			template <size_t Destination, size_t Source>
-			void LoadOp_ar_r8()
+			void LoadOp_ar_r8() noexcept
 			{
 				LoadOp_ar_r<uint8_t, Destination, Source>();
 			}
