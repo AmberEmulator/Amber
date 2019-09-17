@@ -37,61 +37,61 @@ CPU::CPU(Memory16& a_Memory):
 	instruction_builder.Begin(Opcode::BREAKPOINT_CONTINUE, &CPU::BreakpointContinue);
 
 	// 8-bit load register to register
-	instruction_builder.Begin(Opcode::LD_A_A, &CPU::LD_r_r<RegisterA, RegisterA>);
-	instruction_builder.Begin(Opcode::LD_A_B, &CPU::LD_r_r<RegisterA, RegisterB>);
-	instruction_builder.Begin(Opcode::LD_A_C, &CPU::LD_r_r<RegisterA, RegisterC>);
-	instruction_builder.Begin(Opcode::LD_A_D, &CPU::LD_r_r<RegisterA, RegisterD>);
-	instruction_builder.Begin(Opcode::LD_A_E, &CPU::LD_r_r<RegisterA, RegisterE>);
-	instruction_builder.Begin(Opcode::LD_A_H, &CPU::LD_r_r<RegisterA, RegisterH>);
-	instruction_builder.Begin(Opcode::LD_A_L, &CPU::LD_r_r<RegisterA, RegisterL>);
+	instruction_builder.Begin(Opcode::LD_A_A, &CPU::LoadOp_r8_r8<RegisterA, RegisterA>);
+	instruction_builder.Begin(Opcode::LD_A_B, &CPU::LoadOp_r8_r8<RegisterA, RegisterB>);
+	instruction_builder.Begin(Opcode::LD_A_C, &CPU::LoadOp_r8_r8<RegisterA, RegisterC>);
+	instruction_builder.Begin(Opcode::LD_A_D, &CPU::LoadOp_r8_r8<RegisterA, RegisterD>);
+	instruction_builder.Begin(Opcode::LD_A_E, &CPU::LoadOp_r8_r8<RegisterA, RegisterE>);
+	instruction_builder.Begin(Opcode::LD_A_H, &CPU::LoadOp_r8_r8<RegisterA, RegisterH>);
+	instruction_builder.Begin(Opcode::LD_A_L, &CPU::LoadOp_r8_r8<RegisterA, RegisterL>);
 
-	instruction_builder.Begin(Opcode::LD_B_A, &CPU::LD_r_r<RegisterB, RegisterA>);
-	instruction_builder.Begin(Opcode::LD_B_B, &CPU::LD_r_r<RegisterB, RegisterB>);
-	instruction_builder.Begin(Opcode::LD_B_C, &CPU::LD_r_r<RegisterB, RegisterC>);
-	instruction_builder.Begin(Opcode::LD_B_D, &CPU::LD_r_r<RegisterB, RegisterD>);
-	instruction_builder.Begin(Opcode::LD_B_E, &CPU::LD_r_r<RegisterB, RegisterE>);
-	instruction_builder.Begin(Opcode::LD_B_H, &CPU::LD_r_r<RegisterB, RegisterH>);
-	instruction_builder.Begin(Opcode::LD_B_L, &CPU::LD_r_r<RegisterB, RegisterL>);
+	instruction_builder.Begin(Opcode::LD_B_A, &CPU::LoadOp_r8_r8<RegisterB, RegisterA>);
+	instruction_builder.Begin(Opcode::LD_B_B, &CPU::LoadOp_r8_r8<RegisterB, RegisterB>);
+	instruction_builder.Begin(Opcode::LD_B_C, &CPU::LoadOp_r8_r8<RegisterB, RegisterC>);
+	instruction_builder.Begin(Opcode::LD_B_D, &CPU::LoadOp_r8_r8<RegisterB, RegisterD>);
+	instruction_builder.Begin(Opcode::LD_B_E, &CPU::LoadOp_r8_r8<RegisterB, RegisterE>);
+	instruction_builder.Begin(Opcode::LD_B_H, &CPU::LoadOp_r8_r8<RegisterB, RegisterH>);
+	instruction_builder.Begin(Opcode::LD_B_L, &CPU::LoadOp_r8_r8<RegisterB, RegisterL>);
 
-	instruction_builder.Begin(Opcode::LD_C_A, &CPU::LD_r_r<RegisterC, RegisterA>);
-	instruction_builder.Begin(Opcode::LD_C_B, &CPU::LD_r_r<RegisterC, RegisterB>);
-	instruction_builder.Begin(Opcode::LD_C_C, &CPU::LD_r_r<RegisterC, RegisterC>);
-	instruction_builder.Begin(Opcode::LD_C_D, &CPU::LD_r_r<RegisterC, RegisterD>);
-	instruction_builder.Begin(Opcode::LD_C_E, &CPU::LD_r_r<RegisterC, RegisterE>);
-	instruction_builder.Begin(Opcode::LD_C_H, &CPU::LD_r_r<RegisterC, RegisterH>);
-	instruction_builder.Begin(Opcode::LD_C_L, &CPU::LD_r_r<RegisterC, RegisterL>);
+	instruction_builder.Begin(Opcode::LD_C_A, &CPU::LoadOp_r8_r8<RegisterC, RegisterA>);
+	instruction_builder.Begin(Opcode::LD_C_B, &CPU::LoadOp_r8_r8<RegisterC, RegisterB>);
+	instruction_builder.Begin(Opcode::LD_C_C, &CPU::LoadOp_r8_r8<RegisterC, RegisterC>);
+	instruction_builder.Begin(Opcode::LD_C_D, &CPU::LoadOp_r8_r8<RegisterC, RegisterD>);
+	instruction_builder.Begin(Opcode::LD_C_E, &CPU::LoadOp_r8_r8<RegisterC, RegisterE>);
+	instruction_builder.Begin(Opcode::LD_C_H, &CPU::LoadOp_r8_r8<RegisterC, RegisterH>);
+	instruction_builder.Begin(Opcode::LD_C_L, &CPU::LoadOp_r8_r8<RegisterC, RegisterL>);
 
-	instruction_builder.Begin(Opcode::LD_D_A, &CPU::LD_r_r<RegisterD, RegisterA>);
-	instruction_builder.Begin(Opcode::LD_D_B, &CPU::LD_r_r<RegisterD, RegisterB>);
-	instruction_builder.Begin(Opcode::LD_D_C, &CPU::LD_r_r<RegisterD, RegisterC>);
-	instruction_builder.Begin(Opcode::LD_D_D, &CPU::LD_r_r<RegisterD, RegisterD>);
-	instruction_builder.Begin(Opcode::LD_D_E, &CPU::LD_r_r<RegisterD, RegisterE>);
-	instruction_builder.Begin(Opcode::LD_D_H, &CPU::LD_r_r<RegisterD, RegisterH>);
-	instruction_builder.Begin(Opcode::LD_D_L, &CPU::LD_r_r<RegisterD, RegisterL>);
+	instruction_builder.Begin(Opcode::LD_D_A, &CPU::LoadOp_r8_r8<RegisterD, RegisterA>);
+	instruction_builder.Begin(Opcode::LD_D_B, &CPU::LoadOp_r8_r8<RegisterD, RegisterB>);
+	instruction_builder.Begin(Opcode::LD_D_C, &CPU::LoadOp_r8_r8<RegisterD, RegisterC>);
+	instruction_builder.Begin(Opcode::LD_D_D, &CPU::LoadOp_r8_r8<RegisterD, RegisterD>);
+	instruction_builder.Begin(Opcode::LD_D_E, &CPU::LoadOp_r8_r8<RegisterD, RegisterE>);
+	instruction_builder.Begin(Opcode::LD_D_H, &CPU::LoadOp_r8_r8<RegisterD, RegisterH>);
+	instruction_builder.Begin(Opcode::LD_D_L, &CPU::LoadOp_r8_r8<RegisterD, RegisterL>);
 
-	instruction_builder.Begin(Opcode::LD_E_A, &CPU::LD_r_r<RegisterE, RegisterA>);
-	instruction_builder.Begin(Opcode::LD_E_B, &CPU::LD_r_r<RegisterE, RegisterB>);
-	instruction_builder.Begin(Opcode::LD_E_C, &CPU::LD_r_r<RegisterE, RegisterC>);
-	instruction_builder.Begin(Opcode::LD_E_D, &CPU::LD_r_r<RegisterE, RegisterD>);
-	instruction_builder.Begin(Opcode::LD_E_E, &CPU::LD_r_r<RegisterE, RegisterE>);
-	instruction_builder.Begin(Opcode::LD_E_H, &CPU::LD_r_r<RegisterE, RegisterH>);
-	instruction_builder.Begin(Opcode::LD_E_L, &CPU::LD_r_r<RegisterE, RegisterL>);
+	instruction_builder.Begin(Opcode::LD_E_A, &CPU::LoadOp_r8_r8<RegisterE, RegisterA>);
+	instruction_builder.Begin(Opcode::LD_E_B, &CPU::LoadOp_r8_r8<RegisterE, RegisterB>);
+	instruction_builder.Begin(Opcode::LD_E_C, &CPU::LoadOp_r8_r8<RegisterE, RegisterC>);
+	instruction_builder.Begin(Opcode::LD_E_D, &CPU::LoadOp_r8_r8<RegisterE, RegisterD>);
+	instruction_builder.Begin(Opcode::LD_E_E, &CPU::LoadOp_r8_r8<RegisterE, RegisterE>);
+	instruction_builder.Begin(Opcode::LD_E_H, &CPU::LoadOp_r8_r8<RegisterE, RegisterH>);
+	instruction_builder.Begin(Opcode::LD_E_L, &CPU::LoadOp_r8_r8<RegisterE, RegisterL>);
 
-	instruction_builder.Begin(Opcode::LD_H_A, &CPU::LD_r_r<RegisterH, RegisterA>);
-	instruction_builder.Begin(Opcode::LD_H_B, &CPU::LD_r_r<RegisterH, RegisterB>);
-	instruction_builder.Begin(Opcode::LD_H_C, &CPU::LD_r_r<RegisterH, RegisterC>);
-	instruction_builder.Begin(Opcode::LD_H_D, &CPU::LD_r_r<RegisterH, RegisterD>);
-	instruction_builder.Begin(Opcode::LD_H_E, &CPU::LD_r_r<RegisterH, RegisterE>);
-	instruction_builder.Begin(Opcode::LD_H_H, &CPU::LD_r_r<RegisterH, RegisterH>);
-	instruction_builder.Begin(Opcode::LD_H_L, &CPU::LD_r_r<RegisterH, RegisterL>);
+	instruction_builder.Begin(Opcode::LD_H_A, &CPU::LoadOp_r8_r8<RegisterH, RegisterA>);
+	instruction_builder.Begin(Opcode::LD_H_B, &CPU::LoadOp_r8_r8<RegisterH, RegisterB>);
+	instruction_builder.Begin(Opcode::LD_H_C, &CPU::LoadOp_r8_r8<RegisterH, RegisterC>);
+	instruction_builder.Begin(Opcode::LD_H_D, &CPU::LoadOp_r8_r8<RegisterH, RegisterD>);
+	instruction_builder.Begin(Opcode::LD_H_E, &CPU::LoadOp_r8_r8<RegisterH, RegisterE>);
+	instruction_builder.Begin(Opcode::LD_H_H, &CPU::LoadOp_r8_r8<RegisterH, RegisterH>);
+	instruction_builder.Begin(Opcode::LD_H_L, &CPU::LoadOp_r8_r8<RegisterH, RegisterL>);
 
-	instruction_builder.Begin(Opcode::LD_L_A, &CPU::LD_r_r<RegisterL, RegisterA>);
-	instruction_builder.Begin(Opcode::LD_L_B, &CPU::LD_r_r<RegisterL, RegisterB>);
-	instruction_builder.Begin(Opcode::LD_L_C, &CPU::LD_r_r<RegisterL, RegisterC>);
-	instruction_builder.Begin(Opcode::LD_L_D, &CPU::LD_r_r<RegisterL, RegisterD>);
-	instruction_builder.Begin(Opcode::LD_L_E, &CPU::LD_r_r<RegisterL, RegisterE>);
-	instruction_builder.Begin(Opcode::LD_L_H, &CPU::LD_r_r<RegisterL, RegisterH>);
-	instruction_builder.Begin(Opcode::LD_L_L, &CPU::LD_r_r<RegisterL, RegisterL>);
+	instruction_builder.Begin(Opcode::LD_L_A, &CPU::LoadOp_r8_r8<RegisterL, RegisterA>);
+	instruction_builder.Begin(Opcode::LD_L_B, &CPU::LoadOp_r8_r8<RegisterL, RegisterB>);
+	instruction_builder.Begin(Opcode::LD_L_C, &CPU::LoadOp_r8_r8<RegisterL, RegisterC>);
+	instruction_builder.Begin(Opcode::LD_L_D, &CPU::LoadOp_r8_r8<RegisterL, RegisterD>);
+	instruction_builder.Begin(Opcode::LD_L_E, &CPU::LoadOp_r8_r8<RegisterL, RegisterE>);
+	instruction_builder.Begin(Opcode::LD_L_H, &CPU::LoadOp_r8_r8<RegisterL, RegisterH>);
+	instruction_builder.Begin(Opcode::LD_L_L, &CPU::LoadOp_r8_r8<RegisterL, RegisterL>);
 
 	// 8-bit load next byte to register
 	instruction_builder.Begin(Opcode::LD_A_n).Cycle(&CPU::LD_r_n<RegisterA>);
@@ -149,7 +149,7 @@ CPU::CPU(Memory16& a_Memory):
 	instruction_builder.Begin(Opcode::LD_HL_nn).Cycle(&CPU::LD_r_n<RegisterL>).Cycle(&CPU::LD_r_n<RegisterH>);
 	instruction_builder.Begin(Opcode::LD_HL_SPn).Cycle(&CPU::LD_r_n<RegisterX>).Cycle(&CPU::LD_rr_rrr<RegisterHL, RegisterSP, RegisterX>);
 	instruction_builder.Begin(Opcode::LD_SP_nn).Cycle(&CPU::LD_r_n<RegisterSP_P>).Cycle(&CPU::LD_r_n<RegisterSP_S>);
-	instruction_builder.Begin(Opcode::LD_SP_HL).Cycle(&CPU::LD_rr_rr< RegisterSP, RegisterHL>);
+	instruction_builder.Begin(Opcode::LD_SP_HL).Cycle(&CPU::LoadOp_r16_r16< RegisterSP, RegisterHL>);
 	instruction_builder.Begin(Opcode::LD_ann_SP).Cycle(&CPU::LD_r_n<RegisterY>).Cycle(&CPU::LD_r_n<RegisterX>).Cycle(&CPU::LD_arr_r<RegisterXY, RegisterSP_P>, &CPU::UnaryOp_r16<RegisterXY, &CPU::Increment16>, &CPU::LD_arr_r<RegisterXY, RegisterSP_S>);
 
 	// 8-bit add instructions
@@ -1511,13 +1511,6 @@ void CPU::LD_r_n()
 	LD_r_x<Destination>(value);
 }
 
-template <uint8_t Destination, uint8_t Source>
-void CPU::LD_r_r()
-{
-	const uint8_t value = LoadRegister8(Source);
-	LD_r_x<Destination>(value);
-}
-
 template <uint8_t Destination>
 void CPU::LD_r_axx(uint16_t a_Address)
 {
@@ -1555,13 +1548,6 @@ template <uint8_t Destination>
 void CPU::LD_rr_xx(uint16_t a_Value)
 {
 	StoreRegister16(Destination, a_Value);
-}
-
-template <uint8_t Destination, uint8_t Source>
-void CPU::LD_rr_rr()
-{
-	const uint16_t value = LoadRegister16(Source);
-	LD_rr_xx<Destination>(value);
 }
 
 template <uint8_t Destination, uint8_t Source>

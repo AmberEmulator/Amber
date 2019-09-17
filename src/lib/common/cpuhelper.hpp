@@ -17,6 +17,7 @@ namespace Amber::Common
 			public:
 			using MicroOp = void (CPU::*)();
 
+			// Register load and store
 			template <typename T>
 			T LoadRegister(size_t a_Register) const noexcept
 			{
@@ -37,6 +38,7 @@ namespace Amber::Common
 				reg.Store<T>(a_Register & RegisterMask, a_Value);
 			}
 
+			// Composition ops
 			template <typename T> using UnaryOp = T (CPU::*)(T a_Value);
 			template <typename T> using BinaryOp = T (CPU::*)(T a_Left, T a_Right);
 
@@ -61,6 +63,14 @@ namespace Amber::Common
 				{
 					StoreRegister<T>(Destination, result);
 				}
+			}
+
+			// Load ops
+			template <typename T, size_t Destination, size_t Source>
+			void LoadOp_r_r()
+			{
+				const T value = LoadRegister<T>(Source);
+				StoreRegister<T>(Destination, value);
 			}
 
 			protected:
@@ -96,6 +106,7 @@ namespace Amber::Common
 		class CPUHelper16<CPU, RegisterType, RegisterCount, true> : public CPUHelperBase<CPU, RegisterType, RegisterCount>
 		{
 			public:
+			// Register load and store
 			uint16_t LoadRegister16(size_t a_Register) const noexcept
 			{
 				return LoadRegister<uint16_t>(a_Register);
@@ -106,6 +117,7 @@ namespace Amber::Common
 				StoreRegister<uint16_t>(a_Register, a_Value);
 			}
 
+			// Composition ops
 			using UnaryOp16 = CPUHelperBase::UnaryOp<uint16_t>;
 			using BinaryOp16 = CPUHelperBase::BinaryOp<uint16_t>;
 
@@ -120,12 +132,20 @@ namespace Amber::Common
 			{
 				BinaryOp_r_r<uint16_t, Destination, Source, Op, Store>();
 			}
+
+			// Load ops
+			template <size_t Destination, size_t Source>
+			void LoadOp_r16_r16()
+			{
+				LoadOp_r_r<uint16_t, Destination, Source>();
+			}
 		};
 
 		template <typename CPU, typename RegisterType, size_t RegisterCount>
 		class CPUHelper8 : public CPUHelper16<CPU, RegisterType, RegisterCount>
 		{
 			public:
+			// Register load and store
 			uint8_t LoadRegister8(size_t a_Register) const noexcept
 			{
 				return LoadRegister<uint8_t>(a_Register);
@@ -136,6 +156,7 @@ namespace Amber::Common
 				StoreRegister<uint8_t>(a_Register, a_Value);
 			}
 
+			// Composition ops
 			using UnaryOp8 = CPUHelperBase::UnaryOp<uint8_t>;
 			using BinaryOp8 = CPUHelperBase::BinaryOp<uint8_t>;
 
@@ -149,6 +170,13 @@ namespace Amber::Common
 			void BinaryOp_r8_r8() noexcept
 			{
 				BinaryOp_r_r<uint8_t, Destination, Source, Op, Store>();
+			}
+
+			// Load ops
+			template <size_t Destination, size_t Source>
+			void LoadOp_r8_r8()
+			{
+				LoadOp_r_r<uint8_t, Destination, Source>();
 			}
 		};
 	}
