@@ -157,7 +157,6 @@ namespace Amber::Common
 	class CPUHelper : public Internal::CPUHelper8<CPU, RegisterType, RegisterCount>
 	{
 	};
-
 }
 
 #endif
