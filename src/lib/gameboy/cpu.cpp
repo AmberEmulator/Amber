@@ -790,6 +790,11 @@ void CPU::SetInterruptRequests(uint8_t a_Interrupts) noexcept
 		m_InterruptRequests = a_Interrupts;
 		InsertOpAfterInstruction(&CPU::ProcessInterrupts);
 	}
+
+	if (a_Interrupts != 0)
+	{
+		m_Halted = false;
+	}
 }
 
 void CPU::RequestInterrupts(uint8_t a_Interrupts) noexcept
@@ -1386,9 +1391,6 @@ void CPU::ProcessInterrupts()
 		{
 			continue;
 		}
-
-		// Resume if halted
-		m_Halted = false;
 
 		// Reset interrupt flags (TODO: when does this happen exactly?)
 		m_InterruptMasterEnable = false;
