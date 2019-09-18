@@ -30,9 +30,9 @@ CPU::CPU(Memory16& a_Memory):
 
 	// Misc instructions
 	instruction_builder.Begin(Opcode::NOP);
-	instruction_builder.Begin(Opcode::DI, &CPU::Delay<&CPU::DisableInterrupts, 1>);
-	instruction_builder.Begin(Opcode::EI, &CPU::Delay<&CPU::EnableInterrupts, 1>);
-	instruction_builder.Begin(Opcode::HALT, &CPU::Delay<&CPU::Halt, 1>);
+	instruction_builder.Begin(Opcode::DI, &CPU::DelayOp<&CPU::DisableInterrupts, 1>);
+	instruction_builder.Begin(Opcode::EI, &CPU::DelayOp<&CPU::EnableInterrupts, 1>);
+	instruction_builder.Begin(Opcode::HALT, &CPU::DelayOp<&CPU::Halt, 1>);
 	instruction_builder.Begin(Opcode::EXT, &CPU::DecodeExtendedInstruction);
 	instruction_builder.Begin(Opcode::BREAKPOINT_STOP, &CPU::BreakpointStop);
 	instruction_builder.Begin(Opcode::BREAKPOINT_CONTINUE, &CPU::BreakpointContinue);
@@ -1149,19 +1149,6 @@ uint8_t CPU::DecimalAdjust8(uint8_t a_Value) noexcept
 	return result;
 }
 
-template <CPU::MicroOp Op, uint8_t Counter>
-void CPU::Delay()
-{
-	if constexpr (Counter == 0)
-	{
-		ExtendInstruction(Op);
-	}
-	else
-	{
-		PushOp(&CPU::Delay<Op, Counter - 1>);
-	}
-}
-
 void CPU::NotImplemented()
 {
 	const uint16_t pc = LoadRegister16(RegisterPC);
@@ -1284,22 +1271,13 @@ void CPU::Break()
 	m_OpBreak = true;
 }
 
-void CPU::Skip()
-{
-	while (!IsInstructionDone())
-	{
-		PopOp();
-	}
-
-	Break();
-}
-
 template <uint8_t Flag, bool Set>
 void CPU::FlagCondition()
 {
 	if (LoadFlag(Flag) != Set)
 	{
-		Skip();
+		SkipOp();
+		Break();
 	}
 }
 

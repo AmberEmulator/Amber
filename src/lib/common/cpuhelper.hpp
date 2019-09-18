@@ -45,6 +45,7 @@ namespace Amber::Common
 				reg.Store<T>(a_Register & RegisterMask, a_Value);
 			}
 
+			protected:
 			// Program counter
 			RegisterType LoadProgramCounter() const noexcept
 			{
@@ -103,12 +104,33 @@ namespace Amber::Common
 			}
 
 			template <auto Op, auto... Ops>
-			void Concat() noexcept
+			void ConcatOp() noexcept
 			{
 				(static_cast<CPU*>(this)->*Op)();
 				if constexpr (sizeof...(Ops) != 0)
 				{
-					Concat<Ops...>();
+					ConcatOp<Ops...>();
+				}
+			}
+
+			template <auto Op, uint8_t Counter>
+			void DelayOp() noexcept
+			{
+				if constexpr (Counter == 0)
+				{
+					ExtendInstruction(Op);
+				}
+				else
+				{
+					PushOp(&CPU::DelayOp<Op, Counter - 1>);
+				}
+			}
+
+			void SkipOp() noexcept
+			{
+				while (!IsInstructionDone())
+				{
+					PopOp();
 				}
 			}
 
@@ -168,7 +190,6 @@ namespace Amber::Common
 				JumpOp_x(Address);
 			}
 
-			protected:
 			// Managing op queue
 			void PushOp(MicroOp a_Op) noexcept
 			{

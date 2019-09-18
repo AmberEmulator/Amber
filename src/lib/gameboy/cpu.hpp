@@ -110,9 +110,6 @@ namespace Amber::Gameboy
 		template <bool Flags = true> uint16_t SignedAdd16(uint16_t a_Left, uint8_t a_Right) noexcept;
 		uint8_t DecimalAdjust8(uint8_t a_Value) noexcept;
 
-		// Composition ops
-		template <MicroOp Op, uint8_t Counter> void Delay();
-
 		// Base ops
 		void NotImplemented();
 		void DecodeInstruction();
@@ -120,7 +117,6 @@ namespace Amber::Gameboy
 		void BreakpointStop();
 		void BreakpointContinue();
 		void Break();
-		void Skip();
 		template <uint8_t Flag, bool Set> void FlagCondition();
 		void DisableInterrupts();
 		void EnableInterrupts();
