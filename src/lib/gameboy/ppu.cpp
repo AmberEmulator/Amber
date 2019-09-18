@@ -6,7 +6,8 @@
 using namespace Amber;
 using namespace Gameboy;
 
-PPU::PPU()
+PPU::PPU(MMU& a_MMU):
+	m_MMU(a_MMU)
 {
 	Reset();
 }
@@ -19,11 +20,6 @@ uint8_t PPU::GetLY() const noexcept
 void PPU::SetCPU(CPU* a_CPU) noexcept
 {
 	m_CPU = a_CPU;
-}
-
-void PPU::SetMMU(MMU* a_MMU) noexcept
-{
-	m_MMU = a_MMU;
 }
 
 void PPU::Tick()
@@ -137,12 +133,12 @@ void PPU::OAMSearch() noexcept
 	// Load the first byte
 	if ((m_HCounter & 1) == 0)
 	{
-		m_SpriteY = m_MMU->Load8(0xFE00 + sprite_index * 4);
+		m_SpriteY = m_MMU.Load8(0xFE00 + sprite_index * 4);
 		return;
 	}
 	
 	// Load the second byte
-	const uint8_t sprite_x = m_MMU->Load8(0xFE00 + sprite_index * 4 + 1);
+	const uint8_t sprite_x = m_MMU.Load8(0xFE00 + sprite_index * 4 + 1);
 
 	// No more than 10 sprites allowed
 	if (m_SpriteCount == 10)
@@ -178,8 +174,8 @@ void PPU::PixelTransfer() noexcept
 	for (uint8_t i = 0; i < m_SpriteCount; ++i)
 	{
 		const uint8_t sprite_index = m_Sprites[i];
-		const uint8_t sprite_y = m_MMU->Load8(0xFE00 + sprite_index * 4 + 0);
-		const uint8_t sprite_x = m_MMU->Load8(0xFE00 + sprite_index * 4 + 1);
+		const uint8_t sprite_y = m_MMU.Load8(0xFE00 + sprite_index * 4 + 0);
+		const uint8_t sprite_x = m_MMU.Load8(0xFE00 + sprite_index * 4 + 1);
 
 		if (sprite_x > x + 8 || sprite_x + 8 <= x + 8)
 		{
@@ -198,8 +194,8 @@ void PPU::PixelTransfer() noexcept
 
 		sprite[0] = sprite_y;
 		sprite[1] = sprite_x;
-		sprite[2] = m_MMU->Load8(0xFE00 + sprite_index * 4 + 2);
-		sprite[3] = m_MMU->Load8(0xFE00 + sprite_index * 4 + 3);
+		sprite[2] = m_MMU.Load8(0xFE00 + sprite_index * 4 + 2);
+		sprite[3] = m_MMU.Load8(0xFE00 + sprite_index * 4 + 3);
 	}
 
 	uint8_t tile_index;
@@ -218,7 +214,7 @@ void PPU::PixelTransfer() noexcept
 		const uint8_t background_y = y / 8;
 
 		const uint16_t tile_index_offset = background_x + background_y * 32;
-		tile_index = m_MMU->Load8(0x9800 + tile_index_offset);
+		tile_index = m_MMU.Load8(0x9800 + tile_index_offset);
 
 		tile_x = x % 8;
 		tile_y = y % 8;
@@ -227,7 +223,7 @@ void PPU::PixelTransfer() noexcept
 	uint8_t tile_data[16];
 	for (uint16_t i = 0; i < 16; ++i)
 	{
-		tile_data[i] = m_MMU->Load8(0x8000 + (tile_index * 16 + i));
+		tile_data[i] = m_MMU.Load8(0x8000 + (tile_index * 16 + i));
 	}
 
 	const uint8_t line = tile_y * 2;

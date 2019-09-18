@@ -24,12 +24,11 @@ namespace Amber::Gameboy
 		static constexpr uint16_t VBlankCycles = LineCycles * VBlankLines;
 		static constexpr uint16_t FrameCycles = LineCycles * FrameLines;
 
-		PPU();
+		PPU(MMU& a_MMU);
 
 		uint8_t GetLY() const noexcept;
 
 		void SetCPU(CPU* a_CPU) noexcept;
-		void SetMMU(MMU* a_MMU) noexcept;
 
 		void Tick();
 		void Reset();
@@ -46,8 +45,8 @@ namespace Amber::Gameboy
 		void SetPixel(uint8_t a_X, uint8_t a_Y, uint8_t a_Color) noexcept;
 
 		// Other components
+		MMU& m_MMU;
 		CPU* m_CPU = nullptr;
-		MMU* m_MMU = nullptr;
 
 		// OAM
 		uint8_t m_Sprites[10];

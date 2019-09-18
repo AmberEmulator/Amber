@@ -11,19 +11,18 @@ using namespace Gameboy;
 Device::Device(const DeviceDescription& a_Description):
 	m_Description(a_Description)
 {
-	m_PPU = std::make_unique<PPU>();
-	m_Joypad = std::make_unique<Joypad>();
 	m_MMU = std::make_unique<MMU>();
 	m_CPU = std::make_unique<CPU>(*m_MMU);
-
-	m_PPU->SetCPU(m_CPU.get());
-	m_PPU->SetMMU(m_MMU.get());
-
-	m_Joypad->SetCPU(m_CPU.get());
+	m_PPU = std::make_unique<PPU>(*m_MMU);
+	m_Joypad = std::make_unique<Joypad>();
 
 	m_MMU->SetCPU(m_CPU.get());
 	m_MMU->SetJoypad(m_Joypad.get());
 	m_MMU->SetPPU(m_PPU.get());
+
+	m_PPU->SetCPU(m_CPU.get());
+
+	m_Joypad->SetCPU(m_CPU.get());
 }
 
 Device::~Device() = default;
@@ -33,14 +32,14 @@ const DeviceDescription& Device::GetDescription() const noexcept
 	return m_Description;
 }
 
+MMU& Device::GetMMU() noexcept
+{
+	return *m_MMU;
+}
+
 CPU& Device::GetCPU() noexcept
 {
 	return *m_CPU;
-}
-
-Joypad& Device::GetJoypad() noexcept
-{
-	return *m_Joypad;
 }
 
 PPU& Device::GetPPU() noexcept
@@ -48,9 +47,9 @@ PPU& Device::GetPPU() noexcept
 	return *m_PPU;
 }
 
-MMU& Device::GetMMU() noexcept
+Joypad& Device::GetJoypad() noexcept
 {
-	return *m_MMU;
+	return *m_Joypad;
 }
 
 bool Device::Tick()
