@@ -73,6 +73,17 @@ namespace Amber::Gameboy
 
 		void RequestInterrupts(uint8_t a_Interrupts) noexcept;
 
+		// Timer
+		uint8_t GetDIV() const noexcept;
+		uint8_t GetTIMA() const noexcept;
+		uint8_t GetTMA() const noexcept;
+		uint8_t GetTAC() const noexcept;
+
+		void SetDIV(uint8_t a_Value) noexcept;
+		void SetTIMA(uint8_t a_Value) noexcept;
+		void SetTMA(uint8_t a_Value) noexcept;
+		void SetTAC(uint8_t a_Value) noexcept;
+
 		// DMA
 		void StartDMA(uint8_t a_Address);
 
@@ -160,6 +171,14 @@ namespace Amber::Gameboy
 		uint8_t m_InterruptEnable = 0;
 		uint8_t m_InterruptRequests = 0;
 		bool m_Halted = false;
+
+		// Timer
+		uint16_t m_DIV = 0;
+		uint8_t m_TIMA = 0;
+		uint8_t m_TMA = 0;
+		uint8_t m_TAC = 0;
+		bool m_LastTIMABitState = false;
+		bool m_TIMAOverflow = false;
 
 		// DMA
 		uint8_t m_DMAAddress = 0;

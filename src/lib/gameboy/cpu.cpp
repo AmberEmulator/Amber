@@ -10,8 +10,6 @@ using namespace Amber;
 using namespace Common;
 using namespace Gameboy;
 
-static uint64_t g_Counter;
-
 CPU::CPU(Memory16& a_Memory):
 	CPUHelper(a_Memory),
 	m_Memory(a_Memory)
@@ -799,6 +797,46 @@ void CPU::RequestInterrupts(uint8_t a_Interrupts) noexcept
 	SetInterruptRequests(GetInterruptRequests() | a_Interrupts);
 }
 
+uint8_t CPU::GetDIV() const noexcept
+{
+	return static_cast<uint8_t>(m_DIV >> 8);
+}
+
+uint8_t CPU::GetTIMA() const noexcept
+{
+	return m_TIMA;
+}
+
+uint8_t CPU::GetTMA() const noexcept
+{
+	return m_TMA;
+}
+
+uint8_t CPU::GetTAC() const noexcept
+{
+	return m_TAC;
+}
+
+void CPU::SetDIV(uint8_t a_Value) noexcept
+{
+	m_DIV = 0;
+}
+
+void CPU::SetTIMA(uint8_t a_Value) noexcept
+{
+	m_TIMA = a_Value;
+}
+
+void CPU::SetTMA(uint8_t a_Value) noexcept
+{
+	m_TMA = a_Value;
+}
+
+void CPU::SetTAC(uint8_t a_Value) noexcept
+{
+	m_TAC = a_Value & 0b111;
+}
+
 void CPU::StartDMA(uint8_t a_Address)
 {
 	m_DMAAddress = a_Address;
@@ -830,6 +868,7 @@ void CPU::SetBreakpointCallback(std::function<void()>&& a_Callback)
 
 bool CPU::Tick()
 {
+	// Run next cycle
 	m_OpBreak = false;
 	while (!m_OpBreak)
 	{
@@ -837,15 +876,51 @@ bool CPU::Tick()
 		CallOp(op);
 	}
 
-	++g_Counter;
+	// Update timers
+	m_DIV += 4;
+
+	bool tima_bit_state = false;
+	if (m_TAC & 0b100)
+	{
+		constexpr uint16_t div_mask[4] = { 0b1'0000'0000, 0b1000, 0b10'0000, 0b1000'0000 };
+		tima_bit_state = (m_DIV & div_mask[m_TAC & 0b11]) != 0;
+	}
+
+	if (m_TIMAOverflow)
+	{
+		m_TIMAOverflow = false;
+		m_TIMA = m_TMA;
+		RequestInterrupts(InterruptTimer);
+	}
+
+	if (m_LastTIMABitState && !tima_bit_state)
+	{
+		++m_TIMA;
+		if (m_TIMA == 0)
+		{
+			m_TIMAOverflow = true;
+		}
+	}
+	m_LastTIMABitState = tima_bit_state;
+
+	// Return whether or not this cycle was the last cycle of an instruction
 	return IsInstructionDone();
 }
 
 void CPU::Reset()
 {
+	// Reset ops
 	ClearOps();
 	PushOp(&CPU::DecodeInstruction);
+
+	// Reset program counter
 	StoreRegister16(RegisterPC, 0);
+
+	// Reset timers
+	m_DIV = 0;
+	m_TIMA = 0;
+	m_TMA = 0;
+	m_TAC = 0;
 }
 
 template <bool Carry>
@@ -1169,7 +1244,7 @@ void CPU::NotImplemented()
 
 void CPU::DecodeInstruction()
 {
-	// Debug tracing
+	/*// Debug tracing
 	{
 		static bool bootrom = true;
 		if (LoadRegister16(RegisterPC) == 0x100)
@@ -1200,7 +1275,7 @@ void CPU::DecodeInstruction()
 
 			std::cout << std::endl;
 		}
-	}
+	}*/
 
 	// Decode instruction
 	const auto opcode = static_cast<Opcode::Enum>(ReadNext8());

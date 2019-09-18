@@ -111,6 +111,22 @@ uint8_t MMU::Load8(Address a_Address) const
 		{
 			return m_PPU->GetLY();
 		}
+		else if (a_Address == 0xFF04 && m_CPU != nullptr)
+		{
+			return m_CPU->GetDIV();
+		}
+		else if (a_Address == 0xFF05 && m_CPU != nullptr)
+		{
+			return m_CPU->GetTIMA();
+		}
+		else if (a_Address == 0xFF06 && m_CPU != nullptr)
+		{
+			return m_CPU->GetTMA();
+		}
+		else if (a_Address == 0xFF07 && m_CPU != nullptr)
+		{
+			return m_CPU->GetTAC();
+		}
 		else if (a_Address == 0xFF0F && m_CPU != nullptr)
 		{
 			return m_CPU->GetInterruptRequests();
@@ -194,6 +210,22 @@ void MMU::Store8(Address a_Address, uint8_t a_Value)
 		else if (a_Address == 0xFF50)
 		{
 			m_BootROMEnabled = false;
+		}
+		else if (a_Address == 0xFF04 && m_CPU != nullptr)
+		{
+			m_CPU->SetDIV(a_Value);
+		}
+		else if (a_Address == 0xFF05 && m_CPU != nullptr)
+		{
+			m_CPU->SetTIMA(a_Value);
+		}
+		else if (a_Address == 0xFF06 && m_CPU != nullptr)
+		{
+			m_CPU->SetTMA(a_Value);
+		}
+		else if (a_Address == 0xFF07 && m_CPU != nullptr)
+		{
+			m_CPU->SetTAC(a_Value);
 		}
 		else if (a_Address == 0xFF0F && m_CPU != nullptr)
 		{
