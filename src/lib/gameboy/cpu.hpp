@@ -123,23 +123,23 @@ namespace Amber::Gameboy
 		void ProcessInterrupts();
 		void Halt();
 		void CheckHalt();
-		template <uint8_t Destination, uint8_t Mask> void MASK_r();
+		template <uint8_t Destination, uint8_t Mask> void MaskOp_r8();
 		void DMA();
 
 		// 16-bit load ops
-		template <uint8_t Destination, uint8_t Source> void LD_rr_xxr(uint16_t a_Base);
-		template <uint8_t Destination, uint8_t Source> void LD_rr_FFr();
-		template <uint8_t Destination, uint8_t BaseSource, uint8_t OffsetSource> void LD_rr_rrr();
+		template <uint8_t Destination, uint8_t Source> void LoadOp_r16_x16r8(uint16_t a_Base);
+		template <uint8_t Destination, uint8_t Source> void LoadOp_r16_FFr8();
+		template <uint8_t Destination, uint8_t BaseSource, uint8_t OffsetSource> void LoadOp_r16_r16r8();
 
 		// 16-bit add ops
-		template <uint8_t Destination, uint8_t Source> void ADD_rr_r() noexcept;
+		template <uint8_t Destination, uint8_t Source> void AddOp_r16_r8() noexcept;
 
 		// Relative jump ops
 		template <uint8_t Base, uint8_t Offset> void JumpOp_r16_r8() noexcept;
 
 		// 8-bit test bit ops
-		template <uint8_t Bit> void BIT_x_b(uint8_t a_Value) noexcept;
-		template <uint8_t Source, uint8_t Bit> void BIT_r_b() noexcept;
+		template <uint8_t Bit> void BitTestOp_x8_b(uint8_t a_Value) noexcept;
+		template <uint8_t Source, uint8_t Bit> void BitTestOp_r8_b() noexcept;
 
 		// Flag ops
 		void CCF() noexcept;
