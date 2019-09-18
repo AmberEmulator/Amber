@@ -1,20 +1,16 @@
-#ifndef H_AMBER_GAMEBOY_INSTRUCTIONBUILDER
-#define H_AMBER_GAMEBOY_INSTRUCTIONBUILDER
+#ifndef H_AMBER_COMMON_INSTRUCTIONBUILDER
+#define H_AMBER_COMMON_INSTRUCTIONBUILDER
 
-#include <gameboy/api.hpp>
-#include <gameboy/cpu.hpp>
-#include <gameboy/instructionset.hpp>
+#include <common/api.hpp>
+#include <common/instructionset.hpp>
 
 #include <memory>
 #include <vector>
 
-namespace Amber::Gameboy
+namespace Amber::Common
 {
-	class CPU;
-	using MicroOp = void (CPU::*)();
-
-	template <typename Opcode>
-	class GAMEBOY_API InstructionBuilder
+	template <typename Opcode, typename MicroOp, MicroOp EndOp>
+	class InstructionBuilder
 	{
 		public:
 		template <typename... Ops>
@@ -33,7 +29,10 @@ namespace Amber::Gameboy
 			{
 				Push(m_CurrentOp, a_Ops...);
 			}
-			Push(m_CurrentOp, &CPU::Break);
+			if constexpr (EndOp != nullptr)
+			{
+				Push(m_CurrentOp, EndOp);
+			}
 			return *this;
 		}
 
@@ -76,7 +75,13 @@ namespace Amber::Gameboy
 
 		void Resize(size_t a_Size)
 		{
-			m_Instructions.resize(a_Size, std::vector<MicroOp>(1, &CPU::Break));
+			std::vector<MicroOp> default_ops;
+			if constexpr (EndOp != nullptr)
+			{
+				default_ops.push_back(EndOp);
+			}
+
+			m_Instructions.resize(a_Size, default_ops);
 		}
 
 		private:

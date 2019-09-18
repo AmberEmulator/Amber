@@ -1,44 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
-
-	<Type Name="Amber::Gameboy::Registers">
-    <Expand>
-      <Item Name="A">uint8_t(m_Registers[0] &gt;&gt; 8),H</Item>
-      <Item Name="F">uint8_t(m_Registers[0] &amp; 0xFF),H</Item>
-      <Item Name="B">uint8_t(m_Registers[1] &gt;&gt; 8),H</Item>
-      <Item Name="C">uint8_t(m_Registers[1] &amp; 0xFF),H</Item>
-      <Item Name="D">uint8_t(m_Registers[2] &gt;&gt; 8),H</Item>
-      <Item Name="E">uint8_t(m_Registers[2] &amp; 0xFF),H</Item>
-      <Item Name="H">uint8_t(m_Registers[3] &gt;&gt; 8),H</Item>
-      <Item Name="L">uint8_t(m_Registers[3] &amp; 0xFF),H</Item>
-      <Item Name="AF">m_Registers[0],H</Item>
-      <Item Name="BC">m_Registers[1],H</Item>
-      <Item Name="DE">m_Registers[2],H</Item>
-      <Item Name="HL">m_Registers[3],H</Item>
-      <Item Name="SP">m_Registers[4],H</Item>
-      <Item Name="PC">m_Registers[5],H</Item>
-      <Item Name="Zero">((m_Registers[0] &gt;&gt; 7) &amp; 1) != 0</Item>
-      <Item Name="Subtract">((m_Registers[0] &gt;&gt; 6) &amp; 1) != 0</Item>
-      <Item Name="Half Carry">((m_Registers[0] &gt;&gt; 5) &amp; 1)  != 0</Item>
-      <Item Name="Carry">((m_Registers[0] &gt;&gt; 4) &amp; 1) != 0</Item>
-    </Expand>
-	</Type>
-  
-  <Type Name="Amber::Gameboy::InstructionSet&lt;*,*&gt;">
-    <DisplayString>{{ instructions={m_InstructionCount} ops={m_OpCount} }}</DisplayString>
-    <Expand>
-      <CustomListItems>
-        <Variable Name="instruction_index" InitialValue="0" />
-        <Variable Name="op_offset" InitialValue="0" />
-        <Size>m_InstructionCount</Size>
-        <Loop>
-          <Item Name="{($T1)instruction_index,en} [{m_Instructions[instruction_index].m_Size}]">m_Ops,[m_Instructions[instruction_index].m_Size]na</Item>
-          <Exec>instruction_index++</Exec>
-          <Exec>op_offset += m_Instructions[instruction_index].m_Size</Exec>
-          <Break Condition="instruction_index == m_InstructionCount"></Break>
-        </Loop>
-      </CustomListItems>
-    </Expand>
-  </Type>
 	
 </AutoVisualizer>

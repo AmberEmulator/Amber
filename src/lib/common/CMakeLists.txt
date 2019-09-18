@@ -10,6 +10,9 @@ target_include_directories(common PUBLIC
 )
 
 # Add sources
+# Natvis
+amber_add_sources(common "common.natvis" FILTER "Natvis")
+
 # API
 amber_add_sources(common "api.hpp" FILTER "API")
 
@@ -19,6 +22,12 @@ amber_add_sources(common "memorymapping.hpp" FILTER "Memory/Memory Mapping")
 amber_add_sources(common "mmu.hpp" FILTER "Memory/MMU")
 amber_add_sources(common "ram.hpp" FILTER "Memory/RAM")
 amber_add_sources(common "rom.hpp" FILTER "Memory/ROM")
+
+# CPU
+amber_add_sources(common "cpuhelper.hpp" FILTER "CPU/CPU")
+amber_add_sources(common "instructionbuilder.hpp" FILTER "CPU/Instruction Builder")
+amber_add_sources(common "instructionset.hpp" FILTER "CPU/Instruction Set")
+amber_add_sources(common "register.hpp" FILTER "CPU/Register")
 
 # Debugging
 amber_add_sources(common "debugger.hpp" "debugger.cpp" FILTER "Debugging/Debugger")

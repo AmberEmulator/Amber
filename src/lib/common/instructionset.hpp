@@ -1,13 +1,13 @@
-#ifndef H_AMBER_GAMEBOY_INSTRUCTIONSET
-#define H_AMBER_GAMEBOY_INSTRUCTIONSET
+#ifndef H_AMBER_COMMON_INSTRUCTIONSET
+#define H_AMBER_COMMON_INSTRUCTIONSET
 
-#include <gameboy/api.hpp>
+#include <common/api.hpp>
 
 #include <memory>
 
-namespace Amber::Gameboy
+namespace Amber::Common
 {
-	template <typename Opcode, typename Op>
+	template <typename Opcode, typename MicroOp>
 	class InstructionSet
 	{
 		public:
@@ -17,13 +17,13 @@ namespace Amber::Gameboy
 		{
 			// Calculate buffer sizes
 			const size_t instruction_buffer_size = m_InstructionCount * sizeof(Instruction);
-			const size_t op_buffer_size = m_OpCount * sizeof(Op);
+			const size_t op_buffer_size = m_OpCount * sizeof(MicroOp);
 
 			// Make sure that op buffer has correct alignment (member pointers can be weird)
 			size_t op_buffer_offset = 0;
-			if (instruction_buffer_size % alignof(Op) != 0)
+			if (instruction_buffer_size % alignof(MicroOp) != 0)
 			{
-				op_buffer_offset = alignof(Op) - (instruction_buffer_size % alignof(Op));
+				op_buffer_offset = alignof(MicroOp) - (instruction_buffer_size % alignof(MicroOp));
 			}
 
 			// Allocate the buffer
@@ -32,7 +32,7 @@ namespace Amber::Gameboy
 
 			// Get pointers to the arrays
 			m_Instructions = reinterpret_cast<Instruction*>(m_Buffer.get());
-			m_Ops = reinterpret_cast<Op*>(m_Buffer.get() + m_InstructionCount * sizeof(Instruction) + op_buffer_offset);
+			m_Ops = reinterpret_cast<MicroOp*>(m_Buffer.get() + m_InstructionCount * sizeof(Instruction) + op_buffer_offset);
 		}
 
 		size_t GetInstructionCount() const noexcept
@@ -50,7 +50,7 @@ namespace Amber::Gameboy
 			return m_Instructions[a_Opcode].m_Size;
 		}
 
-		const Op* GetInstructionOps(Opcode a_Opcode)
+		const MicroOp* GetInstructionOps(Opcode a_Opcode)
 		{
 			return m_Ops + GetInstructionOffset(a_Opcode);
 		}
@@ -65,7 +65,7 @@ namespace Amber::Gameboy
 			m_Instructions[a_Opcode].m_Size = a_Size;
 		}
 
-		void SetOp(size_t a_Offset, Op a_Op)
+		void SetOp(size_t a_Offset, MicroOp a_Op)
 		{
 			m_Ops[a_Offset] = a_Op;
 		}
@@ -80,7 +80,7 @@ namespace Amber::Gameboy
 		size_t m_InstructionCount;
 		size_t m_OpCount;
 		Instruction* m_Instructions;
-		Op* m_Ops;
+		MicroOp* m_Ops;
 		std::unique_ptr<uint8_t[]> m_Buffer;
 	};
 }

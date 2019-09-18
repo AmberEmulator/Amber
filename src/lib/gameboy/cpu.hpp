@@ -3,21 +3,19 @@
 
 #include <gameboy/api.hpp>
 #include <gameboy/extendedopcode.hpp>
-#include <gameboy/instructionbuilder.hpp>
-#include <gameboy/instructionset.hpp>
 #include <gameboy/opcode.hpp>
-#include <gameboy/register.hpp>
 
+#include <common/cpuhelper.hpp>
+#include <common/instructionset.hpp>
 #include <common/memory.hpp>
+#include <common/register.hpp>
 
 #include <functional>
 
 namespace Amber::Gameboy
 {
-	class GAMEBOY_API CPU
+	class GAMEBOY_API CPU : public Common::CPUHelper<CPU, uint16_t, 8, 5>
 	{
-		template <typename T> friend class InstructionBuilder;
-
 		public:
 		static constexpr uint8_t RegisterAF = 0;
 		static constexpr uint8_t RegisterBC = 1;
@@ -63,12 +61,7 @@ namespace Amber::Gameboy
 		Common::Memory16& GetMemory() const noexcept;
 
 		// Registers
-		uint8_t LoadRegister8(uint8_t a_Register) const noexcept;
-		uint16_t LoadRegister16(uint8_t a_Register) const noexcept;
 		bool LoadFlag(uint8_t a_Flag) const noexcept;
-
-		void StoreRegister8(uint8_t a_Register, uint8_t a_Value) noexcept;
-		void StoreRegister16(uint8_t a_Register, uint16_t a_Value) noexcept;
 		void StoreFlag(uint8_t a_Flag, bool a_Value) noexcept;
 
 		// Interrupts
@@ -93,20 +86,6 @@ namespace Amber::Gameboy
 		void Reset();
 
 		private:
-		// Reading bytes
-		uint8_t PeekNext8() const noexcept;
-		uint16_t PeekNext16() const noexcept;
-		uint8_t ReadNext8() noexcept;
-		uint16_t ReadNext16() noexcept;
-
-		// Managing Ops
-		void IncrementOpCounter(size_t& a_Counter);
-		void PushOp(MicroOp a_Op);
-		MicroOp PopOp();
-		void InsertOp(MicroOp a_Op, size_t a_Index);
-		void InsertOpAndIncrementDone(MicroOp a_Op);
-		void CallOp(MicroOp a_Op);
-
 		// Math ops
 		template <bool Carry> uint8_t Add8(uint8_t a_Left, uint8_t a_Right) noexcept;
 		template <bool Carry> uint8_t Subtract8(uint8_t a_Left, uint8_t a_Right) noexcept;
@@ -131,22 +110,6 @@ namespace Amber::Gameboy
 		template <bool Flags = true> uint16_t SignedAdd16(uint16_t a_Left, uint8_t a_Right) noexcept;
 		uint8_t DecimalAdjust8(uint8_t a_Value) noexcept;
 
-		// Composition ops
-		using UnaryOp8 = uint8_t(CPU::*)(uint8_t a_Value);
-		using UnaryOp16 = uint16_t(CPU::*)(uint16_t a_Value);
-		using BinaryOp8 = uint8_t(CPU::*)(uint8_t a_Left, uint8_t a_Right);
-		using BinaryOp16 = uint16_t(CPU::*)(uint16_t a_Left, uint16_t a_Right);
-
-		template <uint8_t Destination, UnaryOp8 Op, bool Store = true> void UnaryOp_r() noexcept;
-		template <uint8_t Destination, UnaryOp16 Op, bool Store = true> void UnaryOp_rr() noexcept;
-
-		template <uint8_t Destination, BinaryOp8 Op, bool Store = true> void BinaryOp_r_x(uint8_t a_Value) noexcept;
-		template <uint8_t Destination, uint8_t Source, BinaryOp8 Op, bool Store = true> void BinaryOp_r_r() noexcept;
-		template <uint8_t Destination, BinaryOp16 Op, bool Store = true> void BinaryOp_rr_xx(uint16_t a_Value) noexcept;
-		template <uint8_t Destination, uint8_t Source, BinaryOp16 Op, bool Store = true> void BinaryOp_rr_rr() noexcept;
-
-		template <MicroOp Op, uint8_t Counter> void Delay();
-
 		// Base ops
 		void NotImplemented();
 		void DecodeInstruction();
@@ -154,48 +117,29 @@ namespace Amber::Gameboy
 		void BreakpointStop();
 		void BreakpointContinue();
 		void Break();
-		void Skip();
 		template <uint8_t Flag, bool Set> void FlagCondition();
 		void DisableInterrupts();
 		void EnableInterrupts();
 		void ProcessInterrupts();
 		void Halt();
 		void CheckHalt();
-		template <uint8_t Destination, uint8_t Mask> void MASK_r();
+		template <uint8_t Destination, uint8_t Mask> void MaskOp_r8();
 		void DMA();
 
-		// 8-bit load ops
-		template <uint8_t Destination> void LD_r_x(uint8_t a_Value);
-		template <uint8_t Destination> void LD_r_n();
-		template <uint8_t Destination, uint8_t Source> void LD_r_r();
-		template <uint8_t Destination> void LD_r_axx(uint16_t a_Address);
-		template <uint8_t Destination, uint8_t Source> void LD_r_arr();
-
-		void LD_axx_x(uint16_t a_Address, uint8_t a_Value);
-		template <uint8_t Destination> void LD_arr_x(uint8_t a_Value);
-		template <uint8_t Destination, uint8_t Source> void LD_arr_r();
-
 		// 16-bit load ops
-		template <uint8_t Destination> void LD_rr_xx(uint16_t a_Value);
-		template <uint8_t Destination, uint8_t Source> void LD_rr_rr();
-		template <uint8_t Destination, uint8_t Source> void LD_rr_xxr(uint16_t a_Base);
-		template <uint8_t Destination, uint8_t Source> void LD_rr_FFr();
-		template <uint8_t Destination, uint8_t BaseSource, uint8_t OffsetSource> void LD_rr_rrr();
+		template <uint8_t Destination, uint8_t Source> void LoadOp_r16_x16r8(uint16_t a_Base);
+		template <uint8_t Destination, uint8_t Source> void LoadOp_r16_FFr8();
+		template <uint8_t Destination, uint8_t BaseSource, uint8_t OffsetSource> void LoadOp_r16_r16r8();
 
 		// 16-bit add ops
-		template <uint8_t Destination, uint8_t Source> void ADD_rr_r() noexcept;
-
-		// Absolute jump ops
-		void JP_xx(uint16_t a_Address) noexcept;
-		template <uint8_t Source> void JP_rr() noexcept;
-		template <uint16_t Address> void JP() noexcept;
+		template <uint8_t Destination, uint8_t Source> void AddOp_r16_r8() noexcept;
 
 		// Relative jump ops
-		template <uint8_t Base, uint8_t Offset> void JR_rr_r() noexcept;
+		template <uint8_t Base, uint8_t Offset> void JumpOp_r16_r8() noexcept;
 
 		// 8-bit test bit ops
-		template <uint8_t Bit> void BIT_x_b(uint8_t a_Value) noexcept;
-		template <uint8_t Source, uint8_t Bit> void BIT_r_b() noexcept;
+		template <uint8_t Bit> void BitTestOp_x8_b(uint8_t a_Value) noexcept;
+		template <uint8_t Source, uint8_t Bit> void BitTestOp_r8_b() noexcept;
 
 		// Flag ops
 		void CCF() noexcept;
@@ -204,18 +148,11 @@ namespace Amber::Gameboy
 		// Memory
 		Common::Memory16& m_Memory;
 
-		// Registers
-		Register m_Registers[8]; // AF, BC, DE, HL, SP, PC, XY, ZW
-
 		// Instructions
-		std::unique_ptr<InstructionSet<Opcode::Enum, MicroOp>> m_Instructions;
-		std::unique_ptr<InstructionSet<ExtendedOpcode::Enum, MicroOp>> m_ExtendedInstructions;
+		std::unique_ptr<Common::InstructionSet<Opcode::Enum, MicroOp>> m_Instructions;
+		std::unique_ptr<Common::InstructionSet<ExtendedOpcode::Enum, MicroOp>> m_ExtendedInstructions;
 
 		// Opcode queue
-		MicroOp m_MicroOps[16] = {};
-		size_t m_OpFront = 0;
-		size_t m_OpBack = 0;
-		size_t m_OpDone = 0;
 		bool m_OpBreak = false;
 
 		// Interrupts
