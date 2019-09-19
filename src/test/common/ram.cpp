@@ -35,7 +35,7 @@ using namespace Common;
 TEMPLATE_TEST_CASE("ROM is initialized with the correct amount of bytes", TEST_TAGS, TEST_RAM_AND_ROM_TYPES)
 {
 	const size_t rom_size = TEST_ROM_SIZES;
-	TestType rom(rom_size, 1);
+	TestType rom(rom_size);
 
 	REQUIRE(rom.GetSize() == rom_size);
 }
@@ -43,7 +43,7 @@ TEMPLATE_TEST_CASE("ROM is initialized with the correct amount of bytes", TEST_T
 TEMPLATE_TEST_CASE("ROM can load bytes", TEST_TAGS, TEST_RAM_AND_ROM_TYPES)
 {
 	const size_t rom_size = TEST_ROM_SIZES;
-	TestType rom(rom_size, 1);
+	TestType rom(rom_size);
 
 	for (size_t i = 0; i < rom_size; ++i)
 	{
@@ -132,7 +132,7 @@ TEMPLATE_TEST_CASE("ROM can load bytes", TEST_TAGS, TEST_RAM_AND_ROM_TYPES)
 TEMPLATE_TEST_CASE("RAM can store bytes", TEST_TAGS, TEST_RAM_TYPES)
 {
 	const size_t ram_size = TEST_ROM_SIZES;
-	TestType ram(ram_size, 1);
+	TestType ram(ram_size);
 
 	for (size_t i = 0; i < ram_size; ++i)
 	{
@@ -150,7 +150,7 @@ TEMPLATE_TEST_CASE("RAM can store bytes", TEST_TAGS, TEST_RAM_TYPES)
 TEMPLATE_TEST_CASE("ROM cannot store bytes", TEST_TAGS, TEST_ROM_TYPES)
 {
 	const size_t rom_size = TEST_ROM_SIZES;
-	TestType rom(rom_size, 1);
+	TestType rom(rom_size);
 
 	for (size_t i = 0; i < rom_size; ++i)
 	{
