@@ -6,7 +6,7 @@
 using namespace Amber;
 using namespace Common;
 
-ByteWriter::ByteWriter(void* a_Destination, size_t a_Size) noexcept :
+ByteWriter::ByteWriter(void* a_Destination, size_t a_Size) noexcept:
 	m_Destination(a_Destination),
 	m_Size(a_Size)
 {

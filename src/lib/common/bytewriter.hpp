@@ -24,6 +24,33 @@ namespace Amber::Common
 			return Write(&a_Source, sizeof(T));
 		}
 
+		template <typename T>
+		size_t WriteVLQ(T a_Quantity) noexcept
+		{
+			size_t bytes_written = 0;
+			do
+			{
+				uint8_t byte = a_Quantity & 0b0111'1111;
+				a_Quantity >>= 7;
+				if (a_Quantity != 0)
+				{
+					byte |= 0b1000'0000;
+				}
+
+				const uint8_t result = Write(byte);
+				if (result == 0)
+				{
+					return 0;
+				}
+
+				bytes_written += result;
+			}
+			while (a_Quantity != 0);
+
+			m_Position += bytes_written;
+			return bytes_written;
+		}
+
 		private:
 		void* m_Destination;
 		size_t m_Size;

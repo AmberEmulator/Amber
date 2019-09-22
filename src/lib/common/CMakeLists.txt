@@ -33,6 +33,9 @@ amber_add_sources(common "instructionset.hpp" FILTER "CPU/Instruction Set")
 amber_add_sources(common "register.hpp" FILTER "CPU/Register")
 
 # Recording
+amber_add_sources(common "channeldescription.hpp" "channeldescription.cpp" FILTER "Recording/Channel Description")
+amber_add_sources(common "recorder.hpp" "recorder.cpp" FILTER "Recording/Recorder")
+amber_add_sources(common "recorderdescription.hpp" "recorderdescription.cpp" FILTER "Recording/Recorder Description")
 amber_add_sources(common "bytereader.hpp" "bytereader.cpp" FILTER "Recording/Byte Reader")
 amber_add_sources(common "bytewriter.hpp" "bytewriter.cpp" FILTER "Recording/Byte Writer")
 
