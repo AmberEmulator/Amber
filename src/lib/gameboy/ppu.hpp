@@ -28,9 +28,13 @@ namespace Amber::Gameboy
 
 		uint8_t GetLY() const noexcept;
 		uint8_t GetLCDC() const noexcept;
+		uint8_t GetSCX() const noexcept;
+		uint8_t GetSCY() const noexcept;
 
 		void SetCPU(CPU* a_CPU) noexcept;
 		void SetLCDC(uint8_t a_Value) noexcept;
+		void SetSCX(uint8_t a_Value) noexcept;
+		void SetSCY(uint8_t a_Value) noexcept;
 
 		void Tick();
 		void Reset();
@@ -62,6 +66,8 @@ namespace Amber::Gameboy
 
 		// LCD control
 		uint8_t m_LCDC = 0x91;
+		uint8_t m_SCX = 0x00;
+		uint8_t m_SCY = 0x00;
 
 		// LCD result buffer
 		uint8_t m_LCDBuffer[(LCDWidth * LCDHeight) / 4] = {};

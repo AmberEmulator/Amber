@@ -139,6 +139,14 @@ uint8_t MMU::Load8(Address a_Address) const
 		{
 			return m_PPU->GetLCDC();
 		}
+		else if (a_Address == 0xFF42 && m_PPU != nullptr)
+		{
+			return m_PPU->GetSCX();
+		}
+		else if (a_Address == 0xFF43 && m_PPU != nullptr)
+		{
+			return m_PPU->GetSCY();
+		}
 		else if (a_Address == 0xFF44 && m_PPU != nullptr)
 		{
 			return m_PPU->GetLY();
@@ -254,6 +262,14 @@ void MMU::Store8(Address a_Address, uint8_t a_Value)
 		else if (a_Address == 0xFF40 && m_PPU != nullptr)
 		{
 			m_PPU->SetLCDC(a_Value);
+		}
+		else if (a_Address == 0xFF42 && m_PPU != nullptr)
+		{
+			m_PPU->SetSCX(a_Value);
+		}
+		else if (a_Address == 0xFF43 && m_PPU != nullptr)
+		{
+			m_PPU->SetSCY(a_Value);
 		}
 		break;
 	}

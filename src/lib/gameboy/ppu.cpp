@@ -22,6 +22,16 @@ uint8_t PPU::GetLCDC() const noexcept
 	return m_LCDC;
 }
 
+uint8_t PPU::GetSCX() const noexcept
+{
+	return m_SCX;
+}
+
+uint8_t PPU::GetSCY() const noexcept
+{
+	return m_SCY;
+}
+
 void PPU::SetCPU(CPU* a_CPU) noexcept
 {
 	m_CPU = a_CPU;
@@ -30,6 +40,16 @@ void PPU::SetCPU(CPU* a_CPU) noexcept
 void PPU::SetLCDC(uint8_t a_Value) noexcept
 {
 	m_LCDC = a_Value;
+}
+
+void PPU::SetSCX(uint8_t a_Value) noexcept
+{
+	m_SCX = a_Value;
+}
+
+void PPU::SetSCY(uint8_t a_Value) noexcept
+{
+	m_SCY = a_Value;
 }
 
 void PPU::Tick()
@@ -176,8 +196,8 @@ void PPU::OAMSearch() noexcept
 void PPU::PixelTransfer() noexcept
 {
 	// Calculate current screen position
-	const uint8_t x = static_cast<uint8_t>(m_HCounter - OAMCycles);
-	const uint8_t y = static_cast<uint8_t>(m_VCounter);
+	const uint8_t screen_x = static_cast<uint8_t>(m_HCounter - OAMCycles);
+	const uint8_t screen_y = static_cast<uint8_t>(m_VCounter);
 
 	// Check if it is covered by a sprite
 	uint8_t sprite[4] = { 0, 0xFF, 0, 0 };
@@ -187,12 +207,12 @@ void PPU::PixelTransfer() noexcept
 		const uint8_t sprite_y = m_MMU.Load8(0xFE00 + sprite_index * 4 + 0);
 		const uint8_t sprite_x = m_MMU.Load8(0xFE00 + sprite_index * 4 + 1);
 
-		if (sprite_x > x + 8 || sprite_x + 8 <= x + 8)
+		if (sprite_x > screen_x + 8 || sprite_x + 8 <= screen_x + 8)
 		{
 			continue;
 		}
 
-		if (sprite_y > y + 16 || sprite_y + 8 <= y + 16)
+		if (sprite_y > screen_y + 16 || sprite_y + 8 <= screen_y + 16)
 		{
 			continue;
 		}
@@ -208,6 +228,9 @@ void PPU::PixelTransfer() noexcept
 		sprite[3] = m_MMU.Load8(0xFE00 + sprite_index * 4 + 3);
 	}
 
+	const uint8_t scroll_x = screen_x + m_SCX;
+	const uint8_t scroll_y = screen_y + m_SCY;
+
 	uint8_t tile_index;
 	uint8_t tile_x;
 	uint8_t tile_y;
@@ -216,13 +239,13 @@ void PPU::PixelTransfer() noexcept
 	if (sprite[0] != 0)
 	{
 		tile_index = sprite[2];
-		tile_x = x - (sprite[1] - 8);
-		tile_y = y - (sprite[0] - 16);
+		tile_x = screen_x - (sprite[1] - 8);
+		tile_y = screen_y - (sprite[0] - 16);
 	}
 	else
 	{
-		const uint8_t background_x = x / 8;
-		const uint8_t background_y = y / 8;
+		const uint8_t background_x = scroll_x / 8;
+		const uint8_t background_y = scroll_y / 8;
 
 		const uint16_t tile_index_offset = background_x + background_y * 32;
 		tile_index = m_MMU.Load8(0x9800 + tile_index_offset);
@@ -232,8 +255,8 @@ void PPU::PixelTransfer() noexcept
 			tile_data_address = 0x8800;
 		}
 
-		tile_x = x % 8;
-		tile_y = y % 8;
+		tile_x = scroll_x % 8;
+		tile_y = scroll_y % 8;
 	}
 
 	uint8_t tile_data[16];
@@ -252,7 +275,7 @@ void PPU::PixelTransfer() noexcept
 
 	const uint8_t color = bit0 | (bit1 << 1);
 
-	SetPixel(x, y, color);
+	SetPixel(screen_x, screen_y, color);
 }
 
 uint8_t PPU::GetPixel(uint8_t a_X, uint8_t a_Y) const noexcept
