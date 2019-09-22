@@ -107,10 +107,6 @@ uint8_t MMU::Load8(Address a_Address) const
 		{
 			return m_HRAM[a_Address - 0xFF80];
 		}
-		else if (a_Address == 0xFF44 && m_PPU != nullptr)
-		{
-			return m_PPU->GetLY();
-		}
 		else if (a_Address == 0xFF04 && m_CPU != nullptr)
 		{
 			return m_CPU->GetDIV();
@@ -138,6 +134,14 @@ uint8_t MMU::Load8(Address a_Address) const
 		else if (a_Address == 0xFF00 && m_Joypad != nullptr)
 		{
 			return m_Joypad->GetRegister();
+		}
+		else if (a_Address == 0xFF40 && m_PPU != nullptr)
+		{
+			return m_PPU->GetLCDC();
+		}
+		else if (a_Address == 0xFF44 && m_PPU != nullptr)
+		{
+			return m_PPU->GetLY();
 		}
 		break;
 	}
@@ -246,6 +250,10 @@ void MMU::Store8(Address a_Address, uint8_t a_Value)
 		else if (a_Address == 0xFF00 && m_Joypad != nullptr)
 		{
 			m_Joypad->SetRegister(a_Value);
+		}
+		else if (a_Address == 0xFF40 && m_PPU != nullptr)
+		{
+			m_PPU->SetLCDC(a_Value);
 		}
 		break;
 	}

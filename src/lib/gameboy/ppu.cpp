@@ -17,9 +17,19 @@ uint8_t PPU::GetLY() const noexcept
 	return static_cast<uint8_t>(m_VCounter);
 }
 
+uint8_t PPU::GetLCDC() const noexcept
+{
+	return m_LCDC;
+}
+
 void PPU::SetCPU(CPU* a_CPU) noexcept
 {
 	m_CPU = a_CPU;
+}
+
+void PPU::SetLCDC(uint8_t a_Value) noexcept
+{
+	m_LCDC = a_Value;
 }
 
 void PPU::Tick()
@@ -201,6 +211,7 @@ void PPU::PixelTransfer() noexcept
 	uint8_t tile_index;
 	uint8_t tile_x;
 	uint8_t tile_y;
+	uint16_t tile_data_address = 0x8000;
 
 	if (sprite[0] != 0)
 	{
@@ -215,6 +226,11 @@ void PPU::PixelTransfer() noexcept
 
 		const uint16_t tile_index_offset = background_x + background_y * 32;
 		tile_index = m_MMU.Load8(0x9800 + tile_index_offset);
+		if ((m_LCDC & 0b0001'0000) == 0)
+		{
+			tile_index += 128;
+			tile_data_address = 0x8800;
+		}
 
 		tile_x = x % 8;
 		tile_y = y % 8;
@@ -223,7 +239,7 @@ void PPU::PixelTransfer() noexcept
 	uint8_t tile_data[16];
 	for (uint16_t i = 0; i < 16; ++i)
 	{
-		tile_data[i] = m_MMU.Load8(0x8000 + (tile_index * 16 + i));
+		tile_data[i] = m_MMU.Load8(tile_data_address + (tile_index * 16 + i));
 	}
 
 	const uint8_t line = tile_y * 2;

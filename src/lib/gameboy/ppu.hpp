@@ -27,8 +27,10 @@ namespace Amber::Gameboy
 		PPU(MMU& a_MMU);
 
 		uint8_t GetLY() const noexcept;
+		uint8_t GetLCDC() const noexcept;
 
 		void SetCPU(CPU* a_CPU) noexcept;
+		void SetLCDC(uint8_t a_Value) noexcept;
 
 		void Tick();
 		void Reset();
@@ -53,10 +55,13 @@ namespace Amber::Gameboy
 		uint8_t m_SpriteCount;
 		uint8_t m_SpriteY;
 
-		// LCD Mode
+		// LCD mode
 		uint16_t m_HCounter = 0;
 		uint16_t m_VCounter = 0;
 		LCDMode::Enum m_LCDMode = LCDMode::VBlank;
+
+		// LCD control
+		uint8_t m_LCDC = 0x91;
 
 		// LCD result buffer
 		uint8_t m_LCDBuffer[(LCDWidth * LCDHeight) / 4] = {};
