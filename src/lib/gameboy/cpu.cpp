@@ -921,11 +921,23 @@ void CPU::Reset()
 	// Reset program counter
 	StoreRegister16(RegisterPC, 0);
 
+	// Reset interrupts
+	m_InterruptMasterEnable = false;
+	m_InterruptEnable = 0;
+	m_InterruptRequests = 0;
+	m_Halted = false;
+
 	// Reset timers
 	m_DIV = 0;
 	m_TIMA = 0;
 	m_TMA = 0;
 	m_TAC = 0;
+	m_LastTIMABitState = false;
+	m_TIMAOverflow = false;
+
+	// Reset DMA
+	m_DMAAddress = 0;
+	m_DMACounter = 0;
 }
 
 template <bool Carry>
