@@ -22,6 +22,11 @@ uint8_t PPU::GetLCDC() const noexcept
 	return m_LCDC;
 }
 
+uint8_t PPU::GetSTAT() const noexcept
+{
+	return m_STAT;
+}
+
 uint8_t PPU::GetSCX() const noexcept
 {
 	return m_SCX;
@@ -40,6 +45,11 @@ void PPU::SetCPU(CPU* a_CPU) noexcept
 void PPU::SetLCDC(uint8_t a_Value) noexcept
 {
 	m_LCDC = a_Value;
+}
+
+void PPU::SetSTAT(uint8_t a_Value) noexcept
+{
+	m_STAT = (m_STAT & 0b0000'0111) | (a_Value & 0b1111'1000);
 }
 
 void PPU::SetSCX(uint8_t a_Value) noexcept
@@ -109,6 +119,9 @@ void PPU::Tick()
 		}
 		break;
 	}
+
+	// Update STAT
+	m_STAT = (m_STAT & 0b1111'1000) | m_LCDMode;
 
 	// Process LCD Mode
 	switch (m_LCDMode)
