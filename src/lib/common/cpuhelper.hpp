@@ -311,7 +311,7 @@ namespace Amber::Common
 			}
 
 			// Op queue variables
-			MicroOp m_MicroOps[16] = {};
+			MicroOp m_MicroOps[32] = {};
 			size_t m_OpFront = 0;
 			size_t m_OpBack = 0;
 			size_t m_OpDone = 0;
