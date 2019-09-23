@@ -72,7 +72,15 @@ void MMU::SetCartridge(Memory* a_Cartridge)
 	m_Cartridge = a_Cartridge;
 	if (m_Cartridge != nullptr)
 	{
+		// ROM
 		for (uint8_t i = 0x0; i < 0x8; ++i)
+		{
+			m_PageLoads[i] = &MMU::LoadMemory<&MMU::m_Cartridge, 0>;
+			m_PageStores[i] = &MMU::StoreMemory<&MMU::m_Cartridge, 0>;
+		}
+
+		// RAM
+		for (uint8_t i = 0xA; i < 0xC; ++i)
 		{
 			m_PageLoads[i] = &MMU::LoadMemory<&MMU::m_Cartridge, 0>;
 			m_PageStores[i] = &MMU::StoreMemory<&MMU::m_Cartridge, 0>;
@@ -80,7 +88,15 @@ void MMU::SetCartridge(Memory* a_Cartridge)
 	}
 	else
 	{
+		// ROM
 		for (uint8_t i = 0x0; i < 0x8; ++i)
+		{
+			m_PageLoads[i] = &MMU::LoadNOP;
+			m_PageStores[i] = &MMU::StoreNOP;
+		}
+
+		// RAM
+		for (uint8_t i = 0xA; i < 0xC; ++i)
 		{
 			m_PageLoads[i] = &MMU::LoadNOP;
 			m_PageStores[i] = &MMU::StoreNOP;

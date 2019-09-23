@@ -46,6 +46,8 @@ std::unique_ptr<BasicCartridge> CartridgeLoader::CreateCartridge(const Cartridge
 		break;
 
 		case CartridgeType::MBC1:
+		case CartridgeType::MBC1_RAM:
+		case CartridgeType::MBC1_RAM_BATTERY: // TODO: implement ram battery
 		return std::make_unique<MBC1Cartridge>(rom_size, ram_size);
 		break;
 
