@@ -313,7 +313,8 @@ void Application::Tick()
 	// Show disassembly
 	static DisassemblyState disassembly_state;
 	disassembly_state.m_Debugger = &debugger;
-	disassembly_state.m_ViewAddress = device->GetCPU().LoadRegister16(Gameboy::CPU::RegisterPC);
+	disassembly_state.m_ProgramCounter = device->GetCPU().LoadRegister16(Gameboy::CPU::RegisterPC);
+	disassembly_state.m_ViewAddress = disassembly_state.m_ProgramCounter;
 
 	ImGui::SetNextWindowDockID(dock_id, ImGuiSetCond_FirstUseEver);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));

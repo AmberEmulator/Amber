@@ -43,6 +43,7 @@ void Amber::Client::ShowDisassembly(const char* a_Name, DisassemblyState& a_Stat
 	const ImU32 font_color = ImColor(style.Colors[ImGuiCol_Text]);
 	const ImU32 breakpoint_color = IM_COL32(255, 0, 0, 255);
 	const ImU32 breakpoint_bar_color = ImColor(style.Colors[ImGuiCol_Border]);
+	const ImU32 program_counter_color = IM_COL32(255, 255, 0, 255);
 
 	const ImVec2 window_top_left = ImGui::GetCursorScreenPos();
 	const ImVec2 window_bottom_right = ImVec2(window_top_left.x + ImGui::GetWindowWidth(), window_top_left.y + ImGui::GetWindowHeight());
@@ -90,6 +91,17 @@ void Amber::Client::ShowDisassembly(const char* a_Name, DisassemblyState& a_Stat
 				const ImVec2 circle_pos = ImVec2(row_top_left.x + row_height / 2.0f + 0.5f, row_top_left.y + row_height / 2.0f + 0.5f);
 
 				draw_list.AddCircleFilled(circle_pos, row_height / 2.0f - 3.0f, breakpoint_color);
+			}
+
+			if (a_State.m_ProgramCounter == address)
+			{
+				const float shrink = 5.0f;
+
+				const ImVec2 p0(row_top_left.x + 1.0f + shrink, row_top_left.y + 0.5f + shrink);
+				const ImVec2 p1(row_top_left.x + 1.0f + row_height - shrink, row_top_left.y + 0.5f + row_height / 2.0f);
+				const ImVec2 p2(row_top_left.x + 1.0f + shrink, row_top_left.y + 0.5f + row_height - shrink);
+
+				draw_list.AddTriangleFilled(p0, p1, p2, program_counter_color);
 			}
 
 			// Draw address

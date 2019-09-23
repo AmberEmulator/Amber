@@ -10,6 +10,7 @@ namespace Amber::Client
 	struct DisassemblyState
 	{
 		Common::Debugger* m_Debugger = nullptr;
+		uint64_t m_ProgramCounter = 0;
 		uint64_t m_ViewAddress = 0;
 		uint64_t m_SelectedAddress = 0;
 		bool m_Fixed = false;
