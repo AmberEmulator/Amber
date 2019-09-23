@@ -443,7 +443,7 @@ CPU::CPU(Memory16& a_Memory):
 	extended_instruction_builder.Begin(ExtendedOpcode::RLC_E, &CPU::UnaryOp_r8<RegisterE, &CPU::RotateLeft8>);
 	extended_instruction_builder.Begin(ExtendedOpcode::RLC_H, &CPU::UnaryOp_r8<RegisterH, &CPU::RotateLeft8>);
 	extended_instruction_builder.Begin(ExtendedOpcode::RLC_L, &CPU::UnaryOp_r8<RegisterL, &CPU::RotateLeft8>);
-	extended_instruction_builder.Begin(ExtendedOpcode::RLC_aHL, &CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::RotateLeft8>).Cycle(&CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
+	extended_instruction_builder.Begin(ExtendedOpcode::RLC_aHL).Cycle(&CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::RotateLeft8>, &CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
 
 	extended_instruction_builder.Begin(ExtendedOpcode::RL_A, &CPU::UnaryOp_r8<RegisterA, &CPU::RotateLeftThroughCarry8>);
 	extended_instruction_builder.Begin(ExtendedOpcode::RL_B, &CPU::UnaryOp_r8<RegisterB, &CPU::RotateLeftThroughCarry8>);
@@ -452,7 +452,7 @@ CPU::CPU(Memory16& a_Memory):
 	extended_instruction_builder.Begin(ExtendedOpcode::RL_E, &CPU::UnaryOp_r8<RegisterE, &CPU::RotateLeftThroughCarry8>);
 	extended_instruction_builder.Begin(ExtendedOpcode::RL_H, &CPU::UnaryOp_r8<RegisterH, &CPU::RotateLeftThroughCarry8>);
 	extended_instruction_builder.Begin(ExtendedOpcode::RL_L, &CPU::UnaryOp_r8<RegisterL, &CPU::RotateLeftThroughCarry8>);
-	extended_instruction_builder.Begin(ExtendedOpcode::RL_aHL, &CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::RotateLeftThroughCarry8>).Cycle(&CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
+	extended_instruction_builder.Begin(ExtendedOpcode::RL_aHL).Cycle(&CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::RotateLeftThroughCarry8>, &CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
 
 	extended_instruction_builder.Begin(ExtendedOpcode::RRC_A, &CPU::UnaryOp_r8<RegisterA, &CPU::RotateRight8>);
 	extended_instruction_builder.Begin(ExtendedOpcode::RRC_B, &CPU::UnaryOp_r8<RegisterB, &CPU::RotateRight8>);
@@ -461,7 +461,7 @@ CPU::CPU(Memory16& a_Memory):
 	extended_instruction_builder.Begin(ExtendedOpcode::RRC_E, &CPU::UnaryOp_r8<RegisterE, &CPU::RotateRight8>);
 	extended_instruction_builder.Begin(ExtendedOpcode::RRC_H, &CPU::UnaryOp_r8<RegisterH, &CPU::RotateRight8>);
 	extended_instruction_builder.Begin(ExtendedOpcode::RRC_L, &CPU::UnaryOp_r8<RegisterL, &CPU::RotateRight8>);
-	extended_instruction_builder.Begin(ExtendedOpcode::RRC_aHL, &CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::RotateRight8>).Cycle(&CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
+	extended_instruction_builder.Begin(ExtendedOpcode::RRC_aHL).Cycle(&CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::RotateRight8>, &CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
 
 	extended_instruction_builder.Begin(ExtendedOpcode::RR_A, &CPU::UnaryOp_r8<RegisterA, &CPU::RotateRightThroughCarry8>);
 	extended_instruction_builder.Begin(ExtendedOpcode::RR_B, &CPU::UnaryOp_r8<RegisterB, &CPU::RotateRightThroughCarry8>);
@@ -470,7 +470,7 @@ CPU::CPU(Memory16& a_Memory):
 	extended_instruction_builder.Begin(ExtendedOpcode::RR_E, &CPU::UnaryOp_r8<RegisterE, &CPU::RotateRightThroughCarry8>);
 	extended_instruction_builder.Begin(ExtendedOpcode::RR_H, &CPU::UnaryOp_r8<RegisterH, &CPU::RotateRightThroughCarry8>);
 	extended_instruction_builder.Begin(ExtendedOpcode::RR_L, &CPU::UnaryOp_r8<RegisterL, &CPU::RotateRightThroughCarry8>);
-	extended_instruction_builder.Begin(ExtendedOpcode::RR_aHL, &CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::RotateRightThroughCarry8>).Cycle(&CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
+	extended_instruction_builder.Begin(ExtendedOpcode::RR_aHL).Cycle(&CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::RotateRightThroughCarry8>, &CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
 
 	// 8-bit shift instructions
 	extended_instruction_builder.Begin(ExtendedOpcode::SLA_A, &CPU::UnaryOp_r8<RegisterA, &CPU::ShiftLeft8<true>>);
@@ -480,7 +480,7 @@ CPU::CPU(Memory16& a_Memory):
 	extended_instruction_builder.Begin(ExtendedOpcode::SLA_E, &CPU::UnaryOp_r8<RegisterE, &CPU::ShiftLeft8<true>>);
 	extended_instruction_builder.Begin(ExtendedOpcode::SLA_H, &CPU::UnaryOp_r8<RegisterH, &CPU::ShiftLeft8<true>>);
 	extended_instruction_builder.Begin(ExtendedOpcode::SLA_L, &CPU::UnaryOp_r8<RegisterL, &CPU::ShiftLeft8<true>>);
-	extended_instruction_builder.Begin(ExtendedOpcode::SLA_aHL, &CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::ShiftLeft8<true>>).Cycle(&CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
+	extended_instruction_builder.Begin(ExtendedOpcode::SLA_aHL).Cycle(&CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::ShiftLeft8<true>>, &CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
 
 	extended_instruction_builder.Begin(ExtendedOpcode::SRA_A, &CPU::UnaryOp_r8<RegisterA, &CPU::ShiftRight8<false>>);
 	extended_instruction_builder.Begin(ExtendedOpcode::SRA_B, &CPU::UnaryOp_r8<RegisterB, &CPU::ShiftRight8<false>>);
@@ -489,7 +489,7 @@ CPU::CPU(Memory16& a_Memory):
 	extended_instruction_builder.Begin(ExtendedOpcode::SRA_E, &CPU::UnaryOp_r8<RegisterE, &CPU::ShiftRight8<false>>);
 	extended_instruction_builder.Begin(ExtendedOpcode::SRA_H, &CPU::UnaryOp_r8<RegisterH, &CPU::ShiftRight8<false>>);
 	extended_instruction_builder.Begin(ExtendedOpcode::SRA_L, &CPU::UnaryOp_r8<RegisterL, &CPU::ShiftRight8<false>>);
-	extended_instruction_builder.Begin(ExtendedOpcode::SRA_aHL, &CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::ShiftRight8<false>>).Cycle(&CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
+	extended_instruction_builder.Begin(ExtendedOpcode::SRA_aHL).Cycle(&CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::ShiftRight8<false>>, &CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
 
 	extended_instruction_builder.Begin(ExtendedOpcode::SRL_A, &CPU::UnaryOp_r8<RegisterA, &CPU::ShiftRight8<true>>);
 	extended_instruction_builder.Begin(ExtendedOpcode::SRL_B, &CPU::UnaryOp_r8<RegisterB, &CPU::ShiftRight8<true>>);
@@ -498,7 +498,7 @@ CPU::CPU(Memory16& a_Memory):
 	extended_instruction_builder.Begin(ExtendedOpcode::SRL_E, &CPU::UnaryOp_r8<RegisterE, &CPU::ShiftRight8<true>>);
 	extended_instruction_builder.Begin(ExtendedOpcode::SRL_H, &CPU::UnaryOp_r8<RegisterH, &CPU::ShiftRight8<true>>);
 	extended_instruction_builder.Begin(ExtendedOpcode::SRL_L, &CPU::UnaryOp_r8<RegisterL, &CPU::ShiftRight8<true>>);
-	extended_instruction_builder.Begin(ExtendedOpcode::SRL_aHL, &CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::ShiftRight8<true>>).Cycle(&CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
+	extended_instruction_builder.Begin(ExtendedOpcode::SRL_aHL).Cycle(&CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::ShiftRight8<true>>, &CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
 
 	// 8-bit swap instructions
 	extended_instruction_builder.Begin(ExtendedOpcode::SWAP_A, &CPU::UnaryOp_r8<RegisterA, &CPU::Swap8>);
@@ -508,7 +508,7 @@ CPU::CPU(Memory16& a_Memory):
 	extended_instruction_builder.Begin(ExtendedOpcode::SWAP_E, &CPU::UnaryOp_r8<RegisterE, &CPU::Swap8>);
 	extended_instruction_builder.Begin(ExtendedOpcode::SWAP_H, &CPU::UnaryOp_r8<RegisterH, &CPU::Swap8>);
 	extended_instruction_builder.Begin(ExtendedOpcode::SWAP_L, &CPU::UnaryOp_r8<RegisterL, &CPU::Swap8>);
-	extended_instruction_builder.Begin(ExtendedOpcode::SWAP_aHL, &CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::Swap8>).Cycle(&CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
+	extended_instruction_builder.Begin(ExtendedOpcode::SWAP_aHL).Cycle(&CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::Swap8>, &CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
 
 	// 8-bit test bit instructions
 	extended_instruction_builder.Begin(ExtendedOpcode::BIT_A_0, &CPU::BitTestOp_r8_b<RegisterA, 0>);
@@ -647,14 +647,14 @@ CPU::CPU(Memory16& a_Memory):
 	extended_instruction_builder.Begin(ExtendedOpcode::RES_L_6, &CPU::UnaryOp_r8<RegisterL, &CPU::ResetBit8<6>>);
 	extended_instruction_builder.Begin(ExtendedOpcode::RES_L_7, &CPU::UnaryOp_r8<RegisterL, &CPU::ResetBit8<7>>);
 
-	extended_instruction_builder.Begin(ExtendedOpcode::RES_aHL_0, &CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::ResetBit8<0>>).Cycle(&CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
-	extended_instruction_builder.Begin(ExtendedOpcode::RES_aHL_1, &CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::ResetBit8<1>>).Cycle(&CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
-	extended_instruction_builder.Begin(ExtendedOpcode::RES_aHL_2, &CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::ResetBit8<2>>).Cycle(&CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
-	extended_instruction_builder.Begin(ExtendedOpcode::RES_aHL_3, &CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::ResetBit8<3>>).Cycle(&CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
-	extended_instruction_builder.Begin(ExtendedOpcode::RES_aHL_4, &CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::ResetBit8<4>>).Cycle(&CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
-	extended_instruction_builder.Begin(ExtendedOpcode::RES_aHL_5, &CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::ResetBit8<5>>).Cycle(&CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
-	extended_instruction_builder.Begin(ExtendedOpcode::RES_aHL_6, &CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::ResetBit8<6>>).Cycle(&CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
-	extended_instruction_builder.Begin(ExtendedOpcode::RES_aHL_7, &CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::ResetBit8<7>>).Cycle(&CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
+	extended_instruction_builder.Begin(ExtendedOpcode::RES_aHL_0).Cycle(&CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::ResetBit8<0>>, &CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
+	extended_instruction_builder.Begin(ExtendedOpcode::RES_aHL_1).Cycle(&CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::ResetBit8<1>>, &CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
+	extended_instruction_builder.Begin(ExtendedOpcode::RES_aHL_2).Cycle(&CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::ResetBit8<2>>, &CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
+	extended_instruction_builder.Begin(ExtendedOpcode::RES_aHL_3).Cycle(&CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::ResetBit8<3>>, &CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
+	extended_instruction_builder.Begin(ExtendedOpcode::RES_aHL_4).Cycle(&CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::ResetBit8<4>>, &CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
+	extended_instruction_builder.Begin(ExtendedOpcode::RES_aHL_5).Cycle(&CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::ResetBit8<5>>, &CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
+	extended_instruction_builder.Begin(ExtendedOpcode::RES_aHL_6).Cycle(&CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::ResetBit8<6>>, &CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
+	extended_instruction_builder.Begin(ExtendedOpcode::RES_aHL_7).Cycle(&CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::ResetBit8<7>>, &CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
 
 	// 8-bit set bit instructions
 	extended_instruction_builder.Begin(ExtendedOpcode::SET_A_0, &CPU::UnaryOp_r8<RegisterA, &CPU::SetBit8<0>>);
@@ -720,14 +720,14 @@ CPU::CPU(Memory16& a_Memory):
 	extended_instruction_builder.Begin(ExtendedOpcode::SET_L_6, &CPU::UnaryOp_r8<RegisterL, &CPU::SetBit8<6>>);
 	extended_instruction_builder.Begin(ExtendedOpcode::SET_L_7, &CPU::UnaryOp_r8<RegisterL, &CPU::SetBit8<7>>);
 
-	extended_instruction_builder.Begin(ExtendedOpcode::SET_aHL_0, &CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::SetBit8<0>>).Cycle(&CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
-	extended_instruction_builder.Begin(ExtendedOpcode::SET_aHL_1, &CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::SetBit8<1>>).Cycle(&CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
-	extended_instruction_builder.Begin(ExtendedOpcode::SET_aHL_2, &CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::SetBit8<2>>).Cycle(&CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
-	extended_instruction_builder.Begin(ExtendedOpcode::SET_aHL_3, &CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::SetBit8<3>>).Cycle(&CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
-	extended_instruction_builder.Begin(ExtendedOpcode::SET_aHL_4, &CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::SetBit8<4>>).Cycle(&CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
-	extended_instruction_builder.Begin(ExtendedOpcode::SET_aHL_5, &CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::SetBit8<5>>).Cycle(&CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
-	extended_instruction_builder.Begin(ExtendedOpcode::SET_aHL_6, &CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::SetBit8<6>>).Cycle(&CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
-	extended_instruction_builder.Begin(ExtendedOpcode::SET_aHL_7, &CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::SetBit8<7>>).Cycle(&CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
+	extended_instruction_builder.Begin(ExtendedOpcode::SET_aHL_0).Cycle(&CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::SetBit8<0>>, &CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
+	extended_instruction_builder.Begin(ExtendedOpcode::SET_aHL_1).Cycle(&CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::SetBit8<1>>, &CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
+	extended_instruction_builder.Begin(ExtendedOpcode::SET_aHL_2).Cycle(&CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::SetBit8<2>>, &CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
+	extended_instruction_builder.Begin(ExtendedOpcode::SET_aHL_3).Cycle(&CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::SetBit8<3>>, &CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
+	extended_instruction_builder.Begin(ExtendedOpcode::SET_aHL_4).Cycle(&CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::SetBit8<4>>, &CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
+	extended_instruction_builder.Begin(ExtendedOpcode::SET_aHL_5).Cycle(&CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::SetBit8<5>>, &CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
+	extended_instruction_builder.Begin(ExtendedOpcode::SET_aHL_6).Cycle(&CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::SetBit8<6>>, &CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
+	extended_instruction_builder.Begin(ExtendedOpcode::SET_aHL_7).Cycle(&CPU::LoadOp_r8_ar<RegisterX, RegisterHL>).Cycle(&CPU::UnaryOp_r8<RegisterX, &CPU::SetBit8<7>>, &CPU::LoadOp_ar_r8<RegisterHL, RegisterX>);
 
 	// Build instruction sets
 	m_Instructions = instruction_builder.Build();
