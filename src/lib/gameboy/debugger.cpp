@@ -13,7 +13,6 @@ using namespace Gameboy;
 Debugger::Debugger(Device& a_Device):
 	m_Device(a_Device)
 {
-	m_Device.GetCPU().SetBreakpointCallback([&] { m_Break = true; });
 }
 
 uint64_t Debugger::GetMaximumAddress() const noexcept
@@ -102,23 +101,10 @@ std::unordered_set<uint64_t> Debugger::GetBreakpoints() const
 
 bool Debugger::Run()
 {
-	m_Break = false;
-
 	// TODO: timing cycles
 	for (size_t i = 0; i < PPU::FrameCycles; ++i)
 	{
-		Step();
-
-		if (m_Breakpoints.size() > 0)
-		{
-			const uint16_t pc = m_Device.GetCPU().LoadRegister16(CPU::RegisterPC);
-			if (m_Breakpoints.count(pc) > 0)
-			{
-				m_Break = true;
-			}
-		}
-
-		if (m_Break)
+		if (!Step())
 		{
 			return false;
 		}
@@ -127,11 +113,12 @@ bool Debugger::Run()
 	return true;
 }
 
-void Debugger::Step()
+bool Debugger::Step()
 {
 	while (!Microstep())
 	{
 	}
+	return !CheckBreakpoints();
 }
 
 bool Debugger::Microstep()
@@ -139,9 +126,10 @@ bool Debugger::Microstep()
 	return m_Device.Tick();
 }
 
-void Debugger::Reset()
+bool Debugger::Reset()
 {
 	m_Device.Reset();
+	return !CheckBreakpoints();
 }
 
 Debugger::InstructionInfo Debugger::GetInstruction(uint64_t a_Address) const
@@ -156,12 +144,6 @@ Debugger::InstructionInfo Debugger::GetInstruction(uint64_t a_Address) const
 	// Read the instruction
 	instruction.m_Instruction = static_cast<Opcode::Enum>(memory.Load8(address));
 
-	// Check if the instruction was replaced with an interrupt
-	if (instruction.m_Instruction == Opcode::BREAKPOINT_STOP || instruction.m_Instruction == Opcode::BREAKPOINT_CONTINUE)
-	{
-		instruction.m_Instruction = static_cast<Opcode::Enum>(memory.GetReplaced8(address).value_or(instruction.m_Instruction));
-	}
-
 	// Check if it is an extended instruction
 	if (instruction.m_Instruction == Opcode::EXT)
 	{
@@ -170,4 +152,18 @@ Debugger::InstructionInfo Debugger::GetInstruction(uint64_t a_Address) const
 	}
 
 	return instruction;
+}
+
+bool Debugger::CheckBreakpoints() const
+{
+	if (m_Breakpoints.size() > 0)
+	{
+		const uint16_t pc = m_Device.GetCPU().LoadRegister16(CPU::RegisterPC);
+		if (m_Breakpoints.count(pc) > 0)
+		{
+			return true;
+		}
+	}
+	
+	return false;
 }

@@ -233,8 +233,7 @@ void Application::Tick()
 		ImGui::SameLine();
 		if (ImGui::Button("Reset"))
 		{
-			debugger.Reset();
-			//cpu.GetRegisters().SetPC(0);
+			running = debugger.Reset() && running;
 		}
 
 		ImGui::Image(reinterpret_cast<ImTextureID>(lcd_texture.GetNativeHandle()), ImVec2(Gameboy::PPU::LCDWidth * 2, Gameboy::PPU::LCDHeight * 2));

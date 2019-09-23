@@ -27,9 +27,9 @@ namespace Amber::Common
 		virtual std::unordered_set<uint64_t> GetBreakpoints() const;
 
 		virtual bool Run() = 0;
-		virtual void Step() = 0;
+		virtual bool Step() = 0;
 		virtual bool Microstep();
-		virtual void Reset() = 0;
+		virtual bool Reset() = 0;
 	};
 }
 

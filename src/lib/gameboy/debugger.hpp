@@ -31,9 +31,9 @@ namespace Amber::Gameboy
 		std::unordered_set<uint64_t> GetBreakpoints() const override;
 
 		bool Run() override;
-		void Step() override;
+		bool Step() override;
 		bool Microstep() override;
-		void Reset() override;
+		bool Reset() override;
 
 		private:
 		struct InstructionInfo
@@ -43,6 +43,7 @@ namespace Amber::Gameboy
 		};
 
 		InstructionInfo GetInstruction(uint64_t a_Address) const;
+		bool CheckBreakpoints() const;
 
 		Device& m_Device;
 		bool m_Break = false;

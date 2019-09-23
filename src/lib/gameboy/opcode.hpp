@@ -330,23 +330,18 @@ namespace Amber::Gameboy
 			RST_30 = 0xF7,
 			RST_38 = 0xFF,
 
-			// The opcodes below do not exist on the gameboy and can instead be used by the debugger
-
-			// Software interrupts
-			BREAKPOINT_STOP     = 0xFC,
-			BREAKPOINT_CONTINUE = 0xFD,
-
-			// Reserved
-			RESERVED_FC = 0xD3,
-			RESERVED_DB = 0xDB,
-			RESERVED_DD = 0xDD,
-			RESERVED_E3 = 0xE3,
-			RESERVED_E4 = 0xE4,
-			RESERVED_EB = 0xEB,
-			RESERVED_EC = 0xEC,
-			RESERVED_ED = 0xED,
-			RESERVED_F4 = 0xF4,
-			RESERVED_F5 = 0xF5,
+			// Unused
+			UNUSED_D3 = 0xD3,
+			UNUSED_DB = 0xDB,
+			UNUSED_DD = 0xDD,
+			UNUSED_E3 = 0xE3,
+			UNUSED_E4 = 0xE4,
+			UNUSED_EB = 0xEB,
+			UNUSED_EC = 0xEC,
+			UNUSED_ED = 0xED,
+			UNUSED_F4 = 0xF4,
+			UNUSED_FC = 0xFC,
+			UNUSED_FD = 0xFD,
 		};
 
 		namespace Internal

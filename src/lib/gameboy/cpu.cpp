@@ -32,8 +32,6 @@ CPU::CPU(Memory16& a_Memory):
 	instruction_builder.Begin(Opcode::EI, &CPU::DelayOp<&CPU::EnableInterrupts, 1>);
 	instruction_builder.Begin(Opcode::HALT, &CPU::DelayOp<&CPU::Halt, 1>);
 	instruction_builder.Begin(Opcode::EXT, &CPU::DecodeExtendedInstruction);
-	instruction_builder.Begin(Opcode::BREAKPOINT_STOP, &CPU::BreakpointStop);
-	instruction_builder.Begin(Opcode::BREAKPOINT_CONTINUE, &CPU::BreakpointContinue);
 
 	// 8-bit load register to register
 	instruction_builder.Begin(Opcode::LD_A_A, &CPU::LoadOp_r8_r8<RegisterA, RegisterA>);
@@ -846,29 +844,7 @@ void CPU::StartDMA(uint8_t a_Address)
 {
 	m_DMAAddress = a_Address;
 	m_DMACounter = 0;
-	PushOp(&CPU::DMA);
-}
-
-bool CPU::HasBreakpoint(uint16_t a_Address) const
-{
-	return m_Memory.GetReplaced8(a_Address).has_value();
-}
-
-void CPU::SetBreakpoint(uint16_t a_Address, bool a_Enabled)
-{
-	if (a_Enabled)
-	{
-		m_Memory.Replace8(a_Address, Opcode::BREAKPOINT_STOP);
-	}
-	else
-	{
-		m_Memory.Restore8(a_Address);
-	}
-}
-
-void CPU::SetBreakpointCallback(std::function<void()>&& a_Callback)
-{
-	m_BreakpointCallback = std::move(a_Callback);
+	PushOp(&CPU::ProcessDMA);
 }
 
 bool CPU::Tick()
@@ -1252,48 +1228,10 @@ void CPU::NotImplemented()
 	{
 		StoreRegister16(RegisterPC, pc - 1_u16);
 	}
-
-	if (m_BreakpointCallback)
-	{
-		m_BreakpointCallback();
-	}
 }
 
 void CPU::DecodeInstruction()
 {
-	/*// Debug tracing
-	{
-		static bool bootrom = true;
-		if (LoadRegister16(RegisterPC) == 0x100)
-		{
-			g_Counter = 0;
-			//bootrom = false;
-		}
-
-		if (!bootrom)
-		{
-			const auto opcode = static_cast<Opcode::Enum>(PeekNext8());
-
-			std::cout << "A:" << std::hex << std::setfill('0') << std::setw(2) << static_cast<int>(LoadRegister8(RegisterA));
-			std::cout << " F:" << (LoadFlag(FlagZero) ? 'Z' : '-') << (LoadFlag(FlagSubtract) ? 'N' : '-') << (LoadFlag(FlagHalfCarry) ? 'H' : '-') << (LoadFlag(FlagCarry) ? 'C' : '-');
-			std::cout << " BC:" << std::hex << std::setfill('0') << std::setw(4) << LoadRegister16(RegisterBC);
-			std::cout << " DE:" << std::hex << std::setfill('0') << std::setw(4) << LoadRegister16(RegisterDE);
-			std::cout << " HL:" << std::hex << std::setfill('0') << std::setw(4) << LoadRegister16(RegisterHL);
-			std::cout << " SP:" << std::hex << std::setfill('0') << std::setw(4) << LoadRegister16(RegisterSP);
-			std::cout << " PC:" << std::hex << std::setfill('0') << std::setw(4) << LoadRegister16(RegisterPC);
-			std::cout << " (cy: " << std::dec << g_Counter * 4 << ')';
-			//std::cout << " LY: " << std::dec << static_cast<int>(m_Memory.Load8(0xFF44));
-			std::cout << " |[00]0x" << std::hex << std::setfill('0') << std::setw(4) << LoadRegister16(RegisterPC) << ":";
-
-			for (uint16_t i = 0; i < *Opcode::GetSize(opcode); ++i)
-			{
-				std::cout << ' ' << std::hex << std::setfill('0') << std::setw(2) << static_cast<int>(m_Memory.Load8(LoadRegister16(RegisterPC) + i));
-			}
-
-			std::cout << std::endl;
-		}
-	}*/
-
 	// Decode instruction
 	const auto opcode = static_cast<Opcode::Enum>(ReadNext8());
 	const size_t instruction_size = m_Instructions->GetInstructionSize(opcode);
@@ -1308,52 +1246,6 @@ void CPU::DecodeExtendedInstruction()
 	const auto opcode = static_cast<ExtendedOpcode::Enum>(ReadNext8());
 	const size_t instruction_size = m_ExtendedInstructions->GetInstructionSize(opcode);
 	const MicroOp* const ops = m_ExtendedInstructions->GetInstructionOps(opcode);
-
-	ExtendInstruction(ops, instruction_size);
-}
-
-void CPU::BreakpointStop()
-{
-	// Check if it is an actual breakpoint or just an invalid opcode
-	const uint16_t instruction_address = LoadRegister16(RegisterPC) - 1_u16;
-	const auto replaced_byte = m_Memory.GetReplaced8(instruction_address);
-	if (!replaced_byte)
-	{
-		NotImplemented();
-		return;
-	}
-
-	// Replace breakpoint instruction
-	m_Memory.Replace8(instruction_address, Opcode::BREAKPOINT_CONTINUE);
-
-	// Restore program counter
-	StoreRegister16(RegisterPC, instruction_address);
-
-	// Call breakpoint callback
-	if (m_BreakpointCallback)
-	{
-		m_BreakpointCallback();
-	}
-}
-
-void CPU::BreakpointContinue()
-{
-	// Check if it is an actual breakpoint or just an invalid opcode
-	const uint16_t instruction_address = LoadRegister16(RegisterPC) - 1_u16;
-	const auto replaced_byte = m_Memory.GetReplaced8(instruction_address);
-	if (!replaced_byte)
-	{
-		NotImplemented();
-		return;
-	}
-
-	// Restore breakpoint instruction
-	m_Memory.Replace8(instruction_address, Opcode::BREAKPOINT_STOP);
-
-	// Insert the real instruction
-	const auto opcode = static_cast<Opcode::Enum>(*replaced_byte);
-	const size_t instruction_size = m_Instructions->GetInstructionSize(opcode);
-	const MicroOp* const ops = m_Instructions->GetInstructionOps(opcode);
 
 	ExtendInstruction(ops, instruction_size);
 }
@@ -1453,7 +1345,7 @@ void CPU::MaskOp_r8()
 	StoreRegister8(Destination, LoadRegister8(Destination) & Mask);
 }
 
-void CPU::DMA()
+void CPU::ProcessDMA()
 {
 	const uint16_t source_address = (static_cast<uint16_t>(m_DMAAddress) << 8) | m_DMACounter;
 	const uint16_t destination_address = 0xFE00 | m_DMACounter;
@@ -1463,7 +1355,7 @@ void CPU::DMA()
 	++m_DMACounter;
 	if (m_DMACounter != 0xA0)
 	{
-		PushOp(&CPU::DMA);
+		PushOp(&CPU::ProcessDMA);
 	}
 }
 

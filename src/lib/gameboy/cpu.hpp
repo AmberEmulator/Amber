@@ -87,11 +87,6 @@ namespace Amber::Gameboy
 		// DMA
 		void StartDMA(uint8_t a_Address);
 
-		// Breakpoints
-		bool HasBreakpoint(uint16_t a_Address) const;
-		void SetBreakpoint(uint16_t a_Address, bool a_Enabled);
-		void SetBreakpointCallback(std::function<void()>&& a_Callback);
-
 		// Execution
 		bool Tick();
 		void Reset();
@@ -125,8 +120,6 @@ namespace Amber::Gameboy
 		void NotImplemented();
 		void DecodeInstruction();
 		void DecodeExtendedInstruction();
-		void BreakpointStop();
-		void BreakpointContinue();
 		void Break();
 		template <uint8_t Flag, bool Set> void FlagCondition();
 		void DisableInterrupts();
@@ -135,7 +128,7 @@ namespace Amber::Gameboy
 		void Halt();
 		void CheckHalt();
 		template <uint8_t Destination, uint8_t Mask> void MaskOp_r8();
-		void DMA();
+		void ProcessDMA();
 
 		// 16-bit load ops
 		template <uint8_t Destination, uint8_t Source> void LoadOp_r16_x16r8(uint16_t a_Base);
@@ -183,9 +176,6 @@ namespace Amber::Gameboy
 		// DMA
 		uint8_t m_DMAAddress = 0;
 		uint8_t m_DMACounter = 0;
-
-		// Breakpoints
-		std::function<void()> m_BreakpointCallback;
 	};
 }
 
