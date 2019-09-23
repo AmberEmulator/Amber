@@ -12,17 +12,17 @@ namespace Amber::Gameboy
 	class GAMEBOY_API PPU
 	{
 		public:
-		static constexpr uint16_t LCDWidth = 160;
-		static constexpr uint16_t LCDHeight = 144;
+		static constexpr size_t LCDWidth = 160;
+		static constexpr size_t LCDHeight = 144;
 
-		static constexpr uint16_t OAMCycles = 80;
-		static constexpr uint16_t LineCycles = 456;
-		static constexpr uint16_t ScreenLines = LCDHeight;
-		static constexpr uint16_t VBlankLines = 10;
-		static constexpr uint16_t FrameLines = ScreenLines + VBlankLines;
-		static constexpr uint16_t ScreenCycles = LineCycles * ScreenLines;
-		static constexpr uint16_t VBlankCycles = LineCycles * VBlankLines;
-		static constexpr uint16_t FrameCycles = LineCycles * FrameLines;
+		static constexpr size_t OAMCycles = 80;
+		static constexpr size_t LineCycles = 456;
+		static constexpr size_t ScreenLines = LCDHeight;
+		static constexpr size_t VBlankLines = 10;
+		static constexpr size_t FrameLines = ScreenLines + VBlankLines;
+		static constexpr size_t ScreenCycles = LineCycles * ScreenLines;
+		static constexpr size_t VBlankCycles = LineCycles * VBlankLines;
+		static constexpr size_t FrameCycles = LineCycles * FrameLines;
 
 		PPU(MMU& a_MMU);
 

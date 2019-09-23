@@ -102,14 +102,17 @@ std::unordered_set<uint64_t> Debugger::GetBreakpoints() const
 bool Debugger::Run()
 {
 	// TODO: timing cycles
-	for (size_t i = 0; i < PPU::FrameCycles; ++i)
+	for (; m_Cycles < PPU::FrameCycles / 4; ++m_Cycles)
 	{
-		if (!Step())
+		Microstep();
+
+		if (CheckBreakpoints())
 		{
 			return false;
 		}
 	}
 
+	m_Cycles = 0;
 	return true;
 }
 
@@ -129,6 +132,7 @@ bool Debugger::Microstep()
 bool Debugger::Reset()
 {
 	m_Device.Reset();
+	m_Cycles = 0;
 	return !CheckBreakpoints();
 }
 

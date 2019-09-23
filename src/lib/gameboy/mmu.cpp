@@ -257,6 +257,7 @@ void MMU::Store8(Address a_Address, uint8_t a_Value)
 void MMU::Reset()
 {
 	SetBootROM(m_BootROM);
+	std::memset(m_OAM, 0, sizeof(m_OAM));
 }
 
 uint8_t MMU::LoadNOP(uint16_t a_Address) const

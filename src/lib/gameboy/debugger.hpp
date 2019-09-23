@@ -46,6 +46,7 @@ namespace Amber::Gameboy
 		bool CheckBreakpoints() const;
 
 		Device& m_Device;
+		size_t m_Cycles = 0;
 		bool m_Break = false;
 		std::unordered_set<uint64_t> m_Breakpoints;
 	};

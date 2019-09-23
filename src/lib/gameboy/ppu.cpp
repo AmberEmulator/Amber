@@ -138,9 +138,16 @@ void PPU::Tick()
 
 void PPU::Reset()
 {
+	// LCD mode
 	m_HCounter = LineCycles - 1;
 	m_VCounter = FrameLines - 1;
 	m_LCDMode = LCDMode::VBlank;
+
+	// LCD control
+	m_LCDC = 0x91;
+	m_STAT = 0x00;
+	m_SCX = 0x00;
+	m_SCY = 0x00;
 }
 
 void PPU::Blit(void* a_Destination, size_t a_Pitch) const noexcept

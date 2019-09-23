@@ -222,6 +222,14 @@ void Application::Tick()
 		}
 
 		ImGui::SameLine();
+		if (ImGui::ButtonEx("Step Frame", ImVec2(0, 0), ImGuiButtonFlags_Repeat) && !running)
+		{
+			debugger.Run();
+			memory_editor.HighlightMin = device->GetCPU().LoadRegister16(Gameboy::CPU::RegisterPC);
+			memory_editor.HighlightMax = memory_editor.HighlightMin + 1;
+		}
+
+		ImGui::SameLine();
 		if (ImGui::ButtonEx("Microstep", ImVec2(0, 0), ImGuiButtonFlags_Repeat) && !running)
 		{
 			debugger.Microstep();

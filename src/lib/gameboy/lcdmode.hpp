@@ -7,7 +7,7 @@ namespace Amber::Gameboy
 {
 	namespace LCDMode
 	{
-		enum Enum
+		enum Enum : uint8_t
 		{
 			HBlank = 0,
 			VBlank = 1,
