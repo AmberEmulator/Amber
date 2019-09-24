@@ -37,6 +37,21 @@ uint8_t PPU::GetSCY() const noexcept
 	return m_SCY;
 }
 
+uint8_t PPU::GetBGP() const noexcept
+{
+	return m_BGP;
+}
+
+uint8_t PPU::GetOBP0() const noexcept
+{
+	return m_OBP0;
+}
+
+uint8_t PPU::GetOBP1() const noexcept
+{
+	return m_OBP1;
+}
+
 uint8_t* PPU::GetOAM() noexcept
 {
 	return const_cast<uint8_t*>(static_cast<const PPU*>(this)->GetOAM());
@@ -70,6 +85,21 @@ void PPU::SetSCX(uint8_t a_Value) noexcept
 void PPU::SetSCY(uint8_t a_Value) noexcept
 {
 	m_SCY = a_Value;
+}
+
+void PPU::SetBGP(uint8_t a_Value) noexcept
+{
+	m_BGP = a_Value;
+}
+
+void PPU::SetOBP0(uint8_t a_Value) noexcept
+{
+	m_OBP0 = a_Value;
+}
+
+void PPU::SetOBP1(uint8_t a_Value) noexcept
+{
+	m_OBP1 = a_Value;
 }
 
 void PPU::Tick()
@@ -165,7 +195,7 @@ void PPU::Reset()
 
 void PPU::Blit(void* a_Destination, size_t a_Pitch) const noexcept
 {
-	static constexpr uint8_t colors[] = { 0xFF, 0x77, 0xCC, 0x00 };
+	static constexpr uint8_t colors[] = { 0xFF, 0xCC, 0x77, 0x00 };
 
 	for (size_t y = 0; y < LCDHeight; ++y)
 	{
@@ -286,12 +316,22 @@ void PPU::PixelTransfer() noexcept
 	uint8_t tile_x;
 	uint8_t tile_y;
 	uint16_t tile_data_address = 0x8000;
+	uint8_t palette = 0;
 
 	if (sprite.m_ScreenX != 0xFF)
 	{
 		tile_index = sprite.m_Tile;
 		tile_x = extended_screen_x - sprite.m_ScreenX;
 		tile_y = sprite.m_TileY;
+
+		if (sprite.m_Attributes & 0b0001'0000)
+		{
+			palette = m_OBP1;
+		}
+		else
+		{
+			palette = m_OBP0;
+		}
 	}
 	else
 	{
@@ -308,6 +348,8 @@ void PPU::PixelTransfer() noexcept
 
 		tile_x = scroll_x % 8;
 		tile_y = scroll_y % 8;
+
+		palette = m_BGP;
 	}
 
 	const uint8_t line = tile_y * 2;
@@ -318,7 +360,8 @@ void PPU::PixelTransfer() noexcept
 	const uint8_t bit0 = (byte0 >> (7 - tile_x)) & 0x01;
 	const uint8_t bit1 = (byte1 >> (7 - tile_x)) & 0x01;
 
-	const uint8_t color = bit0 | (bit1 << 1);
+	const uint8_t color_index = bit0 | (bit1 << 1);
+	const uint8_t color = (palette >> (color_index * 2)) & 0b11;
 
 	SetPixel(screen_x, screen_y, color);
 }

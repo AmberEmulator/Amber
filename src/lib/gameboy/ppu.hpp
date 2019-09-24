@@ -31,6 +31,10 @@ namespace Amber::Gameboy
 		uint8_t GetSTAT() const noexcept;
 		uint8_t GetSCX() const noexcept;
 		uint8_t GetSCY() const noexcept;
+		uint8_t GetBGP() const noexcept;
+		uint8_t GetOBP0() const noexcept;
+		uint8_t GetOBP1() const noexcept;
+
 		uint8_t* GetOAM() noexcept;
 		const uint8_t* GetOAM() const noexcept;
 
@@ -39,6 +43,9 @@ namespace Amber::Gameboy
 		void SetSTAT(uint8_t a_Value) noexcept;
 		void SetSCX(uint8_t a_Value) noexcept;
 		void SetSCY(uint8_t a_Value) noexcept;
+		void SetBGP(uint8_t a_Value) noexcept;
+		void SetOBP0(uint8_t a_Value) noexcept;
+		void SetOBP1(uint8_t a_Value) noexcept;
 
 		void Tick();
 		void Reset();
@@ -84,6 +91,11 @@ namespace Amber::Gameboy
 		uint8_t m_STAT = 0x00;
 		uint8_t m_SCX = 0x00;
 		uint8_t m_SCY = 0x00;
+
+		// Palettes
+		uint8_t m_BGP = 0b11100100;
+		uint8_t m_OBP0 = 0b11100100;
+		uint8_t m_OBP1 = 0b11100100;
 
 		// LCD result buffer
 		uint8_t m_LCDBuffer[(LCDWidth * LCDHeight) / 4] = {};
