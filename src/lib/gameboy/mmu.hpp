@@ -83,8 +83,8 @@ namespace Amber::Gameboy
 		Memory* m_WRAM = nullptr;
 		CPU* m_CPU = nullptr;
 		PPU* m_PPU = nullptr;
+		uint8_t* m_OAM = nullptr;
 		Joypad* m_Joypad = nullptr;
-		uint8_t m_OAM[160] = {};
 		uint8_t m_HRAM[127] = {};
 	};
 }

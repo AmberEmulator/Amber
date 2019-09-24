@@ -37,6 +37,16 @@ uint8_t PPU::GetSCY() const noexcept
 	return m_SCY;
 }
 
+uint8_t* PPU::GetOAM() noexcept
+{
+	return const_cast<uint8_t*>(static_cast<const PPU*>(this)->GetOAM());
+}
+
+const uint8_t* PPU::GetOAM() const noexcept
+{
+	return m_OAM;
+}
+
 void PPU::SetCPU(CPU* a_CPU) noexcept
 {
 	m_CPU = a_CPU;
@@ -138,6 +148,9 @@ void PPU::Tick()
 
 void PPU::Reset()
 {
+	// OAM
+	std::memset(m_OAM, 0, sizeof(m_OAM));
+
 	// LCD mode
 	m_HCounter = LineCycles - 1;
 	m_VCounter = FrameLines - 1;
@@ -183,12 +196,12 @@ void PPU::OAMSearch() noexcept
 	// Load the first byte
 	if ((m_HCounter & 1) == 0)
 	{
-		m_SpriteY = m_MMU.Load8(0xFE00 + sprite_index * 4);
+		m_SpriteY = m_OAM[sprite_index * 4];
 		return;
 	}
 	
 	// Load the second byte
-	const uint8_t sprite_x = m_MMU.Load8(0xFE00 + sprite_index * 4 + 1);
+	const uint8_t sprite_x = m_OAM[sprite_index * 4 + 1];
 
 	// No more than 10 sprites allowed
 	if (m_SpriteCount == 10)
@@ -224,8 +237,8 @@ void PPU::PixelTransfer() noexcept
 	for (uint8_t i = 0; i < m_SpriteCount; ++i)
 	{
 		const uint8_t sprite_index = m_Sprites[i];
-		const uint8_t sprite_y = m_MMU.Load8(0xFE00 + sprite_index * 4 + 0);
-		const uint8_t sprite_x = m_MMU.Load8(0xFE00 + sprite_index * 4 + 1);
+		const uint8_t sprite_y = m_OAM[sprite_index * 4 + 0];
+		const uint8_t sprite_x = m_OAM[sprite_index * 4 + 1];
 
 		if (sprite_x > screen_x + 8 || sprite_x + 8 <= screen_x + 8)
 		{
@@ -244,8 +257,8 @@ void PPU::PixelTransfer() noexcept
 
 		sprite[0] = sprite_y;
 		sprite[1] = sprite_x;
-		sprite[2] = m_MMU.Load8(0xFE00 + sprite_index * 4 + 2);
-		sprite[3] = m_MMU.Load8(0xFE00 + sprite_index * 4 + 3);
+		sprite[2] = m_OAM[sprite_index * 4 + 2];
+		sprite[3] = m_OAM[sprite_index * 4 + 3];
 	}
 
 	const uint8_t scroll_x = screen_x + m_SCX;
@@ -279,16 +292,18 @@ void PPU::PixelTransfer() noexcept
 		tile_y = scroll_y % 8;
 	}
 
-	uint8_t tile_data[16];
-	for (uint16_t i = 0; i < 16; ++i)
-	{
-		tile_data[i] = m_MMU.Load8(tile_data_address + (tile_index * 16 + i));
-	}
+	//uint8_t tile_data[16];
+	//for (uint16_t i = 0; i < 16; ++i)
+	//{
+	//	tile_data[i] = m_MMU.Load8(tile_data_address + (tile_index * 16 + i));
+	//}
 
 	const uint8_t line = tile_y * 2;
 
-	const uint8_t byte0 = tile_data[line + 0];
-	const uint8_t byte1 = tile_data[line + 1];
+	const uint8_t byte0 = m_MMU.Load8(tile_data_address + (tile_index * 16 + line + 0));
+	const uint8_t byte1 = m_MMU.Load8(tile_data_address + (tile_index * 16 + line + 1));
+	//const uint8_t byte0 = tile_data[line + 0];
+	//const uint8_t byte1 = tile_data[line + 1];
 
 	const uint8_t bit0 = (byte0 >> (7 - tile_x)) & 0x01;
 	const uint8_t bit1 = (byte1 >> (7 - tile_x)) & 0x01;

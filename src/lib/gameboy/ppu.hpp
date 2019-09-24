@@ -31,6 +31,8 @@ namespace Amber::Gameboy
 		uint8_t GetSTAT() const noexcept;
 		uint8_t GetSCX() const noexcept;
 		uint8_t GetSCY() const noexcept;
+		uint8_t* GetOAM() noexcept;
+		const uint8_t* GetOAM() const noexcept;
 
 		void SetCPU(CPU* a_CPU) noexcept;
 		void SetLCDC(uint8_t a_Value) noexcept;
@@ -57,6 +59,7 @@ namespace Amber::Gameboy
 		CPU* m_CPU = nullptr;
 
 		// OAM
+		uint8_t m_OAM[160];
 		uint8_t m_Sprites[10];
 		uint8_t m_SpriteCount;
 		uint8_t m_SpriteY;

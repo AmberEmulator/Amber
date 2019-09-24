@@ -27,12 +27,6 @@ MMU::MMU()
 		m_LastStores[i] = &MMU::StoreNOP;
 	}
 
-	for (size_t i = 0; i < 0xA0; ++i)
-	{
-		m_LastLoads[i] = &MMU::LoadArray<&MMU::m_OAM, 0xFE00>;
-		m_LastStores[i] = &MMU::StoreArray<&MMU::m_OAM, 0xFE00>;
-	}
-
 	for (size_t i = 0x180; i < 0x1FF; ++i)
 	{
 		m_LastLoads[i] = &MMU::LoadArray<&MMU::m_HRAM, 0xFF80>;
@@ -205,6 +199,13 @@ void MMU::SetPPU(PPU* a_PPU)
 		m_LastStores[0x0141] = &MMU::StoreRegister<&MMU::m_PPU, &PPU::SetSTAT>;
 		m_LastStores[0x0142] = &MMU::StoreRegister<&MMU::m_PPU, &PPU::SetSCY>;
 		m_LastStores[0x0143] = &MMU::StoreRegister<&MMU::m_PPU, &PPU::SetSCX>;
+
+		m_OAM = m_PPU->GetOAM();
+		for (size_t i = 0; i < 160; ++i)
+		{
+			m_LastLoads[i] = &MMU::LoadArray<&MMU::m_OAM, 0xFE00>;
+			m_LastStores[i] = &MMU::StoreArray<&MMU::m_OAM, 0xFE00>;
+		}
 	}
 	else
 	{
@@ -218,6 +219,13 @@ void MMU::SetPPU(PPU* a_PPU)
 		m_LastStores[0x0141] = &MMU::StoreNOP;
 		m_LastStores[0x0142] = &MMU::StoreNOP;
 		m_LastStores[0x0143] = &MMU::StoreNOP;
+
+		m_OAM = nullptr;
+		for (size_t i = 0; i < 160; ++i)
+		{
+			m_LastLoads[i] = &MMU::LoadNOP;
+			m_LastStores[i] = &MMU::StoreNOP;
+		}
 	}
 }
 
@@ -239,12 +247,6 @@ void MMU::SetJoypad(Joypad* a_Joypad)
 uint8_t MMU::Load8(Address a_Address) const
 {
 	const uint16_t page = a_Address >> 12;
-
-	if (page == 8 || page == 9)
-	{
-		bool boop = true;
-	}
-
 	return (this->*(m_PageLoads[page]))(a_Address);
 }
 
@@ -257,7 +259,6 @@ void MMU::Store8(Address a_Address, uint8_t a_Value)
 void MMU::Reset()
 {
 	SetBootROM(m_BootROM);
-	std::memset(m_OAM, 0, sizeof(m_OAM));
 }
 
 uint8_t MMU::LoadNOP(uint16_t a_Address) const
