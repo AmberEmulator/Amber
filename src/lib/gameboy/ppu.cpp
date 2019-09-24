@@ -117,7 +117,7 @@ void PPU::Tick()
 		case LCDMode::OAMSearch:
 		if (m_HCounter == OAMCycles)
 		{
-			m_LCDMode = LCDMode::PixelTransfer;
+			GotoPixelTransfer();
 		}
 		break;
 
@@ -189,6 +189,12 @@ void PPU::GotoOAM() noexcept
 	m_SpriteCount = 0;
 }
 
+void PPU::GotoPixelTransfer() noexcept
+{
+	m_LCDMode = LCDMode::PixelTransfer;
+	m_CurrentSprite = 0xFF;
+}
+
 void PPU::OAMSearch() noexcept
 {
 	const uint8_t sprite_index = m_HCounter / 2;
@@ -210,7 +216,8 @@ void PPU::OAMSearch() noexcept
 	}
 
 	// Check if it is on the current line
-	if (m_SpriteY > m_VCounter + 16 || m_SpriteY + 8 <= m_VCounter + 16)
+	const uint8_t extended_screen_y = static_cast<uint8_t>(m_VCounter + 16);
+	if (m_SpriteY > extended_screen_y || m_SpriteY + 8 <= extended_screen_y)
 	{
 		return;
 	}
@@ -221,8 +228,30 @@ void PPU::OAMSearch() noexcept
 		return;
 	}
 
-	// Add sprite to the list
-	m_Sprites[m_SpriteCount] = sprite_index;
+	// Find insertion index
+	uint8_t index = m_SpriteCount;
+	for (; index != 0; --index)
+	{
+		if (m_Sprites[index - 1].m_ScreenX < sprite_x)
+		{
+			break;
+		}
+	}
+
+	// Move sprites after insertion up
+	for (uint8_t i = m_SpriteCount; i > index; --i)
+	{
+		m_Sprites[i] = m_Sprites[i - 1];
+	}
+
+	// Set sprite info at index
+	auto& sprite = m_Sprites[index];
+	sprite.m_TileY = extended_screen_y - m_SpriteY;
+	sprite.m_ScreenX = sprite_x;
+	sprite.m_Tile = m_OAM[sprite_index * 4 + 2];
+	sprite.m_Attributes = m_OAM[sprite_index * 4 + 3];
+
+	// Increment sprite count
 	++m_SpriteCount;
 }
 
@@ -231,34 +260,23 @@ void PPU::PixelTransfer() noexcept
 	// Calculate current screen position
 	const uint8_t screen_x = static_cast<uint8_t>(m_HCounter - OAMCycles);
 	const uint8_t screen_y = static_cast<uint8_t>(m_VCounter);
+	const uint8_t extended_screen_x = screen_x + 8;
 
 	// Check if it is covered by a sprite
-	uint8_t sprite[4] = { 0, 0xFF, 0, 0 };
-	for (uint8_t i = 0; i < m_SpriteCount; ++i)
+	for (uint8_t next_sprite = m_CurrentSprite + 1; next_sprite < m_SpriteCount; ++m_CurrentSprite, ++next_sprite)
 	{
-		const uint8_t sprite_index = m_Sprites[i];
-		const uint8_t sprite_y = m_OAM[sprite_index * 4 + 0];
-		const uint8_t sprite_x = m_OAM[sprite_index * 4 + 1];
-
-		if (sprite_x > screen_x + 8 || sprite_x + 8 <= screen_x + 8)
+		const uint8_t next_sprite_x = m_Sprites[next_sprite].m_ScreenX;
+		if (next_sprite_x > extended_screen_x)
 		{
-			continue;
+			break;
 		}
+	}
 
-		if (sprite_y > screen_y + 16 || sprite_y + 8 <= screen_y + 16)
-		{
-			continue;
-		}
-
-		if (sprite_x >= sprite[1])
-		{
-			continue;
-		}
-
-		sprite[0] = sprite_y;
-		sprite[1] = sprite_x;
-		sprite[2] = m_OAM[sprite_index * 4 + 2];
-		sprite[3] = m_OAM[sprite_index * 4 + 3];
+	SpriteDrawInfo sprite = {};
+	sprite.m_ScreenX = 0xFF;
+	if (m_CurrentSprite != 0xFF && m_Sprites[m_CurrentSprite].m_ScreenX + 8 > extended_screen_x)
+	{
+		sprite = m_Sprites[m_CurrentSprite];
 	}
 
 	const uint8_t scroll_x = screen_x + m_SCX;
@@ -269,11 +287,11 @@ void PPU::PixelTransfer() noexcept
 	uint8_t tile_y;
 	uint16_t tile_data_address = 0x8000;
 
-	if (sprite[0] != 0)
+	if (sprite.m_ScreenX != 0xFF)
 	{
-		tile_index = sprite[2];
-		tile_x = screen_x - (sprite[1] - 8);
-		tile_y = screen_y - (sprite[0] - 16);
+		tile_index = sprite.m_Tile;
+		tile_x = extended_screen_x - sprite.m_ScreenX;
+		tile_y = sprite.m_TileY;
 	}
 	else
 	{
@@ -292,18 +310,10 @@ void PPU::PixelTransfer() noexcept
 		tile_y = scroll_y % 8;
 	}
 
-	//uint8_t tile_data[16];
-	//for (uint16_t i = 0; i < 16; ++i)
-	//{
-	//	tile_data[i] = m_MMU.Load8(tile_data_address + (tile_index * 16 + i));
-	//}
-
 	const uint8_t line = tile_y * 2;
 
 	const uint8_t byte0 = m_MMU.Load8(tile_data_address + (tile_index * 16 + line + 0));
 	const uint8_t byte1 = m_MMU.Load8(tile_data_address + (tile_index * 16 + line + 1));
-	//const uint8_t byte0 = tile_data[line + 0];
-	//const uint8_t byte1 = tile_data[line + 1];
 
 	const uint8_t bit0 = (byte0 >> (7 - tile_x)) & 0x01;
 	const uint8_t bit1 = (byte1 >> (7 - tile_x)) & 0x01;

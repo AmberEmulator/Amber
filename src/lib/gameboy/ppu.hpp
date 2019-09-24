@@ -46,7 +46,16 @@ namespace Amber::Gameboy
 		void Blit(void* a_Destination, size_t a_Pitch) const noexcept;
 
 		private:
+		struct SpriteDrawInfo
+		{
+			uint8_t m_TileY;
+			uint8_t m_ScreenX;
+			uint8_t m_Tile;
+			uint8_t m_Attributes;
+		};
+
 		void GotoOAM() noexcept;
+		void GotoPixelTransfer() noexcept;
 
 		void OAMSearch() noexcept;
 		void PixelTransfer() noexcept;
@@ -60,9 +69,10 @@ namespace Amber::Gameboy
 
 		// OAM
 		uint8_t m_OAM[160];
-		uint8_t m_Sprites[10];
+		SpriteDrawInfo m_Sprites[10];
 		uint8_t m_SpriteCount;
 		uint8_t m_SpriteY;
+		uint8_t m_CurrentSprite;
 
 		// LCD mode
 		uint16_t m_HCounter = 0;
