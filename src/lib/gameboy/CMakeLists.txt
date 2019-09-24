@@ -26,6 +26,9 @@ amber_add_sources(gameboy "opcode.hpp" "extendedopcode.hpp" FILTER "CPU/Opcodes"
 
 # PPU
 amber_add_sources(gameboy "lcdmode.hpp" FILTER "PPU/LCD Mode")
+amber_add_sources(gameboy "pixel.hpp" "pixel.cpp" FILTER "PPU/Pixel")
+amber_add_sources(gameboy "pixelfifo.hpp" "pixelfifo.cpp" FILTER "PPU/Pixel FIFO")
+amber_add_sources(gameboy "pixelsource.hpp" FILTER "PPU/Pixel Source")
 amber_add_sources(gameboy "ppu.hpp" "ppu.cpp" FILTER "PPU/PPU")
 
 # MMU
