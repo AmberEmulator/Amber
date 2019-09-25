@@ -9,13 +9,18 @@ namespace Amber::Gameboy
 	class GAMEBOY_API PixelFIFO
 	{
 		public:
+		size_t GetPixelCount() const noexcept;
+
 		Pixel Pop() noexcept;
 		void Push(Pixel a_Pixel) noexcept;
-		void Mix(PixelSource::Enum a_Source, uint8_t a_Priority, uint8_t a_Data[2]) noexcept;
+		void Push(const uint8_t a_Colors[2], PixelSource::Enum a_Source) noexcept;
+		void Mix(const uint8_t a_Colors[2], PixelSource::Enum a_Source, uint8_t a_Priority) noexcept;
+
+		void Reset();
 
 		private:
-		uint64_t m_PixelData;
-		size_t m_PixelCount = 0;
+		uint64_t m_PixelData = 0;
+		size_t m_PixelCount = 7;
 	};
 }
 

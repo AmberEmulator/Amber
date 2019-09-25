@@ -7,7 +7,8 @@ using namespace Amber;
 using namespace Gameboy;
 
 PPU::PPU(MMU& a_MMU):
-	m_MMU(a_MMU)
+	m_MMU(a_MMU),
+	m_TileFetcher(a_MMU)
 {
 	Reset();
 }
@@ -152,8 +153,7 @@ void PPU::Tick()
 		break;
 
 		case LCDMode::PixelTransfer:
-		// TODO: accurate timing
-		if (m_HCounter == 240)
+		if (m_DrawX == LCDWidth + 7 + m_SCX % 8)
 		{
 			m_LCDMode = LCDMode::HBlank;
 		}
@@ -223,6 +223,19 @@ void PPU::GotoPixelTransfer() noexcept
 {
 	m_LCDMode = LCDMode::PixelTransfer;
 	m_CurrentSprite = 0xFF;
+
+	const uint8_t screen_y = static_cast<uint8_t>(m_VCounter);
+	const uint8_t scroll_x = m_SCX;
+	const uint8_t scroll_y = screen_y + m_SCY;
+	const uint8_t background_x = scroll_x / 8;
+	const uint8_t background_y = scroll_y / 8;
+
+	const uint16_t background_address = 0x9800 + background_x + background_y * 32;
+	const uint8_t tile_y = scroll_y % 8;
+
+	m_PixelFIFO.Reset();
+	m_TileFetcher.Reset(background_address, tile_y, (m_LCDC & 0b0001'0000) == 0);
+	m_DrawX = 0;
 }
 
 void PPU::OAMSearch() noexcept
@@ -287,83 +300,54 @@ void PPU::OAMSearch() noexcept
 
 void PPU::PixelTransfer() noexcept
 {
-	// Calculate current screen position
-	const uint8_t screen_x = static_cast<uint8_t>(m_HCounter - OAMCycles);
-	const uint8_t screen_y = static_cast<uint8_t>(m_VCounter);
-	const uint8_t extended_screen_x = screen_x + 8;
-
-	// Check if it is covered by a sprite
-	for (uint8_t next_sprite = m_CurrentSprite + 1; next_sprite < m_SpriteCount; ++m_CurrentSprite, ++next_sprite)
+	if ((m_HCounter & 1) == 0)
 	{
-		const uint8_t next_sprite_x = m_Sprites[next_sprite].m_ScreenX;
-		if (next_sprite_x > extended_screen_x)
+		m_TileFetcher.Tick();
+
+		if (m_TileFetcher.IsDone() && m_PixelFIFO.GetPixelCount() <= 8)
 		{
-			break;
+			m_PixelFIFO.Push(m_TileFetcher.GetColors(), PixelSource::Background);
+			m_TileFetcher.Next();
 		}
 	}
 
-	SpriteDrawInfo sprite = {};
-	sprite.m_ScreenX = 0xFF;
-	if (m_CurrentSprite != 0xFF && m_Sprites[m_CurrentSprite].m_ScreenX + 8 > extended_screen_x)
+	const Pixel pixel = m_PixelFIFO.Pop();
+	if (pixel.IsNull())
 	{
-		sprite = m_Sprites[m_CurrentSprite];
+		return;
 	}
 
-	const uint8_t scroll_x = screen_x + m_SCX;
-	const uint8_t scroll_y = screen_y + m_SCY;
-
-	uint8_t tile_index;
-	uint8_t tile_x;
-	uint8_t tile_y;
-	uint16_t tile_data_address = 0x8000;
-	uint8_t palette = 0;
-
-	if (sprite.m_ScreenX != 0xFF)
+	const uint8_t draw_offset = 7 + m_SCX % 8;
+	if (m_DrawX < draw_offset)
 	{
-		tile_index = sprite.m_Tile;
-		tile_x = extended_screen_x - sprite.m_ScreenX;
-		tile_y = sprite.m_TileY;
-
-		if (sprite.m_Attributes & 0b0001'0000)
-		{
-			palette = m_OBP1;
-		}
-		else
-		{
-			palette = m_OBP0;
-		}
+		++m_DrawX;
+		return;
 	}
-	else
+
+	uint8_t palette;
+
+	switch (pixel.GetSource())
 	{
-		const uint8_t background_x = scroll_x / 8;
-		const uint8_t background_y = scroll_y / 8;
-
-		const uint16_t tile_index_offset = background_x + background_y * 32;
-		tile_index = m_MMU.Load8(0x9800 + tile_index_offset);
-		if ((m_LCDC & 0b0001'0000) == 0)
-		{
-			tile_index += 128;
-			tile_data_address = 0x8800;
-		}
-
-		tile_x = scroll_x % 8;
-		tile_y = scroll_y % 8;
-
+		case PixelSource::Background:
+		case PixelSource::Window:
 		palette = m_BGP;
+		break;
+
+		case PixelSource::Sprite0:
+		palette = m_OBP0;
+		break;
+		
+		case PixelSource::Sprite1:
+		palette = m_OBP1;
+		break;
 	}
 
-	const uint8_t line = tile_y * 2;
+	const uint8_t color = (palette >> (pixel.GetColor() * 2)) & 0b11;
 
-	const uint8_t byte0 = m_MMU.Load8(tile_data_address + (tile_index * 16 + line + 0));
-	const uint8_t byte1 = m_MMU.Load8(tile_data_address + (tile_index * 16 + line + 1));
-
-	const uint8_t bit0 = (byte0 >> (7 - tile_x)) & 0x01;
-	const uint8_t bit1 = (byte1 >> (7 - tile_x)) & 0x01;
-
-	const uint8_t color_index = bit0 | (bit1 << 1);
-	const uint8_t color = (palette >> (color_index * 2)) & 0b11;
-
+	const uint8_t screen_x = m_DrawX - draw_offset;
+	const uint8_t screen_y = static_cast<uint8_t>(m_VCounter);
 	SetPixel(screen_x, screen_y, color);
+	++m_DrawX;
 }
 
 uint8_t PPU::GetPixel(uint8_t a_X, uint8_t a_Y) const noexcept

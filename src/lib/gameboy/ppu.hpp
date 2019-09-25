@@ -3,6 +3,8 @@
 
 #include <gameboy/api.hpp>
 #include <gameboy/lcdmode.hpp>
+#include <gameboy/pixelfifo.hpp>
+#include <gameboy/tilefetcher.hpp>
 
 namespace Amber::Gameboy
 {
@@ -96,6 +98,11 @@ namespace Amber::Gameboy
 		uint8_t m_BGP = 0b11100100;
 		uint8_t m_OBP0 = 0b11100100;
 		uint8_t m_OBP1 = 0b11100100;
+
+		// Drawing
+		PixelFIFO m_PixelFIFO;
+		TileFetcher m_TileFetcher;
+		uint8_t m_DrawX;
 
 		// LCD result buffer
 		uint8_t m_LCDBuffer[(LCDWidth * LCDHeight) / 4] = {};
