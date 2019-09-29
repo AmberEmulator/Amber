@@ -57,9 +57,9 @@ namespace Amber::Gameboy
 		private:
 		struct SpriteDrawInfo
 		{
+			uint8_t m_SpriteIndex;
 			uint8_t m_TileY;
-			uint8_t m_ScreenX;
-			uint8_t m_Tile;
+			uint8_t m_DrawX;
 			uint8_t m_Attributes;
 		};
 
@@ -82,6 +82,7 @@ namespace Amber::Gameboy
 		uint8_t m_SpriteCount;
 		uint8_t m_SpriteY;
 		uint8_t m_CurrentSprite;
+		uint8_t m_SpriteAttributes;
 
 		// LCD mode
 		uint16_t m_HCounter = 0;

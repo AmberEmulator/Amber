@@ -3,6 +3,8 @@
 #include <gameboy/cpu.hpp>
 #include <gameboy/mmu.hpp>
 
+#include <array>
+
 using namespace Amber;
 using namespace Gameboy;
 
@@ -222,7 +224,7 @@ void PPU::GotoOAM() noexcept
 void PPU::GotoPixelTransfer() noexcept
 {
 	m_LCDMode = LCDMode::PixelTransfer;
-	m_CurrentSprite = 0xFF;
+	m_CurrentSprite = 0;
 
 	const uint8_t screen_y = static_cast<uint8_t>(m_VCounter);
 	const uint8_t scroll_x = m_SCX;
@@ -275,7 +277,7 @@ void PPU::OAMSearch() noexcept
 	uint8_t index = m_SpriteCount;
 	for (; index != 0; --index)
 	{
-		if (m_Sprites[index - 1].m_ScreenX < sprite_x)
+		if (m_Sprites[index - 1].m_DrawX < sprite_x)
 		{
 			break;
 		}
@@ -289,10 +291,15 @@ void PPU::OAMSearch() noexcept
 
 	// Set sprite info at index
 	auto& sprite = m_Sprites[index];
+	sprite.m_SpriteIndex = sprite_index;
 	sprite.m_TileY = extended_screen_y - m_SpriteY;
-	sprite.m_ScreenX = sprite_x;
-	sprite.m_Tile = m_OAM[sprite_index * 4 + 2];
+	sprite.m_DrawX = sprite_x - 1;
 	sprite.m_Attributes = m_OAM[sprite_index * 4 + 3];
+
+	if (sprite.m_Attributes & 0b0100'0000)
+	{
+		sprite.m_TileY = 7 - sprite.m_TileY;
+	}
 
 	// Increment sprite count
 	++m_SpriteCount;
@@ -300,15 +307,35 @@ void PPU::OAMSearch() noexcept
 
 void PPU::PixelTransfer() noexcept
 {
+	if (m_CurrentSprite < m_SpriteCount && m_Sprites[m_CurrentSprite].m_DrawX == m_DrawX && !m_TileFetcher.IsFetchingSprite())
+	{
+		m_TileFetcher.PushSpriteFetch(0xFE00 + m_Sprites[m_CurrentSprite].m_SpriteIndex * 4 + 2, m_Sprites[m_CurrentSprite].m_TileY);
+		m_SpriteAttributes = m_Sprites[m_CurrentSprite].m_Attributes;
+		++m_CurrentSprite;
+	}
+
 	if ((m_HCounter & 1) == 0)
 	{
 		m_TileFetcher.Tick();
 
-		if (m_TileFetcher.IsDone() && m_PixelFIFO.GetPixelCount() <= 8)
+		if (m_TileFetcher.IsDone())
 		{
-			m_PixelFIFO.Push(m_TileFetcher.GetColors(), PixelSource::Background);
-			m_TileFetcher.Next();
+			if (m_TileFetcher.IsFetchingSprite())
+			{
+				m_PixelFIFO.MixSprite(m_TileFetcher.GetColors(), m_SpriteAttributes);
+				m_TileFetcher.PopSpriteFetch();
+			}
+			else if (m_PixelFIFO.GetPixelCount() <= 8)
+			{
+				m_PixelFIFO.Push(m_TileFetcher.GetColors(), PixelSource::Background);
+				m_TileFetcher.Next();
+			}
 		}
+	}
+
+	if (m_TileFetcher.IsFetchingSprite())
+	{
+		return;
 	}
 
 	const Pixel pixel = m_PixelFIFO.Pop();

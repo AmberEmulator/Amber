@@ -9,12 +9,23 @@ namespace Amber::Gameboy
 	class GAMEBOY_API PixelFIFO
 	{
 		public:
+		static constexpr uint8_t PriorityAttributeMask     = 0b1000'0000;
+		static constexpr uint8_t YFlipAttributeMask        = 0b0100'0000;
+		static constexpr uint8_t XFlipAttributeMask        = 0b0010'0000;
+		static constexpr uint8_t PaletteAttributeMask      = 0b0001'0000;
+		static constexpr uint8_t VRAMBankAttributeMask     = 0b0000'1000;
+		static constexpr uint8_t ColorPaletteAttributeMask = 0b0000'0111;
+
 		size_t GetPixelCount() const noexcept;
 
-		Pixel Pop() noexcept;
 		void Push(Pixel a_Pixel) noexcept;
 		void Push(const uint8_t a_Colors[2], PixelSource::Enum a_Source) noexcept;
-		void Mix(const uint8_t a_Colors[2], PixelSource::Enum a_Source, uint8_t a_Priority) noexcept;
+		Pixel Pop() noexcept;
+
+		Pixel GetPixel(size_t a_Index) const noexcept;
+		void SetPixel(size_t a_Index, Pixel a_Pixel) noexcept;
+
+		void MixSprite(const uint8_t a_Colors[2], uint8_t a_Attributes) noexcept;
 
 		void Reset();
 
