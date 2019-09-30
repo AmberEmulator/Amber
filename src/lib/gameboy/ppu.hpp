@@ -26,16 +26,28 @@ namespace Amber::Gameboy
 		static constexpr size_t VBlankCycles = LineCycles * VBlankLines;
 		static constexpr size_t FrameCycles = LineCycles * FrameLines;
 
+		static constexpr uint8_t LYCInterruptSTATMask    = 0b0100'0000;
+		static constexpr uint8_t OAMInterruptSTATMask    = 0b0010'0000;
+		static constexpr uint8_t VBlankInterruptSTATMask = 0b0001'0000;
+		static constexpr uint8_t HBlankInterruptSTATMask = 0b0000'1000;
+		static constexpr uint8_t LYCSTATMask             = 0b0000'0100;
+		static constexpr uint8_t ModeSTATMask            = 0b0000'0011;
+		static constexpr uint8_t ReadOnlySTATMask        = LYCSTATMask | ModeSTATMask;
+		static constexpr uint8_t WritableSTATMask        = LYCInterruptSTATMask | OAMInterruptSTATMask | VBlankInterruptSTATMask | HBlankInterruptSTATMask;
+
 		PPU(MMU& a_MMU);
 
-		uint8_t GetLY() const noexcept;
 		uint8_t GetLCDC() const noexcept;
 		uint8_t GetSTAT() const noexcept;
 		uint8_t GetSCX() const noexcept;
 		uint8_t GetSCY() const noexcept;
+		uint8_t GetLY() const noexcept;
+		uint8_t GetLYC() const noexcept;
 		uint8_t GetBGP() const noexcept;
 		uint8_t GetOBP0() const noexcept;
 		uint8_t GetOBP1() const noexcept;
+
+		LCDMode::Enum GetLCDMode() const noexcept;
 
 		uint8_t* GetOAM() noexcept;
 		const uint8_t* GetOAM() const noexcept;
@@ -45,6 +57,7 @@ namespace Amber::Gameboy
 		void SetSTAT(uint8_t a_Value) noexcept;
 		void SetSCX(uint8_t a_Value) noexcept;
 		void SetSCY(uint8_t a_Value) noexcept;
+		void SetLYC(uint8_t a_Value) noexcept;
 		void SetBGP(uint8_t a_Value) noexcept;
 		void SetOBP0(uint8_t a_Value) noexcept;
 		void SetOBP1(uint8_t a_Value) noexcept;
@@ -63,8 +76,12 @@ namespace Amber::Gameboy
 			uint8_t m_Attributes;
 		};
 
+		void SetLCDMode(LCDMode::Enum a_Mode);
+
 		void GotoOAM() noexcept;
 		void GotoPixelTransfer() noexcept;
+		void GotoHBlank() noexcept;
+		void GotoVBlank() noexcept;
 
 		void OAMSearch() noexcept;
 		void PixelTransfer() noexcept;
@@ -87,13 +104,13 @@ namespace Amber::Gameboy
 		// LCD mode
 		uint16_t m_HCounter = 0;
 		uint16_t m_VCounter = 0;
-		LCDMode::Enum m_LCDMode = LCDMode::VBlank;
 
 		// LCD control
 		uint8_t m_LCDC = 0x91;
 		uint8_t m_STAT = 0x00;
 		uint8_t m_SCX = 0x00;
 		uint8_t m_SCY = 0x00;
+		uint8_t m_LYC = 0x00;
 
 		// Palettes
 		uint8_t m_BGP = 0b11100100;

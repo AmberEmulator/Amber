@@ -194,6 +194,7 @@ void MMU::SetPPU(PPU* a_PPU)
 		m_LastLoads[0x0142] = &MMU::LoadRegister<&MMU::m_PPU, &PPU::GetSCY>;
 		m_LastLoads[0x0143] = &MMU::LoadRegister<&MMU::m_PPU, &PPU::GetSCX>;
 		m_LastLoads[0x0144] = &MMU::LoadRegister<&MMU::m_PPU, &PPU::GetLY>;
+		m_LastLoads[0x0145] = &MMU::LoadRegister<&MMU::m_PPU, &PPU::GetLYC>;
 		m_LastLoads[0x0147] = &MMU::LoadRegister<&MMU::m_PPU, &PPU::GetBGP>;
 		m_LastLoads[0x0148] = &MMU::LoadRegister<&MMU::m_PPU, &PPU::GetOBP0>;
 		m_LastLoads[0x0149] = &MMU::LoadRegister<&MMU::m_PPU, &PPU::GetOBP1>;
@@ -202,6 +203,7 @@ void MMU::SetPPU(PPU* a_PPU)
 		m_LastStores[0x0141] = &MMU::StoreRegister<&MMU::m_PPU, &PPU::SetSTAT>;
 		m_LastStores[0x0142] = &MMU::StoreRegister<&MMU::m_PPU, &PPU::SetSCY>;
 		m_LastStores[0x0143] = &MMU::StoreRegister<&MMU::m_PPU, &PPU::SetSCX>;
+		m_LastStores[0x0145] = &MMU::StoreRegister<&MMU::m_PPU, &PPU::SetLYC>;
 		m_LastStores[0x0147] = &MMU::StoreRegister<&MMU::m_PPU, &PPU::SetBGP>;
 		m_LastStores[0x0148] = &MMU::StoreRegister<&MMU::m_PPU, &PPU::SetOBP0>;
 		m_LastStores[0x0149] = &MMU::StoreRegister<&MMU::m_PPU, &PPU::SetOBP1>;
@@ -220,6 +222,7 @@ void MMU::SetPPU(PPU* a_PPU)
 		m_LastLoads[0x0142] = &MMU::LoadNOP;
 		m_LastLoads[0x0143] = &MMU::LoadNOP;
 		m_LastLoads[0x0144] = &MMU::LoadNOP;
+		m_LastLoads[0x0145] = &MMU::LoadNOP;
 		m_LastLoads[0x0147] = &MMU::LoadNOP;
 		m_LastLoads[0x0148] = &MMU::LoadNOP;
 		m_LastLoads[0x0149] = &MMU::LoadNOP;
@@ -228,6 +231,7 @@ void MMU::SetPPU(PPU* a_PPU)
 		m_LastStores[0x0141] = &MMU::StoreNOP;
 		m_LastStores[0x0142] = &MMU::StoreNOP;
 		m_LastStores[0x0143] = &MMU::StoreNOP;
+		m_LastStores[0x0145] = &MMU::StoreNOP;
 		m_LastStores[0x0147] = &MMU::StoreNOP;
 		m_LastStores[0x0148] = &MMU::StoreNOP;
 		m_LastStores[0x0149] = &MMU::StoreNOP;

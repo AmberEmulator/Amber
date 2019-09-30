@@ -15,11 +15,6 @@ PPU::PPU(MMU& a_MMU):
 	Reset();
 }
 
-uint8_t PPU::GetLY() const noexcept
-{
-	return static_cast<uint8_t>(m_VCounter);
-}
-
 uint8_t PPU::GetLCDC() const noexcept
 {
 	return m_LCDC;
@@ -40,6 +35,16 @@ uint8_t PPU::GetSCY() const noexcept
 	return m_SCY;
 }
 
+uint8_t PPU::GetLY() const noexcept
+{
+	return static_cast<uint8_t>(m_VCounter);
+}
+
+uint8_t PPU::GetLYC() const noexcept
+{
+	return m_LYC;
+}
+
 uint8_t PPU::GetBGP() const noexcept
 {
 	return m_BGP;
@@ -53,6 +58,11 @@ uint8_t PPU::GetOBP0() const noexcept
 uint8_t PPU::GetOBP1() const noexcept
 {
 	return m_OBP1;
+}
+
+LCDMode::Enum PPU::GetLCDMode() const noexcept
+{
+	return static_cast<LCDMode::Enum>(GetSTAT() & 0b11);
 }
 
 uint8_t* PPU::GetOAM() noexcept
@@ -90,6 +100,11 @@ void PPU::SetSCY(uint8_t a_Value) noexcept
 	m_SCY = a_Value;
 }
 
+void PPU::SetLYC(uint8_t a_Value) noexcept
+{
+	m_LYC = (m_LYC & ReadOnlySTATMask) | (a_Value & WritableSTATMask);
+}
+
 void PPU::SetBGP(uint8_t a_Value) noexcept
 {
 	m_BGP = a_Value;
@@ -120,18 +135,14 @@ void PPU::Tick()
 	}
 
 	// Update LCD mode
-	switch (m_LCDMode)
+	switch (GetLCDMode())
 	{
 		case LCDMode::HBlank:
 		if (m_HCounter == 0)
 		{
 			if (m_VCounter == ScreenLines)
 			{
-				m_LCDMode = LCDMode::VBlank;
-				if (m_CPU != nullptr)
-				{
-					m_CPU->RequestInterrupts(CPU::InterruptVBlank);
-				}
+				GotoVBlank();
 			}
 			else
 			{
@@ -157,16 +168,13 @@ void PPU::Tick()
 		case LCDMode::PixelTransfer:
 		if (m_DrawX == LCDWidth + 7 + m_SCX % 8)
 		{
-			m_LCDMode = LCDMode::HBlank;
+			GotoHBlank();
 		}
 		break;
 	}
 
-	// Update STAT
-	m_STAT = (m_STAT & 0b1111'1000) | m_LCDMode;
-
 	// Process LCD Mode
-	switch (m_LCDMode)
+	switch (GetLCDMode())
 	{
 		case LCDMode::OAMSearch:
 		OAMSearch();
@@ -186,13 +194,14 @@ void PPU::Reset()
 	// LCD mode
 	m_HCounter = LineCycles - 1;
 	m_VCounter = FrameLines - 1;
-	m_LCDMode = LCDMode::VBlank;
+	SetLCDMode(LCDMode::VBlank);
 
 	// LCD control
 	m_LCDC = 0x91;
 	m_STAT = 0x00;
 	m_SCX = 0x00;
 	m_SCY = 0x00;
+	m_LYC = 0x00;
 }
 
 void PPU::Blit(void* a_Destination, size_t a_Pitch) const noexcept
@@ -215,15 +224,56 @@ void PPU::Blit(void* a_Destination, size_t a_Pitch) const noexcept
 	}
 }
 
+void PPU::SetLCDMode(LCDMode::Enum a_Mode)
+{
+	m_STAT = (m_STAT & (~ModeSTATMask)) | a_Mode;
+
+	if (m_CPU != nullptr)
+	{
+		switch (a_Mode)
+		{
+			case LCDMode::HBlank:
+			if (m_STAT & HBlankInterruptSTATMask)
+			{
+				m_CPU->RequestInterrupts(CPU::InterruptLCDSTAT);
+			}
+			break;
+
+			case LCDMode::VBlank:
+			if (m_STAT & VBlankInterruptSTATMask)
+			{
+				m_CPU->RequestInterrupts(CPU::InterruptLCDSTAT);
+			}
+			break;
+
+			case LCDMode::OAMSearch:
+			if (m_STAT & OAMInterruptSTATMask)
+			{
+				m_CPU->RequestInterrupts(CPU::InterruptLCDSTAT);
+			}
+			break;
+		}
+	}
+}
+
 void PPU::GotoOAM() noexcept
 {
-	m_LCDMode = LCDMode::OAMSearch;
+	SetLCDMode(LCDMode::OAMSearch);
+
+	const bool lyc_result = GetLY() == GetLYC();
+	m_STAT = (m_STAT & (~LYCSTATMask)) | (lyc_result ? LYCSTATMask : 0);
+
+	if (lyc_result && (m_STAT & LYCInterruptSTATMask) && m_CPU != nullptr)
+	{
+		m_CPU->RequestInterrupts(CPU::InterruptLCDSTAT);
+	}
+
 	m_SpriteCount = 0;
 }
 
 void PPU::GotoPixelTransfer() noexcept
 {
-	m_LCDMode = LCDMode::PixelTransfer;
+	SetLCDMode(LCDMode::PixelTransfer);
 	m_CurrentSprite = 0;
 
 	const uint8_t screen_y = static_cast<uint8_t>(m_VCounter);
@@ -238,6 +288,20 @@ void PPU::GotoPixelTransfer() noexcept
 	m_PixelFIFO.Reset();
 	m_TileFetcher.Reset(background_address, tile_y, (m_LCDC & 0b0001'0000) == 0);
 	m_DrawX = 0;
+}
+
+void PPU::GotoHBlank() noexcept
+{
+	SetLCDMode(LCDMode::HBlank);
+}
+
+void PPU::GotoVBlank() noexcept
+{
+	SetLCDMode(LCDMode::VBlank);
+	if (m_CPU != nullptr)
+	{
+		m_CPU->RequestInterrupts(CPU::InterruptVBlank);
+	}
 }
 
 void PPU::OAMSearch() noexcept
