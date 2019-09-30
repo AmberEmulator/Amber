@@ -5,6 +5,7 @@
 
 #include <gameboy/basiccartridge.hpp>
 #include <gameboy/mbc1cartridge.hpp>
+#include <gameboy/mbc2cartridge.hpp>
 
 #include <algorithm>
 #include <istream>
@@ -49,6 +50,11 @@ std::unique_ptr<BasicCartridge> CartridgeLoader::CreateCartridge(const Cartridge
 		case CartridgeType::MBC1_RAM:
 		case CartridgeType::MBC1_RAM_BATTERY: // TODO: implement ram battery
 		return std::make_unique<MBC1Cartridge>(rom_size, ram_size);
+		break;
+
+		case CartridgeType::MBC2_RAM:
+		case CartridgeType::MBC2_RAM_BATTERY: // TODO: implement ram battery
+		return std::make_unique<MBC2Cartridge>(rom_size);
 		break;
 
 		default:

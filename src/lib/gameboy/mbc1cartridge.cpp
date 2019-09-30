@@ -52,7 +52,7 @@ void MBC1Cartridge::Store8(Address a_Address, uint8_t a_Value)
 			{
 				bits = 1;
 			}
-			m_ROMBank = (m_ROMBank & 0b1110'000) | bits;
+			m_ROMBank = (m_ROMBank & 0b1110'0000) | bits;
 		}
 		break;
 
