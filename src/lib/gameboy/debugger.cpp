@@ -77,28 +77,6 @@ uint8_t Debugger::Load8(uint64_t a_Address) const
 	return m_Device.GetMMU().Load8(address);
 }
 
-bool Debugger::HasBreakpoint(uint64_t a_Address) const noexcept
-{
-	return m_Breakpoints.count(a_Address) > 0;
-}
-
-void Debugger::SetBreakpoint(uint64_t a_Address, bool a_Enabled)
-{
-	if (a_Enabled)
-	{
-		m_Breakpoints.emplace(a_Address);
-	}
-	else
-	{
-		m_Breakpoints.erase(a_Address);
-	}
-}
-
-std::unordered_set<uint64_t> Debugger::GetBreakpoints() const
-{
-	return m_Breakpoints;
-}
-
 bool Debugger::Run()
 {
 	// TODO: timing cycles
@@ -136,6 +114,16 @@ bool Debugger::Reset()
 	return !CheckBreakpoints();
 }
 
+void Debugger::OnBreakpointCreate(Common::Breakpoint a_Breakpoint)
+{
+	
+}
+
+void Debugger::OnBreakpointDestroy(Common::Breakpoint a_Breakpoint) noexcept
+{
+
+}
+
 Debugger::InstructionInfo Debugger::GetInstruction(uint64_t a_Address) const
 {
 	auto& memory = m_Device.GetMMU();
@@ -160,14 +148,6 @@ Debugger::InstructionInfo Debugger::GetInstruction(uint64_t a_Address) const
 
 bool Debugger::CheckBreakpoints() const
 {
-	if (m_Breakpoints.size() > 0)
-	{
-		const uint16_t pc = m_Device.GetCPU().LoadRegister16(CPU::RegisterPC);
-		if (m_Breakpoints.count(pc) > 0)
-		{
-			return true;
-		}
-	}
-	
-	return false;
+	const uint16_t pc = m_Device.GetCPU().LoadRegister16(CPU::RegisterPC);
+	return GetExecutionBreakpoints(pc).size() > 0;
 }

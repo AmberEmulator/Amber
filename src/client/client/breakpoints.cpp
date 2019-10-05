@@ -3,6 +3,7 @@
 #include <imgui/imgui.h>
 
 using namespace Amber;
+using namespace Common;
 using namespace Client;
 
 void Amber::Client::ShowBreakpoints(const char* a_Name, BreakpointsState& a_State)
@@ -26,7 +27,14 @@ void Amber::Client::ShowBreakpoints(const char* a_Name, BreakpointsState& a_Stat
 
 			if (ImGui::Button("OK", ImVec2(120, 0)))
 			{
-				debugger.SetBreakpoint(a_State.m_NewAddress, true);
+				BreakpointCondition breakpoint_condition;
+				breakpoint_condition.SetType(BreakpointConditionType::Execution);
+				breakpoint_condition.SetAddress(a_State.m_NewAddress);
+
+				BreakpointDescription breakpoint_description;
+				breakpoint_description.AddCondition(breakpoint_condition);
+
+				debugger.CreateBreakpoint(breakpoint_description);
 				ImGui::CloseCurrentPopup();
 			}
 			ImGui::SetItemDefaultFocus();
@@ -38,27 +46,28 @@ void Amber::Client::ShowBreakpoints(const char* a_Name, BreakpointsState& a_Stat
 			ImGui::EndPopup();
 		}
 
-		const bool enabled = a_State.m_Selected.has_value();
-		if (ImGui::MenuItem("Delete", nullptr, false, enabled))
+		if (ImGui::MenuItem("Delete", nullptr, false, a_State.m_Selected != nullptr))
 		{
-			debugger.SetBreakpoint(*(a_State.m_Selected), false);
-			a_State.m_Selected = {};
+			debugger.DestroyBreakpoint(a_State.m_Selected);
+			a_State.m_Selected = nullptr;
 		}
 
 		ImGui::EndMenuBar();
 	}
 
-	const auto breakpoints = debugger.GetBreakpoints();
-
-	for (auto&& breakpoint : breakpoints)
+	for (size_t breakpoint_index = 0; breakpoint_index < debugger.GetBreakpointCount(); ++breakpoint_index)
 	{
-		const auto name = debugger.GetAddressName(breakpoint);
+		ImGui::PushID(breakpoint_index);
 
-		bool selected = a_State.m_Selected.has_value() ? *(a_State.m_Selected) == breakpoint : false;
-		if (ImGui::Selectable(name.c_str(), selected))
+		const auto breakpoint = debugger.GetBreakpoint(breakpoint_index);
+
+		bool selected = a_State.m_Selected == breakpoint;
+		if (ImGui::Selectable("Foo", selected))
 		{
 			a_State.m_Selected = breakpoint;
 		}
+
+		ImGui::PopID();
 	}
 
 	ImGui::EndChild();

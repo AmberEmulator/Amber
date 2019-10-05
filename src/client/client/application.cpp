@@ -14,6 +14,7 @@
 #include <gameboy/ppu.hpp>
 #include <gameboy/videoviewer.hpp>
 
+#include <common/recorder.hpp>
 #include <common/ram.hpp>
 
 #include <imgui/imgui.h>
@@ -24,6 +25,7 @@
 #include <iostream>
 
 using namespace Amber;
+using namespace Common;
 using namespace Client;
 
 Application::Application()
@@ -118,6 +120,17 @@ void Application::Tick()
 
 	device->GetPPU().Blit(lcd_buffer.get(), Gameboy::PPU::LCDWidth);
 	lcd_texture.Blit(0, 0, Gameboy::PPU::LCDWidth, Gameboy::PPU::LCDHeight, lcd_buffer.get());
+
+	static auto recorder = []
+	{
+		RecorderDescription recorder_description;
+
+		auto recorder = std::make_unique<Recorder>(recorder_description);
+
+		recorder->NewFrame();
+
+		return recorder;
+	}();
 
 
 	// Show memory
@@ -335,7 +348,6 @@ void Application::Tick()
 	// Show breakpoints
 	static BreakpointsState breakpoints_state;
 	breakpoints_state.m_Debugger = &debugger;
-
 	ImGui::SetNextWindowDockID(dock_id, ImGuiSetCond_FirstUseEver);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 	if (ImGui::Begin("Breakpoints"))
@@ -347,6 +359,20 @@ void Application::Tick()
 	{
 		ImGui::PopStyleVar();
 	}
+
+	// Show Recorder
+
+	if (ImGui::Begin("Recorder"))
+	{
+		int current = static_cast<int>(recorder->GetCurrentFrame());
+		int count = static_cast<int>(recorder->GetFrameCount());
+
+		if (ImGui::SliderInt("Frame", &current, 0, count))
+		{
+
+		}
+	}
+	ImGui::End();
 	
 	ImGui::End();
 }

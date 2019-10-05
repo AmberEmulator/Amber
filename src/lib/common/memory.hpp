@@ -78,49 +78,6 @@ namespace Amber::Common
 		{
 			return static_cast<uint64_t>(a_Address);
 		}
-
-		void Replace8(Address a_Address, uint8_t a_Value)
-		{
-			const uint64_t physical_address = GetPhysicalAddress(a_Address);
-			const auto it = m_ReplacedBytes.find(physical_address);
-			if (it == m_ReplacedBytes.end())
-			{
-				const uint8_t original_value = Load8(a_Address);
-				m_ReplacedBytes.emplace(physical_address, original_value);
-			}
-
-			Store8(a_Address, a_Value);
-		}
-
-		void Restore8(Address a_Address)
-		{
-			const uint64_t physical_address = GetPhysicalAddress(a_Address);
-			const auto it = m_ReplacedBytes.find(physical_address);
-			if (it == m_ReplacedBytes.end())
-			{
-				return;
-			}
-
-			const uint8_t original_value = it->second;
-			Store8(a_Address, original_value);
-			m_ReplacedBytes.erase(it);
-		}
-
-		std::optional<uint8_t> GetReplaced8(Address a_Address)
-		{
-			const uint64_t physical_address = GetPhysicalAddress(a_Address);
-			const auto it = m_ReplacedBytes.find(physical_address);
-			if (it == m_ReplacedBytes.end())
-			{
-				return {};
-			}
-
-			const uint8_t original_value = it->second;
-			return original_value;
-		}
-
-		private:
-		std::unordered_map<uint64_t, uint8_t> m_ReplacedBytes;
 	};
 
 	template <typename T>

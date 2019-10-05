@@ -26,14 +26,14 @@ namespace Amber::Gameboy
 
 		uint8_t Load8(uint64_t a_Address) const override;
 
-		bool HasBreakpoint(uint64_t a_Address) const noexcept override;
-		void SetBreakpoint(uint64_t a_Address, bool a_Enabled) override;
-		std::unordered_set<uint64_t> GetBreakpoints() const override;
-
 		bool Run() override;
 		bool Step() override;
 		bool Microstep() override;
 		bool Reset() override;
+
+		protected:
+		void OnBreakpointCreate(Common::Breakpoint a_Breakpoint) override;
+		void OnBreakpointDestroy(Common::Breakpoint a_Breakpoint) noexcept override;
 
 		private:
 		struct InstructionInfo
@@ -48,7 +48,6 @@ namespace Amber::Gameboy
 		Device& m_Device;
 		size_t m_Cycles = 0;
 		bool m_Break = false;
-		std::unordered_set<uint64_t> m_Breakpoints;
 	};
 }
 

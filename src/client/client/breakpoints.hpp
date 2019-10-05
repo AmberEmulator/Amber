@@ -12,7 +12,7 @@ namespace Amber::Client
 	struct BreakpointsState
 	{
 		Common::Debugger* m_Debugger = nullptr;
-		std::optional<uint64_t> m_Selected;
+		Common::Breakpoint m_Selected;
 		uint64_t m_NewAddress = 0;
 	};
 

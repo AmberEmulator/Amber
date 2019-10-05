@@ -6,10 +6,13 @@
 #include <gameboy/pixelfifo.hpp>
 #include <gameboy/tilefetcher.hpp>
 
+#include <set>
+
 namespace Amber::Gameboy
 {
 	class CPU;
 	class MMU;
+	class PPUObserver;
 
 	class GAMEBOY_API PPU
 	{
@@ -66,6 +69,9 @@ namespace Amber::Gameboy
 		void Reset();
 
 		void Blit(void* a_Destination, size_t a_Pitch) const noexcept;
+
+		void AddObserver(PPUObserver& a_Observer);
+		void RemoveObserver(PPUObserver& a_Observer);
 
 		private:
 		struct SpriteDrawInfo
@@ -124,6 +130,9 @@ namespace Amber::Gameboy
 
 		// LCD result buffer
 		uint8_t m_LCDBuffer[(LCDWidth * LCDHeight) / 4] = {};
+
+		// Observers
+		std::set<PPUObserver*> m_Observers;
 	};
 }
 

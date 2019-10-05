@@ -30,6 +30,7 @@ amber_add_sources(gameboy "pixel.hpp" "pixel.cpp" FILTER "PPU/Pixel")
 amber_add_sources(gameboy "pixelfifo.hpp" "pixelfifo.cpp" FILTER "PPU/Pixel FIFO")
 amber_add_sources(gameboy "pixelsource.hpp" FILTER "PPU/Pixel Source")
 amber_add_sources(gameboy "ppu.hpp" "ppu.cpp" FILTER "PPU/PPU")
+amber_add_sources(gameboy "ppuobserver.hpp" "ppuobserver.cpp" FILTER "PPU/PPU Observer")
 amber_add_sources(gameboy "tilefetcher.hpp" "tilefetcher.cpp" FILTER "PPU/Tile Fetcher")
 
 # MMU

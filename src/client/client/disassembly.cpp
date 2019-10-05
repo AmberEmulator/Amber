@@ -81,12 +81,31 @@ void Amber::Client::ShowDisassembly(const char* a_Name, DisassemblyState& a_Stat
 
 			// Breakpoint button
 			ImGui::SetCursorScreenPos(row_top_left);
+			auto execution_breakpoints = debugger.GetExecutionBreakpoints(address);
+
 			if (ImGui::InvisibleButton("##Breakpoint", ImVec2(row_height, row_height)))
 			{
-				debugger.SetBreakpoint(address, !debugger.HasBreakpoint(address));
+				if (execution_breakpoints.size() == 0)
+				{
+					Common::BreakpointCondition breakpoint_condition;
+					breakpoint_condition.SetType(Common::BreakpointConditionType::Execution);
+					breakpoint_condition.SetAddress(address);
+
+					Common::BreakpointDescription breakpoint_description;
+					breakpoint_description.AddCondition(breakpoint_condition);
+
+					debugger.CreateBreakpoint(breakpoint_description);
+				}
+				else
+				{
+					for (auto&& execution_breakpoint : execution_breakpoints)
+					{
+						debugger.DestroyBreakpoint(execution_breakpoint);
+					}
+				}
 			}
 
-			if (debugger.HasBreakpoint(address))
+			if (execution_breakpoints.size() > 0)
 			{
 				const ImVec2 circle_pos = ImVec2(row_top_left.x + row_height / 2.0f + 0.5f, row_top_left.y + row_height / 2.0f + 0.5f);
 

@@ -2,6 +2,7 @@
 
 #include <gameboy/cpu.hpp>
 #include <gameboy/mmu.hpp>
+#include <gameboy/ppuobserver.hpp>
 
 #include <array>
 
@@ -224,8 +225,24 @@ void PPU::Blit(void* a_Destination, size_t a_Pitch) const noexcept
 	}
 }
 
+void PPU::AddObserver(PPUObserver& a_Observer)
+{
+	m_Observers.insert(&a_Observer);
+}
+
+void PPU::RemoveObserver(PPUObserver& a_Observer)
+{
+	m_Observers.erase(&a_Observer);
+}
+
 void PPU::SetLCDMode(LCDMode::Enum a_Mode)
 {
+	const auto from_mode = GetLCDMode();
+	if (from_mode == a_Mode)
+	{
+		return;
+	}
+
 	m_STAT = (m_STAT & (~ModeSTATMask)) | a_Mode;
 
 	if (m_CPU != nullptr)
@@ -244,6 +261,7 @@ void PPU::SetLCDMode(LCDMode::Enum a_Mode)
 			{
 				m_CPU->RequestInterrupts(CPU::InterruptLCDSTAT);
 			}
+			m_CPU->RequestInterrupts(CPU::InterruptVBlank);
 			break;
 
 			case LCDMode::OAMSearch:
@@ -254,12 +272,21 @@ void PPU::SetLCDMode(LCDMode::Enum a_Mode)
 			break;
 		}
 	}
+
+	const auto to_mode = GetLCDMode();
+	if (from_mode == LCDMode::VBlank && to_mode == LCDMode::OAMSearch)
+	{
+		std::memset(m_LCDBuffer, 0, sizeof(m_LCDBuffer));
+	}
+
+	for (auto& observer : m_Observers)
+	{
+		observer->OnLCDModeChange(from_mode, to_mode);
+	}
 }
 
 void PPU::GotoOAM() noexcept
 {
-	SetLCDMode(LCDMode::OAMSearch);
-
 	const bool lyc_result = GetLY() == GetLYC();
 	m_STAT = (m_STAT & (~LYCSTATMask)) | (lyc_result ? LYCSTATMask : 0);
 
@@ -269,11 +296,12 @@ void PPU::GotoOAM() noexcept
 	}
 
 	m_SpriteCount = 0;
+
+	SetLCDMode(LCDMode::OAMSearch);
 }
 
 void PPU::GotoPixelTransfer() noexcept
 {
-	SetLCDMode(LCDMode::PixelTransfer);
 	m_CurrentSprite = 0;
 
 	const uint8_t screen_y = static_cast<uint8_t>(m_VCounter);
@@ -288,6 +316,8 @@ void PPU::GotoPixelTransfer() noexcept
 	m_PixelFIFO.Reset();
 	m_TileFetcher.Reset(background_address, tile_y, (m_LCDC & 0b0001'0000) == 0);
 	m_DrawX = 0;
+
+	SetLCDMode(LCDMode::PixelTransfer);
 }
 
 void PPU::GotoHBlank() noexcept
@@ -298,10 +328,6 @@ void PPU::GotoHBlank() noexcept
 void PPU::GotoVBlank() noexcept
 {
 	SetLCDMode(LCDMode::VBlank);
-	if (m_CPU != nullptr)
-	{
-		m_CPU->RequestInterrupts(CPU::InterruptVBlank);
-	}
 }
 
 void PPU::OAMSearch() noexcept

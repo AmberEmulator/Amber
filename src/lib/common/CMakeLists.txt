@@ -33,12 +33,18 @@ amber_add_sources(common "instructionset.hpp" FILTER "CPU/Instruction Set")
 amber_add_sources(common "register.hpp" FILTER "CPU/Register")
 
 # Recording
-amber_add_sources(common "channeldescription.hpp" "channeldescription.cpp" FILTER "Recording/Channel Description")
+amber_add_sources(common "recordable.hpp" "recordable.cpp" FILTER "Recording/Recordable")
 amber_add_sources(common "recorder.hpp" "recorder.cpp" FILTER "Recording/Recorder")
+amber_add_sources(common "recorderchanneldescription.hpp" "recorderchanneldescription.cpp" FILTER "Recording/Recorder Channel Description")
 amber_add_sources(common "recorderdescription.hpp" "recorderdescription.cpp" FILTER "Recording/Recorder Description")
+amber_add_sources(common "recordermemberdescription.hpp" "recordermemberdescription.cpp" FILTER "Recording/Recorder Member Description")
+amber_add_sources(common "recordermembertype.hpp" FILTER "Recording/Recorder Member Type")
 amber_add_sources(common "bytereader.hpp" "bytereader.cpp" FILTER "Recording/Byte Reader")
 amber_add_sources(common "bytewriter.hpp" "bytewriter.cpp" FILTER "Recording/Byte Writer")
 
 # Debugging
+amber_add_sources(common "breakpointdescription.hpp" "breakpointdescription.cpp" FILTER "Debugging/Breakpoint Description")
+amber_add_sources(common "breakpointcondition.hpp" "breakpointcondition.cpp" FILTER "Debugging/Breakpoint Condition")
+amber_add_sources(common "breakpointconditiontype.hpp" FILTER "Debugging/Breakpoint Condition Type")
 amber_add_sources(common "debugger.hpp" "debugger.cpp" FILTER "Debugging/Debugger")
 amber_add_sources(common "videoviewer.hpp" "videoviewer.cpp" FILTER "Debugging/Video Viewer")

@@ -23,12 +23,12 @@ std::optional<size_t> RecorderDescription::FindChannel(std::string_view a_Name) 
 	}
 }
 
-const ChannelDescription& RecorderDescription::GetChannel(size_t a_Index) const noexcept
+const RecorderChannelDescription& RecorderDescription::GetChannel(size_t a_Index) const noexcept
 {
 	return m_Channels[a_Index];
 }
 
-size_t RecorderDescription::AddChannel(const ChannelDescription& a_Description)
+size_t RecorderDescription::AddChannel(const RecorderChannelDescription& a_Description)
 {
 	// Check if the name is not of zero length
 	if (a_Description.GetName().size() == 0)
