@@ -16,25 +16,43 @@ void Amber::Client::ShowBreakpoints(const char* a_Name, BreakpointsState& a_Stat
 	{
 		if (ImGui::MenuItem("New"))
 		{
-			ImGui::OpenPopup("NewPopup");
-			a_State.m_NewAddress = 0;
+			ImGui::OpenPopup("New Breakpoint");
+			a_State.m_NewBreakpointDescription = {};
+			a_State.m_NewBreakpointDescription.AddCondition({});
 		}
 
-		if (ImGui::BeginPopupModal("NewPopup", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+		if (ImGui::BeginPopupModal("New Breakpoint", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
 		{
-			ImGui::InputScalar("Address", ImGuiDataType_U64, &(a_State.m_NewAddress), nullptr, nullptr, "%04X", ImGuiInputTextFlags_CharsHexadecimal);
+			for (size_t breakpoint_condition_index = 0; breakpoint_condition_index < a_State.m_NewBreakpointDescription.GetConditionCount(); ++breakpoint_condition_index)
+			{
+				auto breakpoint_condition = a_State.m_NewBreakpointDescription.GetCondition(breakpoint_condition_index);
+
+				switch (breakpoint_condition.GetType())
+				{
+					case BreakpointConditionType::Execution:
+					{
+						uint64_t address = breakpoint_condition.GetAddress();
+						if (ImGui::InputScalar("Address", ImGuiDataType_U64, &address, nullptr, nullptr, "%04X", ImGuiInputTextFlags_CharsHexadecimal))
+						{
+							breakpoint_condition.SetAddress(address);
+						}
+					}
+					break;
+				}
+
+				a_State.m_NewBreakpointDescription.SetCondition(breakpoint_condition_index, breakpoint_condition);
+			}
+
+			if (ImGui::Button("Add"))
+			{
+				a_State.m_NewBreakpointDescription.AddCondition({});
+			}
+
 			ImGui::Separator();
 
 			if (ImGui::Button("OK", ImVec2(120, 0)))
 			{
-				BreakpointCondition breakpoint_condition;
-				breakpoint_condition.SetType(BreakpointConditionType::Execution);
-				breakpoint_condition.SetAddress(a_State.m_NewAddress);
-
-				BreakpointDescription breakpoint_description;
-				breakpoint_description.AddCondition(breakpoint_condition);
-
-				debugger.CreateBreakpoint(breakpoint_description);
+				debugger.CreateBreakpoint(a_State.m_NewBreakpointDescription);
 				ImGui::CloseCurrentPopup();
 			}
 			ImGui::SetItemDefaultFocus();

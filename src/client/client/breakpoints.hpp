@@ -13,7 +13,8 @@ namespace Amber::Client
 	{
 		Common::Debugger* m_Debugger = nullptr;
 		Common::Breakpoint m_Selected;
-		uint64_t m_NewAddress = 0;
+
+		Common::BreakpointDescription m_NewBreakpointDescription;
 	};
 
 	CLIENT_API void ShowBreakpoints(const char* a_Name, BreakpointsState& a_State);

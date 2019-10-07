@@ -80,8 +80,10 @@ uint8_t Debugger::Load8(uint64_t a_Address) const
 bool Debugger::Run()
 {
 	// TODO: timing cycles
-	for (; m_Cycles < PPU::FrameCycles / 4; ++m_Cycles)
+	LCDMode::Enum prev_mode;
+	do
 	{
+		prev_mode = m_Device.GetPPU().GetLCDMode();
 		Microstep();
 
 		if (CheckBreakpoints())
@@ -89,6 +91,7 @@ bool Debugger::Run()
 			return false;
 		}
 	}
+	while (!(prev_mode != LCDMode::VBlank && m_Device.GetPPU().GetLCDMode() == LCDMode::VBlank));
 
 	m_Cycles = 0;
 	return true;
