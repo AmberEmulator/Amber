@@ -14,15 +14,15 @@ namespace Amber::Gameboy
 		{
 			VBlankBegin,
 			VBlankEnd,
-			OAMBegin,
-			OAMEnd,
+			OAMSearchBegin,
+			OAMSearchEnd,
 			PixelTransferBegin,
 			PixelTransferEnd,
 			HBlankBegin,
 			HBlankEnd,
 		};
 
-		constexpr std::array<Event::Enum, 8> Enums = { Event::VBlankBegin, Event::VBlankEnd, Event::OAMBegin, Event::OAMEnd, Event::PixelTransferBegin, Event::PixelTransferEnd, Event::HBlankBegin, Event::HBlankEnd };
+		constexpr std::array<Event::Enum, 8> Enums = { Event::VBlankBegin, Event::VBlankEnd, Event::OAMSearchBegin, Event::OAMSearchEnd, Event::PixelTransferBegin, Event::PixelTransferEnd, Event::HBlankBegin, Event::HBlankEnd };
 
 		constexpr std::optional<std::string_view> ToString(Event::Enum a_Value) noexcept
 		{
@@ -30,8 +30,8 @@ namespace Amber::Gameboy
 			{
 				case Event::VBlankBegin:        return "V-Blank Begin";
 				case Event::VBlankEnd:          return "V-Blank End";
-				case Event::OAMBegin:           return "OAM Begin";
-				case Event::OAMEnd:             return "OAM End";
+				case Event::OAMSearchBegin:     return "OAM Search Begin";
+				case Event::OAMSearchEnd:       return "OAM Search End";
 				case Event::PixelTransferBegin: return "Pixel Transfer Begin";
 				case Event::PixelTransferEnd:   return "Pixel Transfer End";
 				case Event::HBlankBegin:        return "H-Blank Begin";

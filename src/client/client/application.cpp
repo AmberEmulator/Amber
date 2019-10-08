@@ -213,7 +213,7 @@ void Application::Tick()
 	{
 		if (!running)
 		{
-			if (ImGui::Button("Run"))
+			if (ImGui::ButtonEx("Run", ImVec2(0, 0), ImGuiButtonFlags_Repeat))
 			{
 				running = true;
 			}

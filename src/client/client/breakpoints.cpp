@@ -94,6 +94,7 @@ void Amber::Client::ShowBreakpoints(const char* a_Name, BreakpointsState& a_Stat
 				}
 
 				a_State.m_NewBreakpointDescription.SetCondition(breakpoint_condition_index, breakpoint_condition);
+				ImGui::PopID();
 			}
 
 			if (ImGui::Button("Add"))

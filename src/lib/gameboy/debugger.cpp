@@ -6,6 +6,7 @@
 #include <gameboy/mmu.hpp>
 #include <gameboy/ppu.hpp>
 
+#include <iostream>
 #include <limits>
 
 using namespace Amber;
@@ -14,6 +15,7 @@ using namespace Gameboy;
 Debugger::Debugger(Device& a_Device):
 	m_Device(a_Device)
 {
+	m_Device.GetPPU().AddObserver(*this);
 }
 
 uint64_t Debugger::GetMaximumAddress() const noexcept
@@ -91,18 +93,22 @@ std::string Debugger::GetEventName(size_t a_Event) const
 bool Debugger::Run()
 {
 	// TODO: timing cycles
-	LCDMode::Enum prev_mode;
+	m_EnteredVBlank = false;
+
 	do
 	{
-		prev_mode = m_Device.GetPPU().GetLCDMode();
-		Microstep();
+		if (m_Break)
+		{
+			m_Break = false;
+			return false;
+		}
 
-		if (CheckBreakpoints())
+		if (!Step())
 		{
 			return false;
 		}
 	}
-	while (!(prev_mode != LCDMode::VBlank && m_Device.GetPPU().GetLCDMode() == LCDMode::VBlank));
+	while (!m_EnteredVBlank);
 
 	m_Cycles = 0;
 	return true;
@@ -126,6 +132,98 @@ bool Debugger::Reset()
 	m_Device.Reset();
 	m_Cycles = 0;
 	return !CheckBreakpoints();
+}
+
+void Debugger::OnLCDModeChange(LCDMode::Enum a_From, LCDMode::Enum a_To)
+{
+	if (a_To == LCDMode::VBlank)
+	{
+		m_EnteredVBlank = true;
+	}
+
+	for (size_t breakpoint_index = 0; breakpoint_index < GetBreakpointCount(); ++breakpoint_index)
+	{
+		const Common::Breakpoint breakpoint = GetBreakpoint(breakpoint_index);
+		auto& breakpoint_description = GetBreakpointDescription(breakpoint);
+
+		for (size_t condition_index = 0; condition_index < breakpoint_description.GetConditionCount(); ++condition_index)
+		{
+			auto& condition = breakpoint_description.GetCondition(condition_index);
+			if (condition.GetType() != Common::BreakpointConditionType::Event)
+			{
+				continue;
+			}
+
+			switch (condition.GetEvent())
+			{
+				case Event::VBlankBegin:
+				if (a_To == LCDMode::VBlank)
+				{
+					m_Break = true;
+					return;
+				}
+				break;
+
+				case Event::VBlankEnd:
+				if (a_From == LCDMode::VBlank)
+				{
+					m_Break = true;
+					return;
+				}
+				break;
+
+				case Event::OAMSearchBegin:
+				if (a_To == LCDMode::OAMSearch)
+				{
+					m_Break = true;
+					return;
+				}
+				break;
+
+				case Event::OAMSearchEnd:
+				if (a_From == LCDMode::OAMSearch)
+				{
+					m_Break = true;
+					return;
+				}
+				break;
+
+				case Event::PixelTransferBegin:
+				if (a_To == LCDMode::PixelTransfer)
+				{
+					m_Break = true;
+
+					std::cout << static_cast<size_t>(m_Device.GetPPU().GetLY()) << std::endl;
+					return;
+				}
+				break;
+
+				case Event::PixelTransferEnd:
+				if (a_From == LCDMode::PixelTransfer)
+				{
+					m_Break = true;
+					return;
+				}
+				break;
+
+				case Event::HBlankBegin:
+				if (a_To == LCDMode::HBlank)
+				{
+					m_Break = true;
+					return;
+				}
+				break;
+
+				case Event::HBlankEnd:
+				if (a_From == LCDMode::HBlank)
+				{
+					m_Break = true;
+					return;
+				}
+				break;
+			}
+		}
+	}
 }
 
 void Debugger::OnBreakpointCreate(Common::Breakpoint a_Breakpoint)

@@ -1331,7 +1331,7 @@ void CPU::Halt()
 
 void CPU::CheckHalt()
 {
-	IncrementInstruction();
+	ResetInstruction();
 	if (m_Halted)
 	{
 		InsertOpBeforeInstruction(&CPU::CheckHalt);

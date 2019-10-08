@@ -5,6 +5,7 @@
 
 #include <gameboy/opcode.hpp>
 #include <gameboy/extendedopcode.hpp>
+#include <gameboy/ppuobserver.hpp>
 
 #include <common/debugger.hpp>
 
@@ -12,7 +13,7 @@ namespace Amber::Gameboy
 {
 	class Device;
 
-	class GAMEBOY_API Debugger : public Common::Debugger
+	class GAMEBOY_API Debugger : public Common::Debugger, PPUObserver
 	{
 		public:
 		Debugger(Device& a_Device);
@@ -36,6 +37,8 @@ namespace Amber::Gameboy
 		bool Microstep() override;
 		bool Reset() override;
 
+		void OnLCDModeChange(LCDMode::Enum a_From, LCDMode::Enum a_To) override;
+
 		protected:
 		void OnBreakpointCreate(Common::Breakpoint a_Breakpoint) override;
 		void OnBreakpointDestroy(Common::Breakpoint a_Breakpoint) noexcept override;
@@ -52,6 +55,7 @@ namespace Amber::Gameboy
 
 		Device& m_Device;
 		size_t m_Cycles = 0;
+		bool m_EnteredVBlank = false;
 		bool m_Break = false;
 	};
 }
