@@ -26,6 +26,11 @@ namespace Amber::Gameboy
 
 		uint8_t Load8(uint64_t a_Address) const override;
 
+		// Events
+		size_t GetEventCount() const noexcept override;
+		std::string GetEventName(size_t a_Event) const override;
+
+		// Execution
 		bool Run() override;
 		bool Step() override;
 		bool Microstep() override;

@@ -2,6 +2,7 @@
 
 #include <gameboy/cpu.hpp>
 #include <gameboy/device.hpp>
+#include <gameboy/event.hpp>
 #include <gameboy/mmu.hpp>
 #include <gameboy/ppu.hpp>
 
@@ -75,6 +76,16 @@ uint8_t Debugger::Load8(uint64_t a_Address) const
 {
 	const uint16_t address = static_cast<uint16_t>(a_Address);
 	return m_Device.GetMMU().Load8(address);
+}
+
+size_t Debugger::GetEventCount() const noexcept
+{
+	return Event::Enums.size();
+}
+
+std::string Debugger::GetEventName(size_t a_Event) const
+{
+	return std::string(Event::ToString(static_cast<Event::Enum>(a_Event)).value());
 }
 
 bool Debugger::Run()

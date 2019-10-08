@@ -56,4 +56,5 @@ amber_add_sources(gameboy "devicedescription.hpp" "devicedescription.cpp" FILTER
 
 # Debugging
 amber_add_sources(gameboy "debugger.hpp" "debugger.cpp" FILTER "Debugging/Debugger")
+amber_add_sources(gameboy "event.hpp" FILTER "Debugging/Event")
 amber_add_sources(gameboy "videoviewer.hpp" "videoviewer.cpp" FILTER "Debugging/Video Viewer")

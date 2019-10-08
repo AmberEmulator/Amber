@@ -25,16 +25,69 @@ void Amber::Client::ShowBreakpoints(const char* a_Name, BreakpointsState& a_Stat
 		{
 			for (size_t breakpoint_condition_index = 0; breakpoint_condition_index < a_State.m_NewBreakpointDescription.GetConditionCount(); ++breakpoint_condition_index)
 			{
+				ImGui::PushID(breakpoint_condition_index);
+
 				auto breakpoint_condition = a_State.m_NewBreakpointDescription.GetCondition(breakpoint_condition_index);
+				auto current_condition_name = BreakpointConditionType::ToString(breakpoint_condition.GetType()).value();
+
+				if (ImGui::BeginCombo("##Type", current_condition_name.data()))
+				{
+					for (auto condition_type : BreakpointConditionType::Enums)
+					{
+						if (condition_type == BreakpointConditionType::Event && debugger.GetEventCount() == 0)
+						{
+							continue;
+						}
+
+						const bool is_selected = condition_type == breakpoint_condition.GetType();
+						auto condition_name = BreakpointConditionType::ToString(condition_type).value();
+						if (ImGui::Selectable(condition_name.data(), is_selected))
+						{
+							breakpoint_condition = {};
+							breakpoint_condition.SetType(condition_type);
+						}
+					}
+
+					ImGui::EndCombo();
+				}
 
 				switch (breakpoint_condition.GetType())
 				{
 					case BreakpointConditionType::Execution:
 					{
 						uint64_t address = breakpoint_condition.GetAddress();
-						if (ImGui::InputScalar("Address", ImGuiDataType_U64, &address, nullptr, nullptr, "%04X", ImGuiInputTextFlags_CharsHexadecimal))
+						ImGui::SameLine();
+						if (ImGui::InputScalar("##Address", ImGuiDataType_U64, &address, nullptr, nullptr, "%04X", ImGuiInputTextFlags_CharsHexadecimal))
 						{
 							breakpoint_condition.SetAddress(address);
+						}
+					}
+					break;
+
+					case BreakpointConditionType::Event:
+					{
+						if (debugger.GetEventCount() == 0)
+						{
+							break;
+						}
+
+						auto current_event_name = debugger.GetEventName(breakpoint_condition.GetEvent());
+
+						ImGui::SameLine();
+						if (ImGui::BeginCombo("##Event", current_event_name.c_str()))
+						{
+							for (size_t event_index = 0; event_index < debugger.GetEventCount(); ++event_index)
+							{
+								const bool is_selected = event_index == breakpoint_condition.GetEvent();
+								const auto event_name = debugger.GetEventName(event_index);
+
+								if (ImGui::Selectable(event_name.c_str(), is_selected))
+								{
+									breakpoint_condition.SetEvent(event_index);
+								}
+							}
+
+							ImGui::EndCombo();
 						}
 					}
 					break;

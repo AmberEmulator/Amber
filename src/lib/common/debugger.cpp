@@ -71,6 +71,16 @@ std::optional<size_t> Debugger::GetBreakpointIndex(Breakpoint a_Breakpoint) cons
 	}
 }
 
+size_t Debugger::GetEventCount() const noexcept
+{
+	return 0;
+}
+
+std::string Debugger::GetEventName(size_t a_Event) const
+{
+	return {};
+}
+
 Breakpoint Debugger::CreateBreakpoint(const BreakpointDescription& a_Description)
 {
 	// Initialize breakpoint

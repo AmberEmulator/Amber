@@ -30,6 +30,10 @@ namespace Amber::Common
 
 		virtual uint8_t Load8(uint64_t a_Address) const = 0;
 
+		// Events
+		virtual size_t GetEventCount() const noexcept;
+		virtual std::string GetEventName(size_t a_Event) const;
+
 		// Breakpoints
 		Breakpoint CreateBreakpoint(const BreakpointDescription& a_Description);
 		void DestroyBreakpoint(Breakpoint a_Breakpoint) noexcept;
