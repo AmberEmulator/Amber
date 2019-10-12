@@ -20,6 +20,10 @@ amber_add_sources(client "api.hpp" FILTER "API")
 # Application
 amber_add_sources(client "application.hpp" "application.cpp" FILTER "Client")
 
+# Files
+amber_add_sources(client "configuration.hpp" "configuration.cpp" FILTER "Files/Configuration")
+amber_add_sources(client "path.hpp" "path_win32.cpp" FILTER "Files/Path")
+
 # Graphics
 amber_add_sources(client "texture.hpp" "texture.cpp" FILTER "Graphics/Texture")
 

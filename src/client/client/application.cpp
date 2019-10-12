@@ -1,6 +1,7 @@
 #include <client/application.hpp>
 
 #include <client/breakpoints.hpp>
+#include <client/configuration.hpp>
 #include <client/disassembly.hpp>
 #include <client/gameboywidgets.hpp>
 #include <client/texture.hpp>
@@ -21,8 +22,10 @@
 #include <imgui/imgui_internal.h>
 #include <imgui/imgui_memory_editor.h>
 
+#include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 
 using namespace Amber;
 using namespace Common;
@@ -30,16 +33,32 @@ using namespace Client;
 
 Application::Application()
 {
-	//static std::ofstream out("tracelog.txt");
-	//std::cout.rdbuf(out.rdbuf());
+	// Create application directory
+	m_ApplicationDirectory = Path::GetUserApplicationDirectory() / ".amber";
+	std::filesystem::create_directories(m_ApplicationDirectory);
+
+	// Load configuration
+	m_Configuration.Load(m_ApplicationDirectory / "amber.cfg");
+
+	// Tell imgui to also put its config file in the application directory
+	m_INIPath = (m_ApplicationDirectory / "imgui.ini").string();
+	ImGui::GetIO().IniFilename = m_INIPath.c_str();
+}
+
+Application::~Application()
+{
+	// Save configuration
+	m_Configuration.Save(m_ApplicationDirectory / "amber.cfg");
 }
 
 void Application::Tick()
 {
-	const auto dock_id = ImGui::DockSpaceOverViewport();
+	ShowMenu();
+
+	//const auto dock_id = ImGui::DockSpaceOverViewport();
 
 	// Load cartridge
-	static auto bootrom = []
+	/*static auto bootrom = []
 	{
 		std::ifstream boot("C:\\ROMs\\boot.gb", std::ios::binary | std::ios::ate);
 		std::streamsize boot_size = boot.tellg();
@@ -374,5 +393,56 @@ void Application::Tick()
 	}
 	ImGui::End();
 	
-	ImGui::End();
+	ImGui::End();*/
+}
+
+void Application::ShowMenu()
+{
+	if (ImGui::BeginMainMenuBar())
+	{
+		if (ImGui::BeginMenu("File"))
+		{
+			if (ImGui::MenuItem("Open ROM..."))
+			{
+				auto result = Path::ShowOpenFileDialog();
+				if (result.has_value())
+				{
+					m_Configuration.PushRecentROM(*result);
+				}
+			}
+
+			ImGui::Separator();
+			if (ImGui::BeginMenu("Recent ROMs", m_Configuration.GetRecentROMCount() > 0))
+			{
+				for (size_t rom_index = 0; rom_index < m_Configuration.GetRecentROMCount(); ++rom_index)
+				{
+					const auto& rom = m_Configuration.GetRecentROM(rom_index);
+
+					std::stringstream ss;
+					ss << rom_index + 1;
+					ss << " ";
+					ss << rom.filename().string();
+					ss << " (";
+					ss << rom.parent_path();
+					ss << ")";
+					
+					ImGui::MenuItem(ss.str().c_str());
+				}
+
+				ImGui::EndMenu();
+			}
+
+			ImGui::Separator();
+			ImGui::MenuItem("Exit");
+
+			ImGui::EndMenu();
+		}
+
+		if (ImGui::BeginMenu("View"))
+		{
+			ImGui::EndMenu();
+		}
+
+		ImGui::EndMainMenuBar();
+	}
 }
