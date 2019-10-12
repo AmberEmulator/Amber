@@ -15,10 +15,14 @@ Device::Device(const DeviceDescription& a_Description):
 	m_CPU = std::make_unique<CPU>(*m_MMU);
 	m_PPU = std::make_unique<PPU>(*m_MMU);
 	m_Joypad = std::make_unique<Joypad>();
+	m_VRAM = std::make_unique<RAM>(0x2000);
+	m_WRAM = std::make_unique<RAM>(0x2000);
 
 	m_MMU->SetCPU(m_CPU.get());
 	m_MMU->SetJoypad(m_Joypad.get());
 	m_MMU->SetPPU(m_PPU.get());
+	m_MMU->SetVRAM(m_VRAM.get());
+	m_MMU->SetWRAM(m_WRAM.get());
 
 	m_PPU->SetCPU(m_CPU.get());
 

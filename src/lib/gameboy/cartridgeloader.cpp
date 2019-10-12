@@ -58,7 +58,6 @@ std::unique_ptr<BasicCartridge> CartridgeLoader::CreateCartridge(const Cartridge
 		break;
 
 		default:
-		// TODO: error handling
-		return nullptr;
+		throw std::runtime_error("Cartridge type not supported");
 	}
 }

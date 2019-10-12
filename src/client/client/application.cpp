@@ -43,6 +43,9 @@ Application::Application()
 	// Tell imgui to also put its config file in the application directory
 	m_INIPath = (m_ApplicationDirectory / "imgui.ini").string();
 	ImGui::GetIO().IniFilename = m_INIPath.c_str();
+
+	// Create gameboy device
+	CreateDevice();
 }
 
 Application::~Application()
@@ -53,9 +56,9 @@ Application::~Application()
 
 void Application::Tick()
 {
-	ShowMenu();
-
-	//const auto dock_id = ImGui::DockSpaceOverViewport();
+	ShowError();
+	ShowDockspace();
+	ShowLCD();
 
 	// Load cartridge
 	/*static auto bootrom = []
@@ -68,42 +71,6 @@ void Application::Tick()
 		boot.read(reinterpret_cast<char*>(ram.GetData()), std::min<size_t>(boot_size, ram.GetSize()));
 
 		return ram;
-	}();
-
-	static auto cartridge = []
-	{
-		Gameboy::CartridgeLoader loader;
-
-		std::ifstream file("C:\\ROMs\\test.gb", std::ios::binary | std::ios::ate);
-		//std::streamsize cartidge_size = cartidge.tellg();
-		//cartidge.seekg(0, std::ios::beg);
-		//
-		//Common::RAM<uint16_t, false> ram(0x8000, 1);
-		//cartidge.read(reinterpret_cast<char*>(ram.GetData()), std::min<size_t>(cartidge_size, ram.GetSize()));
-
-		auto cartridge = loader.LoadCartridge(file);
-		std::cout << cartridge->GetHeader().GetTitle() << std::endl;
-		return cartridge;
-	}();
-
-
-	static Common::RAM<uint16_t, false> vram(0x2000);
-	static Common::RAM<uint16_t, false> eram(0x2000);
-	static Common::RAM<uint16_t, false> wram(0x2000);
-	static Common::RAM<uint16_t, false> pad(0x1000);
-
-	// Initialize device
-	static auto device = []
-	{
-		auto device = std::make_unique<Gameboy::Device>(Gameboy::DeviceDescription::DMG);
-
-		auto& mmu = device->GetMMU();
-		mmu.SetBootROM(&bootrom);
-		mmu.SetCartridge(cartridge.get());
-		mmu.SetVRAM(&vram);
-		mmu.SetWRAM(&wram);
-
-		return device;
 	}();
 
 	static Gameboy::VideoViewer video_viewer(vram);
@@ -396,18 +363,104 @@ void Application::Tick()
 	ImGui::End();*/
 }
 
+void Application::CreateDevice()
+{
+	m_Device = std::make_unique<Gameboy::Device>(Gameboy::DeviceDescription::DMG);
+
+	m_LCDTexture = std::make_unique<Texture>(Gameboy::PPU::LCDWidth, Gameboy::PPU::LCDHeight);
+	m_LCDBuffer = std::make_unique<uint8_t[]>(Gameboy::PPU::LCDWidth * Gameboy::PPU::LCDHeight * 4);
+
+
+	//auto& mmu = m_Device->GetMMU();
+	//mmu.SetBootROM(&bootrom);
+}
+
+void Application::LoadCartridge(const std::filesystem::path& a_Cartridge)
+{
+	Gameboy::CartridgeLoader loader;
+
+	std::ifstream file(a_Cartridge, std::ios::binary | std::ios::ate);
+	m_Cartridge = loader.LoadCartridge(file);
+	std::cout << m_Cartridge->GetHeader().GetTitle() << std::endl;
+
+	m_Device->Reset();
+	m_Device->GetMMU().SetCartridge(m_Cartridge.get());
+}
+
+void Application::OpenError(const char* a_Message)
+{
+	m_ErrorMessage = a_Message;
+}
+
+void Application::ShowError()
+{
+	if (m_ErrorMessage.length() != 0)
+	{
+		ImGui::OpenPopup("Error");
+	}
+
+	if (ImGui::BeginPopupModal("Error", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		ImGui::TextUnformatted(m_ErrorMessage.c_str());
+
+		if (ImGui::Button("OK", ImVec2(120, 0)))
+		{
+			ImGui::CloseCurrentPopup();
+			m_ErrorMessage.clear();
+		}
+
+		ImGui::EndPopup();
+	}
+}
+
+void Application::ShowDockspace()
+{
+	const auto viewport = ImGui::GetMainViewport();
+
+	ImGui::SetNextWindowPos(viewport->Pos);
+	ImGui::SetNextWindowSize(viewport->Size);
+	ImGui::SetNextWindowViewport(viewport->ID);
+
+	ImGuiWindowFlags host_window_flags = 0;
+	host_window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDocking;
+	host_window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_MenuBar;
+
+	char label[32];
+	ImFormatString(label, IM_ARRAYSIZE(label), "DockspaceViewport_%08X", viewport->ID);
+
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+	ImGui::Begin(label, NULL, host_window_flags);
+	ImGui::PopStyleVar(3);
+
+	ShowMenu();
+
+	ImGuiID dockspace_id = ImGui::GetID("Dockspace");
+	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f));
+	ImGui::End();
+}
+
 void Application::ShowMenu()
 {
-	if (ImGui::BeginMainMenuBar())
+	if (ImGui::BeginMenuBar())
 	{
 		if (ImGui::BeginMenu("File"))
 		{
 			if (ImGui::MenuItem("Open ROM..."))
 			{
-				auto result = Path::ShowOpenFileDialog();
-				if (result.has_value())
+				try
 				{
-					m_Configuration.PushRecentROM(*result);
+					auto result = Path::ShowOpenFileDialog();
+					if (result.has_value())
+					{
+						LoadCartridge(*result);
+						m_Configuration.PushRecentROM(*result);
+					}
+				}
+				catch (std::exception& a_Exception)
+				{
+					OpenError(a_Exception.what());
 				}
 			}
 
@@ -425,8 +478,18 @@ void Application::ShowMenu()
 					ss << " (";
 					ss << rom.parent_path();
 					ss << ")";
-					
-					ImGui::MenuItem(ss.str().c_str());
+
+					if (ImGui::MenuItem(ss.str().c_str()))
+					{
+						try
+						{
+							LoadCartridge(rom);
+						}
+						catch (std::exception& a_Exception)
+						{
+							OpenError(a_Exception.what());
+						}
+					}
 				}
 
 				ImGui::EndMenu();
@@ -443,6 +506,18 @@ void Application::ShowMenu()
 			ImGui::EndMenu();
 		}
 
-		ImGui::EndMainMenuBar();
+		ImGui::EndMenuBar();
 	}
+}
+
+void Application::ShowLCD()
+{
+	m_Device->GetPPU().Blit(m_LCDBuffer.get(), Gameboy::PPU::LCDWidth);
+	m_LCDTexture->Blit(0, 0, Gameboy::PPU::LCDWidth, Gameboy::PPU::LCDHeight, m_LCDBuffer.get());
+
+	if (ImGui::Begin("LCD", nullptr, ImGuiWindowFlags_HorizontalScrollbar))
+	{
+		ImGui::Image(reinterpret_cast<ImTextureID>(m_LCDTexture->GetNativeHandle()), ImVec2(Gameboy::PPU::LCDWidth * 2, Gameboy::PPU::LCDHeight * 2));
+	}
+	ImGui::End();
 }

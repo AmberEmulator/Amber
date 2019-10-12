@@ -4,6 +4,8 @@
 #include <gameboy/api.hpp>
 #include <gameboy/devicedescription.hpp>
 
+#include <common/ram.hpp>
+
 #include <memory>
 
 namespace Amber::Gameboy
@@ -16,6 +18,9 @@ namespace Amber::Gameboy
 	class GAMEBOY_API Device
 	{
 		public:
+		using ROM = Common::ROM16<false>;
+		using RAM = Common::RAM16<false>;
+
 		Device(const DeviceDescription& a_Description);
 		~Device() noexcept;
 
@@ -36,6 +41,8 @@ namespace Amber::Gameboy
 		std::unique_ptr<CPU> m_CPU;
 		std::unique_ptr<PPU> m_PPU;
 		std::unique_ptr<Joypad> m_Joypad;
+		std::unique_ptr<RAM> m_VRAM;
+		std::unique_ptr<RAM> m_WRAM;
 	};
 }
 
