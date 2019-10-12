@@ -104,7 +104,7 @@ namespace Amber::Gameboy
 		SpriteDrawInfo m_Sprites[10];
 		uint8_t m_SpriteCount;
 		uint8_t m_SpriteY;
-		uint8_t m_CurrentSprite;
+		uint8_t m_NextSprite;
 		uint8_t m_SpriteAttributes;
 
 		// LCD mode
@@ -126,6 +126,7 @@ namespace Amber::Gameboy
 		// Drawing
 		PixelFIFO m_PixelFIFO;
 		TileFetcher m_TileFetcher;
+		bool m_IsFetchingSprite;
 		uint8_t m_DrawX;
 
 		// LCD result buffer

@@ -167,7 +167,7 @@ void PPU::Tick()
 		break;
 
 		case LCDMode::PixelTransfer:
-		if (m_DrawX == LCDWidth + 7 + m_SCX % 8)
+		if (m_DrawX == LCDWidth + 16)
 		{
 			GotoHBlank();
 		}
@@ -302,20 +302,17 @@ void PPU::GotoOAM() noexcept
 
 void PPU::GotoPixelTransfer() noexcept
 {
-	m_CurrentSprite = 0;
+	m_NextSprite = 0;
 
 	const uint8_t screen_y = static_cast<uint8_t>(m_VCounter);
 	const uint8_t scroll_x = m_SCX;
 	const uint8_t scroll_y = screen_y + m_SCY;
-	const uint8_t background_x = scroll_x / 8;
-	const uint8_t background_y = scroll_y / 8;
 
-	const uint16_t background_address = 0x9800 + background_x + background_y * 32;
-	const uint8_t tile_y = scroll_y % 8;
-
-	m_PixelFIFO.Reset();
-	m_TileFetcher.Reset(background_address, tile_y, (m_LCDC & 0b0001'0000) == 0);
-	m_DrawX = 0;
+	m_PixelFIFO.Reset(7);
+	m_PixelFIFO.SetPaused(true);
+	m_TileFetcher.FetchBackgroundTile(scroll_x, scroll_y, m_LCDC);
+	m_IsFetchingSprite = false;
+	m_DrawX = 9 - m_SCX % 8;
 
 	SetLCDMode(LCDMode::PixelTransfer);
 }
@@ -342,7 +339,7 @@ void PPU::OAMSearch() noexcept
 	}
 	
 	// Load the second byte
-	const uint8_t sprite_x = m_OAM[sprite_index * 4 + 1];
+	const uint8_t sprite_x = m_OAM[sprite_index * 4 + 1] + 8;
 
 	// No more than 10 sprites allowed
 	if (m_SpriteCount == 10)
@@ -358,7 +355,7 @@ void PPU::OAMSearch() noexcept
 	}
 
 	// Check if it is on the screen horizontally
-	if (sprite_x == 0 || sprite_x >= 168)
+	if (sprite_x < 9 || sprite_x >= 176)
 	{
 		return;
 	}
@@ -383,7 +380,7 @@ void PPU::OAMSearch() noexcept
 	auto& sprite = m_Sprites[index];
 	sprite.m_SpriteIndex = sprite_index;
 	sprite.m_TileY = extended_screen_y - m_SpriteY;
-	sprite.m_DrawX = sprite_x - 1;
+	sprite.m_DrawX = sprite_x;
 	sprite.m_Attributes = m_OAM[sprite_index * 4 + 3];
 
 	if (sprite.m_Attributes & 0b0100'0000)
@@ -397,11 +394,24 @@ void PPU::OAMSearch() noexcept
 
 void PPU::PixelTransfer() noexcept
 {
-	if (m_CurrentSprite < m_SpriteCount && m_Sprites[m_CurrentSprite].m_DrawX == m_DrawX && !m_TileFetcher.IsFetchingSprite())
+	// Check if the next sprite needs to be drawn at the current pixel
+	const bool hit_sprite = (m_NextSprite < m_SpriteCount && m_Sprites[m_NextSprite].m_DrawX == m_DrawX);
+
+	// If the sprite is hit and not being fetched yet
+	if (hit_sprite && !m_IsFetchingSprite)
 	{
-		m_TileFetcher.PushSpriteFetch(0xFE00 + m_Sprites[m_CurrentSprite].m_SpriteIndex * 4 + 2, m_Sprites[m_CurrentSprite].m_TileY);
-		m_SpriteAttributes = m_Sprites[m_CurrentSprite].m_Attributes;
-		++m_CurrentSprite;
+		// Pause the fifo
+		m_PixelFIFO.SetPaused(true);
+
+		// Start fetching the sprite when there are enough pixels in the FIFO
+		// The only time the FIFO does not have enough pixels is at the start line rendering
+		if (m_PixelFIFO.GetPixelCount() >= 8)
+		{
+			auto& sprite = m_Sprites[m_NextSprite];
+
+			m_TileFetcher.FetchSprite(sprite.m_SpriteIndex, sprite.m_TileY, sprite.m_Attributes);
+			m_IsFetchingSprite = true;
+		}
 	}
 
 	if ((m_HCounter & 1) == 0)
@@ -410,22 +420,42 @@ void PPU::PixelTransfer() noexcept
 
 		if (m_TileFetcher.IsDone())
 		{
-			if (m_TileFetcher.IsFetchingSprite())
+			if (m_IsFetchingSprite)
 			{
-				m_PixelFIFO.MixSprite(m_TileFetcher.GetColors(), m_SpriteAttributes);
-				m_TileFetcher.PopSpriteFetch();
+				m_PixelFIFO.MixSprite(m_TileFetcher.GetColors(), m_Sprites[m_NextSprite].m_Attributes);
+
+				++m_NextSprite;
+				m_IsFetchingSprite = false;
+
+				// Check if the next sprite is also in this exact position
+				if (m_NextSprite < m_SpriteCount && m_Sprites[m_NextSprite].m_DrawX == m_DrawX)
+				{
+					return;
+				}
+
+				// Start fetching the next tile
+				// The next fetch position is at SCX + the current drawing position + the number of pixels that have already been fetched
+				const uint8_t screen_y = static_cast<uint8_t>(m_VCounter);
+				const uint8_t fetch_x = static_cast<uint8_t>((m_SCX + (m_DrawX - 16)) + m_PixelFIFO.GetPixelCount());
+				const uint8_t fetch_y = screen_y + m_SCY;
+				m_TileFetcher.FetchBackgroundTile(fetch_x, fetch_y, m_LCDC);
+
+				// Resume FIFO if it has enough pixels
+				if (m_PixelFIFO.GetPixelCount() >= 8)
+				{
+					m_PixelFIFO.SetPaused(false);
+				}
 			}
 			else if (m_PixelFIFO.GetPixelCount() <= 8)
 			{
 				m_PixelFIFO.Push(m_TileFetcher.GetColors(), PixelSource::Background);
 				m_TileFetcher.Next();
+				if (m_PixelFIFO.GetPixelCount() > 8 && !hit_sprite)
+				{
+					m_PixelFIFO.SetPaused(false);
+				}
 			}
 		}
-	}
-
-	if (m_TileFetcher.IsFetchingSprite())
-	{
-		return;
 	}
 
 	const Pixel pixel = m_PixelFIFO.Pop();
@@ -433,9 +463,12 @@ void PPU::PixelTransfer() noexcept
 	{
 		return;
 	}
+	if (m_PixelFIFO.GetPixelCount() <= 8)
+	{
+		m_PixelFIFO.SetPaused(true);
+	}
 
-	const uint8_t draw_offset = 7 + m_SCX % 8;
-	if (m_DrawX < draw_offset)
+	if (m_DrawX < 16)
 	{
 		++m_DrawX;
 		return;
@@ -461,7 +494,7 @@ void PPU::PixelTransfer() noexcept
 
 	const uint8_t color = (palette >> (pixel.GetColor() * 2)) & 0b11;
 
-	const uint8_t screen_x = m_DrawX - draw_offset;
+	const uint8_t screen_x = m_DrawX - 16;
 	const uint8_t screen_y = static_cast<uint8_t>(m_VCounter);
 	SetPixel(screen_x, screen_y, color);
 	++m_DrawX;

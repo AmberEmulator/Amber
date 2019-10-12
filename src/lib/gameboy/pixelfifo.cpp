@@ -38,6 +38,16 @@ size_t PixelFIFO::GetPixelCount() const noexcept
 	return m_PixelCount;
 }
 
+bool PixelFIFO::IsEmpty() const noexcept
+{
+	return GetPixelCount() == 0;
+}
+
+bool PixelFIFO::IsPaused() const noexcept
+{
+	return m_Paused;
+}
+
 void PixelFIFO::Push(Pixel a_Pixel) noexcept
 {
 	m_PixelData |= static_cast<uint64_t>(a_Pixel.GetData()) << (m_PixelCount * 4);
@@ -65,12 +75,13 @@ Pixel PixelFIFO::GetPixel(size_t a_Index) const noexcept
 void PixelFIFO::SetPixel(size_t a_Index, Pixel a_Pixel) noexcept
 {
 	const uint64_t mask = ~(0b1111_u64 << (a_Index * 4));
-	m_PixelData |= (m_PixelData & mask) | static_cast<uint64_t>(a_Pixel.GetData()) << (a_Index * 4);
+	const uint64_t data = static_cast<uint64_t>(a_Pixel.GetData()) << (a_Index * 4);
+	m_PixelData = (m_PixelData & mask) | data;
 }
 
 Pixel PixelFIFO::Pop() noexcept
 {
-	if (m_PixelCount > 8)
+	if (!IsPaused() && !IsEmpty())
 	{
 		Pixel pixel(m_PixelData & 0b1111);
 		m_PixelData >>= 4;
@@ -81,6 +92,11 @@ Pixel PixelFIFO::Pop() noexcept
 	{
 		return {};
 	}
+}
+
+void PixelFIFO::SetPaused(bool a_Paused) noexcept
+{
+	m_Paused = a_Paused;
 }
 
 void PixelFIFO::MixSprite(const uint8_t a_Colors[2], uint8_t a_Attributes) noexcept
@@ -95,7 +111,6 @@ void PixelFIFO::MixSprite(const uint8_t a_Colors[2], uint8_t a_Attributes) noexc
 
 	const PixelSource::Enum source = (a_Attributes & PaletteAttributeMask) ? PixelSource::Sprite1 : PixelSource::Sprite0;
 
-	// TODO: mix sprite with existing data
 	for (uint8_t i = 0; i < 8; ++i)
 	{
 		const Pixel destination = GetPixel(i);
@@ -126,8 +141,8 @@ void PixelFIFO::MixSprite(const uint8_t a_Colors[2], uint8_t a_Attributes) noexc
 	}
 }
 
-void PixelFIFO::Reset()
+void PixelFIFO::Reset(size_t a_PixelCount)
 {
 	m_PixelData = 0;
-	m_PixelCount = 7;
+	m_PixelCount = a_PixelCount;
 }
