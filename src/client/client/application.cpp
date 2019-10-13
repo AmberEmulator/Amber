@@ -416,6 +416,16 @@ void Application::ShowError()
 void Application::ShowDockspace()
 {
 	const auto viewport = ImGui::GetMainViewport();
+	const ImGuiID dockspace_id = ImGui::GetID("Dockspace");
+
+	ImGui::ShowDemoWindow();
+
+	if (ImGui::DockBuilderGetNode(dockspace_id) == nullptr)
+	{
+		ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_DockSpace);
+		ImGui::DockBuilderDockWindow("LCD", dockspace_id);
+		ImGui::DockBuilderFinish(dockspace_id);
+	}
 
 	ImGui::SetNextWindowPos(viewport->Pos);
 	ImGui::SetNextWindowSize(viewport->Size);
@@ -425,18 +435,14 @@ void Application::ShowDockspace()
 	host_window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDocking;
 	host_window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_MenuBar;
 
-	char label[32];
-	ImFormatString(label, IM_ARRAYSIZE(label), "DockspaceViewport_%08X", viewport->ID);
-
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-	ImGui::Begin(label, NULL, host_window_flags);
+	ImGui::Begin("Main", NULL, host_window_flags);
 	ImGui::PopStyleVar(3);
 
 	ShowMenu();
 
-	ImGuiID dockspace_id = ImGui::GetID("Dockspace");
 	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f));
 	ImGui::End();
 }
